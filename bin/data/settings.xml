@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<Settings>
+	<Scale_Factor>1</Scale_Factor>
+	<F_I__Global>0.1</F_I__Global>
+	<F_I__IDLE>-0.1</F_I__IDLE>
+	<F_I__WALK>-0.1</F_I__WALK>
+	<F_I__WALK_TO_IDLE_1>0.08</F_I__WALK_TO_IDLE_1>
+	<F_I__WALK_TO_IDLE_2>0.08</F_I__WALK_TO_IDLE_2>
+	<F_I__RUN>-0.1</F_I__RUN>
+	<F_I__RUN_TO_IDLE_1>0.07</F_I__RUN_TO_IDLE_1>
+	<F_I__RUN_TO_IDLE_2>0.07</F_I__RUN_TO_IDLE_2>
+</Settings>
