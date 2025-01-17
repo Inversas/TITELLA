@@ -63,7 +63,7 @@ void MovementManager::updateRegion() {
 
 
 // Inicia el movimiento especificado por su nombre
-void MovementManager::playMovement(const std::string& movementName) {
+void MovementManager::playMovement(const std::string& movementName, int region) {
     
     // Verifica si el movimiento especificado existe en el mapa de movimientos
     if (movements.count(movementName)) {
@@ -78,7 +78,7 @@ void MovementManager::playMovement(const std::string& movementName) {
         currentRow = currentMovement->row;
         
         // Establece la región inicial del movimiento
-        currentRegion = 0;
+        currentRegion = region;
     }
 }
 

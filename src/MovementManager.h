@@ -20,8 +20,9 @@ public:
     void update(float currentTime);
     
     // Inicia el movimiento especificado por su nombre
-    void playMovement(const std::string& movementName);
-    
+    // Con parámetro opcional para la región inicial
+    void playMovement(const std::string& movementName, int region = 0);
+
     // Maneja la transición de un movimiento a otro
     void handleTransition();
     
@@ -76,4 +77,5 @@ private:
         
     // Maneja la lógica de actualización de frames y transiciones
     void updateRegion();
+    
 };
