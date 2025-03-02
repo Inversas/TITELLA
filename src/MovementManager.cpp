@@ -42,6 +42,9 @@ void MovementManager::updateRegion() {
        if (currentRegion == targetRegion) {
            //Ya no espera transición
            waitingForTransition = false;
+           
+           std::cout << "!!! DISPARAR TRANSICION : !!!" << std::endl;
+           std::cout << getControlKeys() << std::endl;
 
            //EVALUAR CONTROLKEYS
            //Si se mantiene alguna de estas combinaciones la transición será de TURN
@@ -69,6 +72,10 @@ void MovementManager::updateRegion() {
     // Si el movimiento actual es una transición y se ha completado,
     if (currentMovement->isTransition && currentRegion >= currentMovement->numRegions) {
                 
+        std::cout << "!!! TRANSICION COMPLETADA : !!!" << std::endl;
+        std::cout << getControlKeys() << std::endl;
+
+
         //Si es TURN, se invierte la dirección y evaluamos ControlKeys de nuevo
         if(   currentMovementName == "TURN"
            || currentMovementName == "WALK_TURN_1"
@@ -89,7 +96,8 @@ void MovementManager::updateRegion() {
                || getControlKeys() == "1 + -->"
                || getControlKeys() == "1 + <--"
                || getControlKeys() == "1 + --> + <--"
-               || getControlKeys() == "1 + <-- + -->"){
+               || getControlKeys() == "1 + <-- + -->"
+               ){
                 
                 if(currentMovementName == "WALK_TURN_1"){
                     playMovement("WALK", 3);
@@ -101,25 +109,26 @@ void MovementManager::updateRegion() {
                     playMovement("RUN", 10);
                 }
                 if(currentMovementName == "RUN_TURN_2"){
-                    
                     playMovement("RUN", 4);
                 }
+                //Evalua las teclas de control
+                handleControlKeys();
             }
+          
 
         }
         //Si no es TURN, va a IDLE pero después evalua las teclas de control
         else {
-            std::cout << "!!! FIXARSE !!!" << std::endl;
-            
+            std::cout << "!!! CASO IDLE 1 MOV: "  << currentMovementName << "!!!" << std::endl;
+
             // Vuelve al movimiento "IDLE"
             playMovement("IDLE");
             
             //Limpia controlKeys
             cleanControlKeys();
         }
-
-        //Evalua las teclas de control
         handleControlKeys();
+
         
         // Salimos de la función
         return;
@@ -176,7 +185,27 @@ void MovementManager::handleTransition() {
     }
     // Si no hay transiciones disponibles, reproduce el movimiento "IDLE"
     else {
-        playMovement("IDLE");
+        std::cout << "!!! CASO IDLE 2 MOV: "  << currentMovementName << "!!!" << std::endl;
+        
+        if(currentMovementName == "WALK_TURN_1"){
+            playMovement("WALK", 3);
+            handleControlKeys();
+        }
+        else if(currentMovementName == "WALK_TURN_2"){
+            playMovement("WALK");
+            handleControlKeys();
+        }
+        else if(currentMovementName == "RUN_TURN_1"){
+            playMovement("RUN", 10);
+            handleControlKeys();
+        }
+        else if(currentMovementName == "RUN_TURN_2"){
+            playMovement("RUN", 4);
+            handleControlKeys();
+        }
+        else {
+            playMovement("IDLE");
+        }
     }
 }
 
@@ -218,7 +247,6 @@ void MovementManager::handleControlKeys(){
                 playMovement("TURN");
             }
             else if(currentMovementName != "RUN"){
-                std::cout << "!!! START RUN !!!" << std::endl;
                 playMovement("RUN");
             }
         
@@ -229,7 +257,6 @@ void MovementManager::handleControlKeys(){
                 playMovement("TURN");
             }
             else if(currentMovementName != "RUN"){
-                std::cout << "!!! START RUN !!!" << std::endl;
                 playMovement("RUN");
             }
         
@@ -252,7 +279,8 @@ void MovementManager::handleControlKeys(){
         // Lógica para manejar la tecla 1 OFF
         } else if (getControlKeys() == "1 OFF") {
             //std::cout << "1 OFF" << std::endl;
-            
+            handleTransition();
+
         // Lógica para manejar la combinación 1 + --> OFF
         } else if (getControlKeys() == "1 + --> OFF") {
             handleTransition();
@@ -350,15 +378,12 @@ void MovementManager::handleControlKeys(){
             }
             
         // Lógica para manejar "NONE"
-        } else  if (getControlKeys() == "NONE") { {
-            std::cout << "NONE" << std::endl;
+        } else  if (getControlKeys() == "NONE") {
             
-            //Si el movimiento no es IDLE
-            if(currentMovementName != "IDLE"){
-                    //Start IDLE
-                    playMovement("IDLE");
-            }
-        }
+            std::cout << "!!! CASO IDLE 3 MOV: "  << currentMovementName << "!!!" << std::endl;
+                playMovement("IDLE", currentRegion);
+          
+            
         // ESC
         } else  if (getControlKeys() == "Salir") { {
             std::cout << "Salir" << std::endl;
@@ -367,6 +392,7 @@ void MovementManager::handleControlKeys(){
         } else {
             std::cout << "Movimiento no reconocido" << std::endl;
         }
+        
         
         //Limpia controlKeys
         cleanControlKeys();
