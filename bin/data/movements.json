@@ -6,9 +6,10 @@
       "numRegions": 8,
       "isTransition": false,
       "frameInterval": -0.1,
-      "key": "NONE",
+      "keys": ["NONE"],
       "transitionRegions": [],
-      "transitions": {}
+      "transitions": {},
+      "turn_transitions": {}
     },
     "WALK": {
       "name": "WALK",
@@ -16,11 +17,15 @@
       "numRegions": 8,
       "isTransition": false,
       "frameInterval": -0.1,
-      "key": "OF_KEY_RIGHT",
+      "keys": ["-->", "<--"],
       "transitionRegions": [1, 5],
       "transitions": {
         "5": "WALK_TO_IDLE_1",
         "1": "WALK_TO_IDLE_2"
+      },
+      "turn_transitions": {
+        "5": "WALK_TURN_1",
+        "1": "WALK_TURN_2"
       }
     },
     "WALK_TO_IDLE_1": {
@@ -29,9 +34,10 @@
       "numRegions": 6,
       "isTransition": true,
       "frameInterval": -0.1,
-      "key": "NONE",
+      "keys": ["NONE"],
       "transitionRegions": [],
-      "transitions": {}
+      "transitions": {},
+      "turn_transitions": {}
     },
     "WALK_TO_IDLE_2": {
       "name": "WALK_TO_IDLE_2",
@@ -39,9 +45,10 @@
       "numRegions": 6,
       "isTransition": true,
       "frameInterval": -0.1,
-      "key": "NONE",
+      "keys": ["NONE"],
       "transitionRegions": [],
-      "transitions": {}
+      "transitions": {},
+      "turn_transitions": {}
     },
     "RUN": {
       "name": "RUN",
@@ -49,11 +56,15 @@
       "numRegions": 12,
       "isTransition": false,
       "frameInterval": -0.1,
-      "key": "NONE",
+      "keys": ["NONE"],
       "transitionRegions": [5,11],
       "transitions": {
         "5": "RUN_TO_IDLE_1",
         "11": "RUN_TO_IDLE_2"
+      },
+      "turn_transitions": {
+        "5": "RUN_TURN_1",
+        "11": "RUN_TURN_2"
       }
     },
     "RUN_TO_IDLE_1": {
@@ -62,9 +73,10 @@
       "numRegions": 6,
       "isTransition": true,
       "frameInterval": -0.1,
-      "key": "NONE",
+      "keys": ["NONE"],
       "transitionRegions": [],
-      "transitions": {}
+      "transitions": {},
+      "turn_transitions": {}
     },
     "RUN_TO_IDLE_2": {
       "name": "RUN_TO_IDLE_2",
@@ -72,9 +84,65 @@
       "numRegions": 6,
       "isTransition": true,
       "frameInterval": -0.1,
-      "key": "NONE",
+      "keys": ["NONE"],
       "transitionRegions": [],
-      "transitions": {}
-    }
+      "transitions": {},
+      "turn_transitions": {}
+    },
+    "TURN": {
+         "name": "TURN",
+         "row": 7,
+         "numRegions": 7,
+         "isTransition": true,
+         "frameInterval": -0.1,
+         "keys": ["NONE"],
+         "transitionRegions": [],
+         "transitions": {},
+         "turn_transitions": {}
+    },
+    "WALK_TURN_1": {
+     	 "name": "WALK_TURN_1",
+         "row": 8,
+         "numRegions": 6,
+         "isTransition": true,
+         "frameInterval": -0.1,
+         "keys": ["NONE"],
+         "transitionRegions": [],
+         "transitions": {},
+         "turn_transitions": {}
+  	},
+    "WALK_TURN_2": {
+     	 "name": "WALK_TURN_2",
+         "row": 9,
+         "numRegions": 6,
+         "isTransition": true,
+         "frameInterval": -0.1,
+         "keys": ["NONE"],
+         "transitionRegions": [],
+         "transitions": {},
+         "turn_transitions": {}
+  	},
+    "RUN_TURN_1": {
+     	 "name": "RUN_TURN_1",
+         "row": 10,
+         "numRegions": 6,
+         "isTransition": true,
+         "frameInterval": -0.1,
+         "keys": ["NONE"],
+         "transitionRegions": [],
+         "transitions": {},
+         "turn_transitions": {}
+    },
+    "RUN_TURN_2": {
+     	 "name": "RUN_TURN_2",
+         "row": 11,
+         "numRegions": 6,
+         "isTransition": true,
+         "frameInterval": -0.1,
+         "keys": ["NONE"],
+         "transitionRegions": [],
+         "transitions": {},
+         "turn_transitions": {}
+    }   
   }
 }

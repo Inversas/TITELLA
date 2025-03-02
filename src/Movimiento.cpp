@@ -7,6 +7,6 @@ Movement::Movement(
              int numRegions,          // Número de fotogramas
              bool isTransition,       // Si es transición
              float frameInterval,     // Velocidad predeterminada
-             int key                  // Tecla asociada
+             set<string> keys         // Teclas asociadas
              ) : name(name), row(row), numRegions(numRegions),
-    isTransition(isTransition), frameInterval(frameInterval), key(key) {}
+    isTransition(isTransition), frameInterval(frameInterval), keys(keys) {}

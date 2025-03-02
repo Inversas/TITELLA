@@ -25,6 +25,15 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     gui.add(runFrameIntervalGui.setup("F.I. RUN", 0.1f, 0.01, 0.5));
     gui.add(runToIdle1FrameIntervalGui.setup("F.I. RUN_TO_IDLE_1", 0.1f, 0.01, 0.5));
     gui.add(runToIdle2FrameIntervalGui.setup("F.I. RUN_TO_IDLE_2", 0.1f, 0.01, 0.5));
+    gui.add(turnFrameIntervalGui.setup("F.I. TURN", 0.1f, 0.01, 0.5));
+    gui.add(walkTurn1FrameIntervalGui.setup("F.I. WALK_TURN_1", 0.1f, 0.01, 0.5));
+    gui.add(walkTurn2FrameIntervalGui.setup("F.I. WALK_TURN_2", 0.1f, 0.01, 0.5));
+    gui.add(runTurn1FrameIntervalGui.setup("F.I. RUN_TURN_1", 0.1f, 0.01, 0.5));
+    gui.add(runTurn2FrameIntervalGui.setup("F.I. RUN_TURN_2", 0.1f, 0.01, 0.5));
+    
+    gui.add(controlKeysGui.setup("", "NONE"));
+    gui.add(currentMovementName.setup("MOV", "IDLE"));
+
     
     // Inicializar los sliders con los valores actuales
     frameIntervalGui = movementManager.getFrameInterval();
@@ -35,11 +44,15 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     runFrameIntervalGui = movementManager.getMovementFrameInterval("RUN");
     runToIdle1FrameIntervalGui = movementManager.getMovementFrameInterval("RUN_TO_IDLE_1");
     runToIdle2FrameIntervalGui = movementManager.getMovementFrameInterval("RUN_TO_IDLE_2");
+    turnFrameIntervalGui = movementManager.getMovementFrameInterval("TURN");
+    walkTurn1FrameIntervalGui = movementManager.getMovementFrameInterval("WALK_TURN_1");
+    walkTurn2FrameIntervalGui = movementManager.getMovementFrameInterval("WALK_TURN_2");
+    runTurn1FrameIntervalGui = movementManager.getMovementFrameInterval("RUN_TURN_1");
+    runTurn2FrameIntervalGui = movementManager.getMovementFrameInterval("RUN_TURN_2");
 
     
     // Asociar listeners a los sliders
     scaleFactorGui.addListener(this, &GUIManager::onScaleFactorChanged);
-    
     frameIntervalGui.addListener(this, &GUIManager::onFrameIntervalChanged);
     idleFrameIntervalGui.addListener(this, &GUIManager::onIdleFrameIntervalChanged);
     walkFrameIntervalGui.addListener(this, &GUIManager::onWalkFrameIntervalChanged);
@@ -48,6 +61,12 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     runFrameIntervalGui.addListener(this, &GUIManager::onRunFrameIntervalChanged);
     runToIdle1FrameIntervalGui.addListener(this, &GUIManager::onRunToIdle1FrameIntervalChanged);
     runToIdle2FrameIntervalGui.addListener(this, &GUIManager::onRunToIdle2FrameIntervalChanged);
+    turnFrameIntervalGui.addListener(this, &GUIManager::onTurnFrameIntervalChanged);
+    walkTurn1FrameIntervalGui.addListener(this, &GUIManager::onWalkTurn1FrameIntervalChanged);
+    walkTurn2FrameIntervalGui.addListener(this, &GUIManager::onWalkTurn2FrameIntervalChanged);
+    runTurn1FrameIntervalGui.addListener(this, &GUIManager::onRunTurn1FrameIntervalChanged);
+    runTurn2FrameIntervalGui.addListener(this, &GUIManager::onRunTurn2FrameIntervalChanged);
+    
 }
 
 void GUIManager::update() {
@@ -66,6 +85,13 @@ void GUIManager::update() {
     // Actualiza Frame Interval Actual en la GUI como String
     //TO DO se debería ver el FramInterval Global, no el que se esta usando en el moviento.
     currentMovementFrameIntervalGui = std::to_string(movementManager->getCurrentMovementFrameInterval());
+    
+    // Actualiza las teclas de control en la GUI
+    controlKeysGui = movementManager->getControlKeys();
+    
+    // Actualiza el nombre del movimiento actual en la GUI
+    currentMovementName = movementManager->currentMovementName;
+
 }
 
 
@@ -111,4 +137,23 @@ void GUIManager::onRunToIdle2FrameIntervalChanged(float& value) {
     movementManager->setMovementFrameInterval("RUN_TO_IDLE_2", value);
 }
 
+void GUIManager::onTurnFrameIntervalChanged(float& value) {
+    movementManager->setMovementFrameInterval("TURN", value);
+}
+
+void GUIManager::onWalkTurn1FrameIntervalChanged(float& value) {
+    movementManager->setMovementFrameInterval("WALK_TURN_1", value);
+}
+
+void GUIManager::onWalkTurn2FrameIntervalChanged(float& value) {
+    movementManager->setMovementFrameInterval("WALK_TURN_2", value);
+}
+
+void GUIManager::onRunTurn1FrameIntervalChanged(float& value) {
+    movementManager->setMovementFrameInterval("RUN_TURN_1", value);
+}
+
+void GUIManager::onRunTurn2FrameIntervalChanged(float& value) {
+    movementManager->setMovementFrameInterval("RUN_TURN_2", value);
+}
 #pragma endregion

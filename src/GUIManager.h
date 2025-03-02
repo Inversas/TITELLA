@@ -26,6 +26,16 @@ private:
     ofxFloatSlider runFrameIntervalGui;  // Slider para RUN
     ofxFloatSlider runToIdle1FrameIntervalGui; // Slider para RunToIdle1
     ofxFloatSlider runToIdle2FrameIntervalGui; // Sliedr para RunToIdle2
+    ofxFloatSlider turnFrameIntervalGui; // Slider para TURN
+    ofxFloatSlider walkTurn1FrameIntervalGui; // Slider para WalkTurn1
+    ofxFloatSlider walkTurn2FrameIntervalGui; // Slider para WalkTurn2
+    ofxFloatSlider runTurn2FrameIntervalGui; // Slider para RunTurn2
+    ofxFloatSlider runTurn1FrameIntervalGui; // Slider para RunTurn1
+    
+    ofxLabel controlKeysGui; // Label para mostrar las teclas de control
+    ofxLabel currentMovementName; // Label para mostrar el nombre del movimiento actual
+
+
     MovementManager* movementManager;        // Añadimos una referencia a MovementManager
     SpriteSheetManager* spriteSheetManager;  // Añadimos una referencia a SpriteSheetManager
     
@@ -43,5 +53,11 @@ private:
     void onRunFrameIntervalChanged(float& value);  // Callback para RUN
     void onRunToIdle1FrameIntervalChanged(float& value); // Callback para RunToIdle1
     void onRunToIdle2FrameIntervalChanged(float& value); // Callback para RunToIdle1
+    void onTurnFrameIntervalChanged(float& value); // Callback para TURN
+    void onWalkTurn1FrameIntervalChanged(float& value); // Callback para WalkTurn1
+    void onWalkTurn2FrameIntervalChanged(float& value); // Callback para WalkTurn2
+    void onRunTurn1FrameIntervalChanged(float& value); // Callback para RunTurn1
+    void onRunTurn2FrameIntervalChanged(float& value); // Callback para RunTurn2
+
     
 };

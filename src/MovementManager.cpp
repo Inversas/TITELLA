@@ -8,8 +8,8 @@ void MovementManager::setup(const std::string& filename, SpriteSheetManager& spr
     loadMovements(filename);
     // Establece el movimiento actual en "IDLE" utilizando el movimiento cargado desde el JSON
     currentMovement = std::make_unique<Movement>(movements["IDLE"]);
+    
 }
-
 
 // Actualiza el estado del MovementManager basado en el tiempo actual.
 void MovementManager::update(float currentTime) {
@@ -32,28 +32,100 @@ void MovementManager::updateRegion() {
 
     // Incrementa la región actual
     currentRegion++;
-
-    // Si se está esperando una transición,
+    
+    //*** ESPERANDO TRANSICIÓN ***//
+    // Si se está esperando una transición
     if (waitingForTransition) {
+        
+       //*** DISPARAR TRANSICIÓN ***//
        // Si la región actual alcanza el objetivo de transición,
        if (currentRegion == targetRegion) {
            //Ya no espera transición
            waitingForTransition = false;
-           //Realiza la transición
-           playMovement(currentMovement->transitions[targetRegion]);
+
+           //EVALUAR CONTROLKEYS
+           //Si se mantiene alguna de estas combinaciones la transición será de TURN
+           if(   getControlKeys() == "-->"
+              || getControlKeys() == "<--"
+              || getControlKeys() == "--> + <--"
+              || getControlKeys() == "<-- + -->"
+              || getControlKeys() == "1 + -->"
+              || getControlKeys() == "1 + <--"
+              || getControlKeys() == "1 + --> + <--"
+              || getControlKeys() == "1 + <-- + -->"){
+               playMovement(currentMovement->turn_transitions[targetRegion]);
+           }
+           //Si no la transición será de STOP
+           else {
+               //Realiza la transición
+               playMovement(currentMovement->transitions[targetRegion]);
+           }
            // Salimos de la función
            return;
        }
     }
 
+    //*** TRANSICIÓN COMPLETADA ***//
     // Si el movimiento actual es una transición y se ha completado,
     if (currentMovement->isTransition && currentRegion >= currentMovement->numRegions) {
-        // Vuelve al movimiento "IDLE"
-        playMovement("IDLE");
+                
+        //Si es TURN, se invierte la dirección y evaluamos ControlKeys de nuevo
+        if(   currentMovementName == "TURN"
+           || currentMovementName == "WALK_TURN_1"
+           || currentMovementName == "WALK_TURN_2"
+           || currentMovementName == "RUN_TURN_1"
+           || currentMovementName == "RUN_TURN_2" ){
+            
+            // Invierte la dirección
+            toggleIsFacingRight();
+            
+            
+            //EVALUAR CONTROLKEYS
+            //Si se mantiene alguna de estas combinaciones debemos seguir WALK o RUN
+            if(   getControlKeys() == "-->"
+               || getControlKeys() == "<--"
+               || getControlKeys() == "--> + <--"
+               || getControlKeys() == "<-- + -->"
+               || getControlKeys() == "1 + -->"
+               || getControlKeys() == "1 + <--"
+               || getControlKeys() == "1 + --> + <--"
+               || getControlKeys() == "1 + <-- + -->"){
+                
+                if(currentMovementName == "WALK_TURN_1"){
+                    playMovement("WALK", 3);
+                }
+                if(currentMovementName == "WALK_TURN_2"){
+                    playMovement("WALK");
+                }
+                if(currentMovementName == "RUN_TURN_1"){
+                    playMovement("RUN", 10);
+                }
+                if(currentMovementName == "RUN_TURN_2"){
+                    
+                    playMovement("RUN", 4);
+                }
+            }
+
+        }
+        //Si no es TURN, va a IDLE pero después evalua las teclas de control
+        else {
+            std::cout << "!!! FIXARSE !!!" << std::endl;
+            
+            // Vuelve al movimiento "IDLE"
+            playMovement("IDLE");
+            
+            //Limpia controlKeys
+            cleanControlKeys();
+        }
+
+        //Evalua las teclas de control
+        handleControlKeys();
+        
         // Salimos de la función
         return;
     }
-
+    
+    //*** MOVIMIENTO BUCLE ***//
     // Si la región actual alcanza el último frame,
     if (currentRegion >= currentMovement->numRegions) {
        // Vuelve al primer frame (para movimientos en bucle)
@@ -62,28 +134,10 @@ void MovementManager::updateRegion() {
 }
 
 
-// Inicia el movimiento especificado por su nombre
-void MovementManager::playMovement(const std::string& movementName, int region) {
-    
-    // Verifica si el movimiento especificado existe en el mapa de movimientos
-    if (movements.count(movementName)) {
-        
-        // Actualiza el movimiento actual utilizando el movimiento especificado
-        currentMovement = std::make_unique<Movement>(movements[movementName]);
-        
-        // Actualiza el nombre del movimiento actual
-        currentMovementName = movementName;
-        
-        // Establece la fila inicial del movimiento
-        currentRow = currentMovement->row;
-        
-        // Establece la región inicial del movimiento
-        currentRegion = region;
-    }
-}
 
 
-// Maneja las transiciones entre movimientos.
+
+//*** DETERMINAR REGIÓN DE TRANSICIÓN ***//
 void MovementManager::handleTransition() {
     
     // Obtiene una referencia al movimiento actual
@@ -94,54 +148,344 @@ void MovementManager::handleTransition() {
     // Variable para guardar el Nombre de la transición a ejecutar
     std::string transitionName;
     
-    // Encuentra la región de transición más cercana
+    
+    //*** ENCUENTRA LA REGIÓN DE TRANSICIÓN MÁS CERCANA ***//
     for (int region : movement.transitionRegions) {
         
         // Verifica si la región es mayor que la región actual
         // Y si es la más cercana encontrada hasta ahora
         if (region > currentRegion && (closestRegion == -1 || region < closestRegion)) {
-            
             // Actualiza la región de transición más cercana
             closestRegion = region;
-            // Obtiene el nombre de la transición para esa región
-            transitionName = movement.transitions[region];
         }
     }
-    
     // Si no se encontró una región de transición cercana, usa la primera disponible
     if (closestRegion == -1 && !movement.transitionRegions.empty()) {
-        
         // Usa la primera región de transición disponible
         closestRegion = movement.transitionRegions[0];
-        
-        // Obtiene el nombre de la transición para esa región
-        transitionName = movement.transitions[closestRegion];
     }
     
-    // Si se encontró una región de transición válida, establece el objetivo de transición
+    //*** DEFINE LA REGIÓN DE TRANSICIÓN ENCONTRADA ***//
+    // Si se encontró una región de transición válida
     if (closestRegion != -1) {
-        
         // Establece la región objetivo para la transición
         targetRegion = closestRegion;
         
         // Indica que se está esperando una transición
         waitingForTransition = true;
-    } else {
-        // Si no hay transiciones, reproduce al movimiento "IDLE"
+    }
+    // Si no hay transiciones disponibles, reproduce el movimiento "IDLE"
+    else {
         playMovement("IDLE");
     }
 }
 
+    
+//*** MANEJO DE TECLAS DE CONTROL ***//
+void MovementManager::handleControlKeys(){
+
+    //*** RESPETA TRANSICIONES ***//
+    if(!waitingForTransition){
+        
+        // Lógica para manejar la tecla -->
+        if (getControlKeys() == "-->") {
+            //Si el personaje no está mirando hacia la derecha
+            if(!getIsFacingRight()){
+                playMovement("TURN");
+            }
+            else if(currentMovementName != "WALK") {
+                playMovement("WALK");
+            }
+        
+        // Lógica para manejar la tecla <--
+        } else if (getControlKeys() == "<--") {
+            //Si el personaje está mirando hacia la derecha
+            if(getIsFacingRight()){
+                playMovement("TURN");
+            }
+            else if(currentMovementName != "WALK") {
+                playMovement("WALK");
+            }
+        
+        // Lógica para manejar la tecla 1
+        } else if (getControlKeys() == "1") {
+            //std::cout << "1" << std::endl;
+            
+        // Lógica para manejar la combinación 1 + -->
+        } else if (getControlKeys() == "1 + -->") {
+            //Si el personaje no está mirando hacia la derecha
+            if(!getIsFacingRight()){
+                playMovement("TURN");
+            }
+            else if(currentMovementName != "RUN"){
+                std::cout << "!!! START RUN !!!" << std::endl;
+                playMovement("RUN");
+            }
+        
+        // Lógica para manejar la combinación 1 + <--
+        } else if (getControlKeys() == "1 + <--") {
+            //Si el personaje está mirando hacia la derecha
+            if(getIsFacingRight()){
+                playMovement("TURN");
+            }
+            else if(currentMovementName != "RUN"){
+                std::cout << "!!! START RUN !!!" << std::endl;
+                playMovement("RUN");
+            }
+        
+        // Lógica para manejar la combinación <-- + 1
+        } else if (getControlKeys() == "<-- + 1") {
+            handleWalkToRun();
+            
+        // Lógica para manejar la combinación --> + 1
+        } else if (getControlKeys() == "--> + 1") {
+            handleWalkToRun();
+        
+        // Lógica para manejar la tecla --> OFF
+        } else if (getControlKeys() == "--> OFF") {
+            handleTransition();
+            
+        // Lógica para manejar la tecla <-- OFF
+        } else if (getControlKeys() == "<-- OFF") {
+            handleTransition();
+        
+        // Lógica para manejar la tecla 1 OFF
+        } else if (getControlKeys() == "1 OFF") {
+            //std::cout << "1 OFF" << std::endl;
+            
+        // Lógica para manejar la combinación 1 + --> OFF
+        } else if (getControlKeys() == "1 + --> OFF") {
+            handleTransition();
+        
+        // Lógica para manejar la combinación 1 + <-- OFF
+        } else if (getControlKeys() == "1 + <-- OFF") {
+            handleTransition();
+        
+        // Lógica para manejar la combinación <-- + 1 OFF
+        } else if (getControlKeys() == "<-- + 1 OFF") {
+            handleRunToWalk();
+            
+        // Lógica para manejar la combinación --> + 1 OFF
+        } else if (getControlKeys() == "--> + 1 OFF") {
+            handleRunToWalk();
+            
+        // Lógica para manejar la combinación --> + <--
+        } else if (getControlKeys() == "--> + <--") {
+            //Si el personaje está mirando hacia la derecha
+            if(getIsFacingRight()){
+                handleTransition();
+            }
+            else if(currentMovementName != "WALK") {
+                playMovement("WALK",currentRegion);
+            }
+            
+        // Lógica para manejar la combinación <-- + -->
+        } else if (getControlKeys() == "<-- + -->") {
+            //Si el personaje no está mirando hacia la derecha
+            if(!getIsFacingRight()){
+                handleTransition();
+            }
+            else if(currentMovementName != "WALK") {
+                playMovement("WALK",currentRegion);
+            }
+            
+        // Lógica para manejar la combinación <-- + --> OFF
+        } else if (getControlKeys() == "<-- + --> OFF") {
+            //Si el personaje está mirando hacia la derecha
+            if(getIsFacingRight()){
+                handleTransition();
+            }
+            else if(currentMovementName != "WALK") {
+                playMovement("WALK",currentRegion);
+            }
+            
+        // Lógica para manejar la combinación --> + <-- OFF
+        } else if (getControlKeys() == "--> + <-- OFF") {
+            //Si el personaje no está mirando hacia la derecha
+            if(!getIsFacingRight()){
+                handleTransition();
+            }
+            else if(currentMovementName != "WALK") {
+                playMovement("WALK",currentRegion);
+            }
+            
+        // Lógica para manejar la combinación 1 + --> + <--
+        } else if (getControlKeys() == "1 + --> + <--") {
+            //Si el personaje está mirando hacia la derecha
+            if(getIsFacingRight()){
+                handleTransition();
+            }
+            else if(currentMovementName != "RUN") {
+                playMovement("RUN",currentRegion);
+            }
+            
+        // Lógica para manejar la combinación 1 + <-- + -->
+        } else if (getControlKeys() == "1 + <-- + -->") {
+            //Si el personaje no está mirando hacia la derecha
+            if(!getIsFacingRight()){
+                handleTransition();
+            }
+            else if(currentMovementName != "RUN") {
+                playMovement("RUN",currentRegion);
+            }
+           
+        // Lógica para manejar la combinación 1 + --> + <--
+        } else if (getControlKeys() == "1 + --> + <-- OFF") {
+            //Si el personaje no está mirando hacia la derecha
+            if(!getIsFacingRight()){
+                handleTransition();
+            }
+            else if(currentMovementName != "RUN") {
+                playMovement("RUN",currentRegion);
+            }
+            
+        // Lógica para manejar la combinación 1 + <-- + -->
+        } else if (getControlKeys() == "1 + <-- + --> OFF") {
+            //Si el personaje está mirando hacia la derecha
+            if(getIsFacingRight()){
+                handleTransition();
+            }
+            else if(currentMovementName != "RUN") {
+                playMovement("RUN",currentRegion);
+            }
+            
+        // Lógica para manejar "NONE"
+        } else  if (getControlKeys() == "NONE") { {
+            std::cout << "NONE" << std::endl;
+            
+            //Si el movimiento no es IDLE
+            if(currentMovementName != "IDLE"){
+                    //Start IDLE
+                    playMovement("IDLE");
+            }
+        }
+        // ESC
+        } else  if (getControlKeys() == "Salir") { {
+            std::cout << "Salir" << std::endl;
+        }
+        // Movimiento no reconocido
+        } else {
+            std::cout << "Movimiento no reconocido" << std::endl;
+        }
+        
+        //Limpia controlKeys
+        cleanControlKeys();
+    }
+}
+
+void MovementManager::cleanControlKeys(){
+    if (getControlKeys() == "--> OFF") {
+        setControlKeys("NONE");
+    } else if (getControlKeys() == "<-- OFF") {
+        setControlKeys("NONE");
+    } else if (getControlKeys() == "1 OFF") {
+        setControlKeys("NONE");
+    } else if (getControlKeys() == "1 + --> OFF") {
+        setControlKeys("1");
+    } else if (getControlKeys() == "1 + <-- OFF") {
+        setControlKeys("1");
+    } else if (getControlKeys() == "<-- + 1 OFF") {
+        setControlKeys("<--");
+    } else if (getControlKeys() == "--> + 1 OFF") {
+        setControlKeys("-->");
+    } else if (getControlKeys() == "<-- + --> OFF") {
+        setControlKeys("<--");
+    } else if (getControlKeys() == "--> + <-- OFF") {
+        setControlKeys("-->");
+    } else if (getControlKeys() == "1 + <-- + --> OFF") {
+        setControlKeys("1 + <--");
+    } else if (getControlKeys() == "1 + --> + <-- OFF") {
+        setControlKeys("1 + -->");
+    }
+}
+    
+    
+//*** INICIA MOVIMIENTO ***//
+void MovementManager::playMovement(const std::string& movementName, int region) {
+
+    // !!! PARA MONITORIZAR EN LA GUI !!! //
+    // CUANDO NO HAGA FALTA MONITORIZAR LO METEMOS EN EL IF
+    // Actualiza el nombre del movimiento actual
+    currentMovementName = movementName;
+    
+    // Verifica si el movimiento especificado existe en el mapa de movimientos
+    if (movements.count(movementName)) {
+        
+        // Actualiza el movimiento actual utilizando el movimiento especificado
+        currentMovement = std::make_unique<Movement>(movements[movementName]);
+        
+        
+        // Actualiza el nombre del movimiento actual
+        //currentMovementName = movementName;
+        
+        
+        // Establece la fila inicial del movimiento
+        currentRow = currentMovement->row;
+        
+        // Establece la región inicial del movimiento
+        currentRegion = region;
+    }
+}
+    
+//*** MANEJO DE MOVIMIENTOS CONCRETOS ***//
+// Implementación de handleWalkToRun
+void MovementManager::handleWalkToRun() {
+    // Si el movimiento actual es WALK
+    if (currentMovementName == "WALK") {
+        //std::cout << "WALK TO RUN" << std::endl;
+        // Obtener la región actual de WALK
+        int currentRegion = getCurrentRegion();
+        // Obtener la región de RUN correspondiente
+        int runRegion = walkToRunRegionMap[currentRegion];
+        // Activar el movimiento RUN con la región correspondiente
+        playMovement("RUN", runRegion);
+    }
+}
+// Implementación de handleRun
+void MovementManager::handleRun() {
+    // Si RUN no es el movimiento actual
+    if (currentMovementName != "RUN") {
+        //std::cout << "RUN" << std::endl;
+        // Activar RUN
+        playMovement("RUN");
+    }
+}
+// Implementación de handleRunToWalk
+void MovementManager::handleRunToWalk() {
+    // Si el movimiento actual es RUN
+    if (currentMovementName == "RUN") {
+        //std::cout << "RUN TO WALK" << std::endl;
+        // Obtener la región actual de RUN
+        int currentRegion = getCurrentRegion();
+        // Obtener la región de WALK correspondiente
+        int walkRegion = runToWalkRegionMap[currentRegion];
+        // Activar el movimiento WALK con la región correspondiente
+        playMovement("WALK", walkRegion);
+    }
+}
+
+    
+    
 
 // Actualiza los intervalos de frame desde la GUI.
 void MovementManager::updateFrameIntervalFromGUI() {
     // Lógica para actualizar los intervalos de frame desde la GUI (a completar)
 }
 
-
 // Determina si se debe actualizar la región en función del tiempo transcurrido y el intervalo de frame
 bool MovementManager::shouldUpdateRegion(float currentTime, float interval) const {
     return currentMovement && (currentTime - lastUpdateTime >= interval);
+}
+
+
+
+// Set ControlKeys
+void MovementManager::setControlKeys(const std::string& value) {
+    controlKeys = value;
+}
+// Get ControlKeys
+std::string MovementManager::getControlKeys() const {
+    return controlKeys;
 }
 
 
@@ -186,7 +530,10 @@ float MovementManager::getMovementFrameInterval(const std::string& movementName)
     return 0.1f;
 }
 
-
+//Obtiene la dirección del personaje
+bool MovementManager::getIsFacingRight() {
+    return isFacingRight;
+}
 
 //SETS
 // Establece el intervalo de fotogramas global
@@ -201,7 +548,10 @@ void MovementManager::setMovementFrameInterval(const std::string& movementName, 
     }
 }
 
-
+// Establece la dirección del personaje
+void MovementManager::toggleIsFacingRight() {
+    isFacingRight = !isFacingRight;
+}
 
 // Carga los movimientos desde un archivo JSON.
 void MovementManager::loadMovements(const std::string& filename) {
@@ -224,7 +574,11 @@ void MovementManager::loadMovements(const std::string& filename) {
         movement.numRegions = jsonMovement["numRegions"].asInt();
         movement.isTransition = jsonMovement["isTransition"].asBool();
         movement.frameInterval = jsonMovement["frameInterval"].asFloat();
-        movement.key = mapKeyStringToCode(jsonMovement["key"].asString());
+        
+        // Convertir el array JSON a un set de strings
+        for (const auto& key : jsonMovement["keys"]) {
+            movement.keys.insert(key.asString());
+        }
 
         // Carga las regiones de transición del movimiento
         for (const auto& region : jsonMovement["transitionRegions"]) {
@@ -234,6 +588,11 @@ void MovementManager::loadMovements(const std::string& filename) {
         // Carga las transiciones del movimiento
         for (const auto& transition : jsonMovement["transitions"].getMemberNames()) {
             movement.transitions[std::stoi(transition)] = jsonMovement["transitions"][transition].asString();
+        }
+        
+        // Carga las transiciones del movimiento
+        for (const auto& transition : jsonMovement["transitions"].getMemberNames()) {
+            movement.turn_transitions[std::stoi(transition)] = jsonMovement["turn_transitions"][transition].asString();
         }
 
         // Añade el movimiento al mapa de movimientos

@@ -1,52 +1,81 @@
 #include "ofApp.h"
 
-void ofApp::setup() {
-    
-    ofSetFrameRate(60);
-    spriteSheetManager.loadSpriteSheet("ProvaTest_2.png");
-    
-    // Configura el gestor de movimientos con "movements.json"
-    movementManager.setup("movements.json", spriteSheetManager);
-    
-    // Configura el gestor de la GUI con los gestores de movimientos y de sprites
-    guiManager.setup(movementManager, spriteSheetManager);
-    
-    // Configura el gestor de entradas con el gestor de movimientos
-    inputManager.setup(movementManager);
+//--------------------------------------------------------------
+void ofApp::setup(){
+
 }
 
+//--------------------------------------------------------------
+void ofApp::update(){
 
-void ofApp::update() {
-    
-    // Obtiene el tiempo transcurrido en segundos desde que se ha ejectuado la aplicación
-    float currentTime = ofGetElapsedTimef();
-
-    // Actualiza el gestor de movimientos con el tiempo actual
-    movementManager.update(currentTime);
-    
-    // Actualiza el gestor de la GUI
-    guiManager.update();
 }
 
+//--------------------------------------------------------------
+void ofApp::draw(){
 
-void ofApp::draw() {
-    
-    // Dibuja el sprite actual basado en el gestor de movimientos
-    spriteSheetManager.draw(movementManager.getCurrentRow(), movementManager.getCurrentRegion());
-    
-    //Dibuja la GUI
-    guiManager.draw();
 }
 
+//--------------------------------------------------------------
+void ofApp::exit(){
 
-void ofApp::keyPressed(int key) {
-    
-    // Maneja la pulsación de una tecla
-    inputManager.keyPressed(key);
 }
 
-void ofApp::keyReleased(int key) {
-    
-    // Maneja la liberación de una tecla
-    inputManager.keyReleased(key);
+//--------------------------------------------------------------
+void ofApp::keyPressed(int key){
+
+}
+
+//--------------------------------------------------------------
+void ofApp::keyReleased(int key){
+
+}
+
+//--------------------------------------------------------------
+void ofApp::mouseMoved(int x, int y ){
+
+}
+
+//--------------------------------------------------------------
+void ofApp::mouseDragged(int x, int y, int button){
+
+}
+
+//--------------------------------------------------------------
+void ofApp::mousePressed(int x, int y, int button){
+
+}
+
+//--------------------------------------------------------------
+void ofApp::mouseReleased(int x, int y, int button){
+
+}
+
+//--------------------------------------------------------------
+void ofApp::mouseScrolled(int x, int y, float scrollX, float scrollY){
+
+}
+
+//--------------------------------------------------------------
+void ofApp::mouseEntered(int x, int y){
+
+}
+
+//--------------------------------------------------------------
+void ofApp::mouseExited(int x, int y){
+
+}
+
+//--------------------------------------------------------------
+void ofApp::windowResized(int w, int h){
+
+}
+
+//--------------------------------------------------------------
+void ofApp::gotMessage(ofMessage msg){
+
+}
+
+//--------------------------------------------------------------
+void ofApp::dragEvent(ofDragInfo dragInfo){ 
+
 }
