@@ -55,7 +55,12 @@ void MovementManager::updateRegion() {
               || getControlKeys() == "1 + -->"
               || getControlKeys() == "1 + <--"
               || getControlKeys() == "1 + --> + <--"
-              || getControlKeys() == "1 + <-- + -->"){
+              || getControlKeys() == "1 + <-- + -->"
+              || getControlKeys() == "<-- + --> OFF"
+              || getControlKeys() == "--> + <-- OFF"
+              || getControlKeys() == "1 + --> + <-- OFF"
+              || getControlKeys() == "1 + <-- + --> OFF"
+              ){
                playMovement(currentMovement->turn_transitions[targetRegion]);
            }
            //Si no la transición será de STOP
@@ -97,6 +102,10 @@ void MovementManager::updateRegion() {
                || getControlKeys() == "1 + <--"
                || getControlKeys() == "1 + --> + <--"
                || getControlKeys() == "1 + <-- + -->"
+               || getControlKeys() == "<-- + --> OFF"
+               || getControlKeys() == "--> + <-- OFF"
+               || getControlKeys() == "1 + --> + <-- OFF"
+               || getControlKeys() == "1 + <-- + --> OFF"
                ){
                 
                 if(currentMovementName == "WALK_TURN_1"){
