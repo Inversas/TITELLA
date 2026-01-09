@@ -87,7 +87,7 @@ void GUIManager::update() {
     currentMovementFrameIntervalGui = std::to_string(movementManager->getCurrentMovementFrameInterval());
     
     // Actualiza las teclas de control en la GUI
-    controlKeysGui = movementManager->getControlKeys();
+    //controlKeysGui = movementManager->getControlKeys();
     
     // Actualiza el nombre del movimiento actual en la GUI
     currentMovementName = movementManager->currentMovementName;
