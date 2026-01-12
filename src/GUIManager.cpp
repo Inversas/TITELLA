@@ -12,10 +12,6 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     
     // Añadir los sliders a la GUI
     gui.add(scaleFactorGui.setup("Scale Factor", 1.0f, 0.5, 3.0));
-    gui.add(currentRowGui.setup("Current Row", "0"));
-    gui.add(currentRegionGui.setup("Current Region", "0"));
-    
-    gui.add(NextOutRegionGui.setup("Next Out Region", ""));
     gui.add(currentMovementFrameIntervalGui.setup("F.I. Movement", ""));
     gui.add(frameIntervalGui.setup("F.I. Global", 0.1f, 0.01, 0.5));
     
@@ -33,10 +29,16 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     gui.add(runTurn1FrameIntervalGui.setup("F.I. RUN_TURN_1", 0.1f, 0.01, 0.5));
     gui.add(runTurn2FrameIntervalGui.setup("F.I. RUN_TURN_2", 0.1f, 0.01, 0.5));
     
+    
+    gui.add(currentRowGui.setup("Current Row", "0"));
+    gui.add(currentRegionGui.setup("Current Region", "0"));
+    gui.add(currentMovementName.setup("MOV", "IDLE"));
+    gui.add(NextOutRegionGui.setup("Next Out Region", ""));
+    gui.add(currentState.setup("STATE", "IDLE"));
     gui.add(controlKeysGui.setup("", "NONE"));
     gui.add(currentIntention.setup("INTENT", "NO WANTS"));
-    gui.add(currentMovementName.setup("MOV", "IDLE"));
-    gui.add(currentState.setup("STATE", "IDLE"));
+
+
     
     // Inicializar los sliders con los valores actuales
     frameIntervalGui = movementManager.getFrameInterval();
@@ -86,7 +88,7 @@ void GUIManager::update() {
     if (! movementManager->isWaitingForTransition()) {
         NextOutRegionGui = "-";
     } else {
-        NextOutRegionGui = movementManager->getNextRegionToGo() == -1 ? "N/A" : std::to_string(movementManager->getNextRegionToGo());
+        NextOutRegionGui = movementManager->getNextOutRegion() == -1 ? "N/A" : std::to_string(movementManager->getNextOutRegion());
     }
     
     // Actualiza Frame Interval Actual en la GUI como String

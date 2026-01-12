@@ -417,8 +417,8 @@ int MovementManager::getCurrentRegion() const {
     return currentRegion;
 }
 
-// Obtiene la siguiente región a la que debe llegar.
-int MovementManager::getNextRegionToGo() const {
+// Obtiene la siguiente región a la que debe llegar (Siguiente Punto de Salida).
+int MovementManager::getNextOutRegion() const {
     return targetRegion;
 }
 

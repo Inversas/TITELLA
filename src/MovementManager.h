@@ -81,7 +81,7 @@ public:
     // Obtiene la región actual (frame) del sprite sheet correspondiente al movimiento actual.
     int getCurrentRegion() const;
     // Obtiene la siguiente región a la que debe llegar.
-    int getNextRegionToGo() const;
+    int getNextOutRegion() const;
     // Obtiene el intervalo de frame del movimiento actual, si está definido, de lo contrario utiliza el intervalo global. (en public porque la GUI la usa)
     float getCurrentMovementFrameInterval() const;
     // Obtiene el intervalo de fotogramas global
