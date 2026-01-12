@@ -3,11 +3,11 @@
 #include "ofxGui.h"
 #include "MovementManager.h"
 #include "SpriteSheetManager.h"
-
+#include "InputManager.h"
 
 class GUIManager {
 public:
-    void setup(MovementManager& movementManager, SpriteSheetManager& spriteSheetManager);
+    void setup(MovementManager& movementManager, SpriteSheetManager& spriteSheetManager, InputManager& inputManager);
     void update();
     void draw();
 
@@ -18,7 +18,7 @@ private:
     ofxLabel currentMovementFrameIntervalGui;
     ofxLabel currentRowGui;
     ofxLabel currentRegionGui;
-    ofxLabel NextRegionToGoGui;
+    ofxLabel NextOutRegionGui;
     ofxFloatSlider idleFrameIntervalGui; // Slider para IDLE
     ofxFloatSlider walkFrameIntervalGui; // Slider para WALK
     ofxFloatSlider walkToIdle1FrameIntervalGui; // Slider para WalkToIdle1
@@ -33,12 +33,14 @@ private:
     ofxFloatSlider runTurn1FrameIntervalGui; // Slider para RunTurn1
     
     ofxLabel controlKeysGui; // Label para mostrar las teclas de control
+    ofxLabel currentIntention; // Label para mostrar la Intención Actual
     ofxLabel currentMovementName; // Label para mostrar el nombre del movimiento actual
+    ofxLabel currentState;         // Para el estado actual
 
 
     MovementManager* movementManager;        // Añadimos una referencia a MovementManager
     SpriteSheetManager* spriteSheetManager;  // Añadimos una referencia a SpriteSheetManager
-    
+    InputManager* inputManager;        // Añadimos una referencia a InputManager
 
     
     // Callback for the scale factor slider

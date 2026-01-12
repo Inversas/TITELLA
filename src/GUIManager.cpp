@@ -1,9 +1,10 @@
 #include "GUIManager.h"
 
-void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spriteSheetManager) {
+void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spriteSheetManager, InputManager& inputManager) {
     
     this->movementManager = &movementManager;        // Guardamos la referencia a MovementManager
     this->spriteSheetManager = &spriteSheetManager;  // Guardamos la referencia a SpriteSheetManager
+    this->inputManager = &inputManager;              // Guardamos la referencia a InputManager
     
     // Inicializar GUI
     gui.setup("Settings");
@@ -13,7 +14,8 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     gui.add(scaleFactorGui.setup("Scale Factor", 1.0f, 0.5, 3.0));
     gui.add(currentRowGui.setup("Current Row", "0"));
     gui.add(currentRegionGui.setup("Current Region", "0"));
-    gui.add(NextRegionToGoGui.setup("Next Region To Go", ""));
+    
+    gui.add(NextOutRegionGui.setup("Next Out Region", ""));
     gui.add(currentMovementFrameIntervalGui.setup("F.I. Movement", ""));
     gui.add(frameIntervalGui.setup("F.I. Global", 0.1f, 0.01, 0.5));
     
@@ -32,8 +34,9 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     gui.add(runTurn2FrameIntervalGui.setup("F.I. RUN_TURN_2", 0.1f, 0.01, 0.5));
     
     gui.add(controlKeysGui.setup("", "NONE"));
+    gui.add(currentIntention.setup("INTENT", "NO WANTS"));
     gui.add(currentMovementName.setup("MOV", "IDLE"));
-
+    gui.add(currentState.setup("STATE", "IDLE"));
     
     // Inicializar los sliders con los valores actuales
     frameIntervalGui = movementManager.getFrameInterval();
@@ -80,18 +83,24 @@ void GUIManager::update() {
     currentRegionGui = std::to_string(movementManager->getCurrentRegion());
     
     // Obtiene la siguiente región a llegar antes de transición en String; si es -1, asigna "N/A"
-    NextRegionToGoGui = movementManager->getNextRegionToGo() == -1 ? "N/A" : std::to_string(movementManager->getNextRegionToGo());
+    if (! movementManager->isWaitingForTransition()) {
+        NextOutRegionGui = "-";
+    } else {
+        NextOutRegionGui = movementManager->getNextRegionToGo() == -1 ? "N/A" : std::to_string(movementManager->getNextRegionToGo());
+    }
     
     // Actualiza Frame Interval Actual en la GUI como String
     //TO DO se debería ver el FramInterval Global, no el que se esta usando en el moviento.
     currentMovementFrameIntervalGui = std::to_string(movementManager->getCurrentMovementFrameInterval());
     
-    // Actualiza las teclas de control en la GUI
-    //controlKeysGui = movementManager->getControlKeys();
+    // Actualizar las teclas presionadas
+    controlKeysGui = inputManager->getPressedKeysAsString();
+
+    // Actualizar las intenciones
+    currentIntention = inputManager->getIntentsAsString();
     
     // Actualiza el nombre del movimiento actual en la GUI
     currentMovementName = movementManager->currentMovementName;
-
 }
 
 

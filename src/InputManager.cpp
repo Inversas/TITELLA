@@ -101,6 +101,85 @@ InputState InputManager::getState() const {
     return currentInputState;
 }
 
+//*** GETS GUI ***
+// Retorna un string con las teclas presionadas en formato:  "LEFT + RIGHT + 1"
+std::string InputManager::getPressedKeysAsString() const {
+    
+    // Si no hay teclas presionadas, retornamos un string vacío
+    if (pressedKeys.empty()) {
+      return "No Pressed";
+    }
+    
+    std::string result = "";
+    
+    // 1. Recorrer el directionStack en orden (mantiene el orden cronológico)
+    for (int i = 0; i < directionStack.size(); ++i) {
+        int key = directionStack[i];
+        
+        // Convertir el código de tecla a su nombre
+        if (key == OF_KEY_LEFT) {
+            if (! result.empty()) result += " + ";
+            result += "<--";
+        }
+        else if (key == OF_KEY_RIGHT) {
+            if (!result.empty()) result += " + ";
+            result += "-->";
+        }
+    }
+    
+    // 2. Si la tecla "1" (RUN) está presionada, añadirla al final
+    if (pressedKeys. count(49)) {  // 49 es el código ASCII de '1'
+        if (!result. empty()) result += " + ";
+        result += "1";
+    }
+    
+    // 3. Si no hay teclas válidas pero SÍ hay presionadas, mostrar "No Pressed Valid"
+    if (result.empty()) {
+        result = "No Pressed Valid";
+    }
+    
+    return result;
+}
+
+
+
+
+// Retorna un string con las intenciones en formato: "WANTS LEFT + WANTS RIGHT + WANTS RUN"
+// Si no hay intenciones activas, retorna "NO WANTS"
+std::string InputManager::getIntentsAsString() const {
+    
+    std::string result = "";
+    
+    // Si hay RUN con dirección, mostrar solo eso (no sumar las direcciones)
+    if (currentInputState.wantsRun && (currentInputState.wantsLeft || currentInputState. wantsRight)) {
+        if (currentInputState.wantsLeft) {
+            result = "WANTS RUN LEFT";
+        }
+        else if (currentInputState.wantsRight) {
+            result = "WANTS RUN RIGHT";
+        }
+    }
+    // Si no hay RUN, mostrar solo la dirección
+    else {
+        if (currentInputState.wantsLeft) {
+            result += "WANTS LEFT";
+        }
+        
+        if (currentInputState.wantsRight) {
+            if (!result.empty()) result += " + ";
+            result += "WANTS RIGHT";
+        }
+    }
+
+    // Si no hay intenciones activas, retornar "NO WANTS"
+    if (result.empty()) {
+        result = "NO WANTS";
+    }
+        
+    return result;
+}
+
+
 
 
 

@@ -95,6 +95,16 @@ public:
     //std::string getCurrentMovementName() const { return currentMovementName; }
     
     
+    //*** GETS GUI ***
+    // Retorna true si está esperando una transición, false en caso contrario
+    bool isWaitingForTransition() const;
+
+    // Retorna un string con el estado actual del personaje
+    // Valores posibles: "IDLE", "WALKING", "RUNNING", "TURNING", "STOPPING"
+    std::string getCurrentState() const;
+    
+    
+    
     //*** SETS ***//
     // Establece el intervalo de fotogramas global
     void setFrameInterval(float interval);

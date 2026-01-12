@@ -43,6 +43,14 @@ public:
     // Devuelve el estado actual de las intenciones (lo consulta MovementManager)
     InputState getState() const;
     
+    
+    
+    //*** GETS GUI ***
+    //Consultar teclas presionadas
+    std::string getPressedKeysAsString() const;
+    //Consultar Intenciones
+    std::string getIntentsAsString() const;
+    
 private:
     
     /*

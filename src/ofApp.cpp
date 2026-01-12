@@ -11,7 +11,7 @@ void ofApp::setup() {
     movementManager.setup("movements.json", spriteSheetManager, inputManager);
     
     // Configura el gestor de la GUI con los gestores de movimientos y de sprites
-    guiManager.setup(movementManager, spriteSheetManager);
+    guiManager.setup(movementManager, spriteSheetManager, inputManager);
     
 }
 

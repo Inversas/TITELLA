@@ -451,6 +451,28 @@ bool MovementManager::getIsFacingRight() {
     return isFacingRight;
 }
 
+//*** GETS GUI ***
+bool MovementManager::isWaitingForTransition() const {
+    return waitingForTransition;
+}
+
+std::string MovementManager::getCurrentState() const {
+    switch (currentState) {
+        case MovementState::IDLE:
+            return "IDLE";
+        case MovementState::WALKING:
+            return "WALKING";
+        case MovementState::RUNNING:
+            return "RUNNING";
+        case MovementState:: TURNING:
+            return "TURNING";
+        case MovementState:: STOPPING:
+            return "STOPPING";
+        default:
+            return "UNKNOWN";
+    }
+}
+
 //SETS
 // Establece el intervalo de fotogramas global
 void MovementManager::setFrameInterval(float interval) {
