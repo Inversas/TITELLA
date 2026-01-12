@@ -29,7 +29,7 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     gui.add(runTurn1FrameIntervalGui.setup("F.I. RUN_TURN_1", 0.1f, 0.01, 0.5));
     gui.add(runTurn2FrameIntervalGui.setup("F.I. RUN_TURN_2", 0.1f, 0.01, 0.5));
     
-    
+    //*** LABELS ***
     gui.add(currentRowGui.setup("Current Row", "0"));
     gui.add(currentRegionGui.setup("Current Region", "0"));
     gui.add(currentMovementName.setup("MOV", "IDLE"));
@@ -76,7 +76,7 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
 
 void GUIManager::update() {
     // Actualiza en el FrameInterval del gestor de movimientos los valores de la GUI
-    movementManager->updateFrameIntervalFromGUI();
+    movementManager->setFrameIntervalFromGUI();
     
     // Actualiza Fila Actual en la GUI como String
     currentRowGui = std::to_string(movementManager->getCurrentRow());

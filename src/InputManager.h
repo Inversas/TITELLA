@@ -2,13 +2,14 @@
 
 #include "MovementManager.h"
 
-//yo no lo tenía y funcionaba igual
+//Esto comentado y funcionaba igual
 //#include <set>      // Necesario para std::set
 
-//de momento lo comento ya veremos si hace falta
+//De momento lo comento ya veremos si hace falta
 //#include <vector> // Necesario para la pila de direcciones
 
-//*** ESTRUCTURA DE ESTADO DE ENTRADA ***//
+
+//*** ESTRUCTURA DE ESTADO DE ENTRADA (WANT / INTENCION) ***//
 // Contiene la "foto" de las intenciones del jugador en un momento dado.
 struct InputState {
     bool wantsLeft = false;         // El jugador quiere ir a la izquierda
@@ -24,14 +25,7 @@ class InputManager {
     
 public:
     
-    
-    // !!! No necesitamos la referencia al MovementManager !!! //
-    /*
-    // Inicia el gestor de entradas con una referencia al gestor de movimientos
-    void setup(MovementManager& movementManager);
-    */
-    
-    // Inicia el gestor de entradas
+    // Inicia el Gestor de Entradas
     void setup();
     
     // Maneja la pulsación de una tecla (llamado desde ofApp)
@@ -40,27 +34,21 @@ public:
     // Maneja la liberación de una tecla (llamado desde ofApp)
     void keyReleased(int key);
     
-    // Devuelve el estado actual de las intenciones (lo consulta MovementManager)
-    InputState getState() const;
+    //*** GET ESTADO DE ENTRADA ACTUAL (WANT) ***
+    // Devuelve el estado de entrada actual (WANT) de las intenciones (lo consultará el MovementManager)
+    InputState getInputState() const;
     
     
     
-    //*** GETS GUI ***
+    //*** GETS EXCLUSIVOS PARA GUI ***
     //Consultar teclas presionadas
     std::string getPressedKeysAsString() const;
-    //Consultar Intenciones
+    //Consultar Intenciones (WANT)
     std::string getIntentsAsString() const;
     
 private:
-    
-    /*
-    // Puntero al gestor de movimientos
-    MovementManager* movementManager;
-    */
-    
-    // Traduce las teclas físicas y la pila a intenciones (InputState)
-    void updateInputState();
-    
+   
+  
     
     // Conjunto de todas las teclas físicas pulsadas actualmente (no sabe quien llego ultimo)
     //Si el sistema operativo te envía 10 veces la señal de que la tecla '1' está pulsada (porque la dejas mantenida), el set solo guarda una.
@@ -71,4 +59,7 @@ private:
     
     // Almacena las intenciones traducidas (la "caja" de estados)
     InputState currentInputState;
+    
+    // Traduce las teclas físicas y la pila a intenciones (InputState)
+    void updateInputState();
 };

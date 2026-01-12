@@ -12,13 +12,17 @@ public:
     void draw();
 
 private:
+    //*** GUI ***
     ofxPanel gui;
+    
+    //*** SLIDERS ***
     ofxFloatSlider scaleFactorGui;
+    
+    //*** TIME SLIDERS ***
     ofxFloatSlider frameIntervalGui; // Slider para Tiempo Global
     ofxLabel currentMovementFrameIntervalGui;
-    ofxLabel currentRowGui;
-    ofxLabel currentRegionGui;
-    ofxLabel NextOutRegionGui;
+    
+    //*** TIME SLIDERS SPECIFIC MOVEMENT ***
     ofxFloatSlider idleFrameIntervalGui; // Slider para IDLE
     ofxFloatSlider walkFrameIntervalGui; // Slider para WALK
     ofxFloatSlider walkToIdle1FrameIntervalGui; // Slider para WalkToIdle1
@@ -29,14 +33,17 @@ private:
     ofxFloatSlider turnFrameIntervalGui; // Slider para TURN
     ofxFloatSlider walkTurn1FrameIntervalGui; // Slider para WalkTurn1
     ofxFloatSlider walkTurn2FrameIntervalGui; // Slider para WalkTurn2
-    ofxFloatSlider runTurn2FrameIntervalGui; // Slider para RunTurn2
     ofxFloatSlider runTurn1FrameIntervalGui; // Slider para RunTurn1
+    ofxFloatSlider runTurn2FrameIntervalGui; // Slider para RunTurn2
     
+    //*** LABELS ***
+    ofxLabel currentRowGui;
+    ofxLabel currentRegionGui;
+    ofxLabel currentMovementName; // Label para mostrar el nombre del movimiento actual
+    ofxLabel NextOutRegionGui;
+    ofxLabel currentState;         // Para el estado actual
     ofxLabel controlKeysGui; // Label para mostrar las teclas de control
     ofxLabel currentIntention; // Label para mostrar la Intención Actual
-    ofxLabel currentMovementName; // Label para mostrar el nombre del movimiento actual
-    ofxLabel currentState;         // Para el estado actual
-
 
     MovementManager* movementManager;        // Añadimos una referencia a MovementManager
     SpriteSheetManager* spriteSheetManager;  // Añadimos una referencia a SpriteSheetManager

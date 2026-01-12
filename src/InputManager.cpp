@@ -1,6 +1,6 @@
 #include "InputManager.h"
 
-// Iniciar el InputManager
+// Iniciar el Gestor de Entradas
 void InputManager::setup() {
     // Limpiamos el conjunto de teclas y el conjunto de direcciones por seguridad al iniciar
     pressedKeys.clear();
@@ -68,20 +68,16 @@ void InputManager::updateInputState() {
     currentInputState.wantsRun = false;
     currentInputState.hasAnyDirection = false;
 
-    
     // 2. EVALUACIÓN DE DIRECCIÓN: La última tecla en el vector tiene la prioridad
-    
     //Si hay algo en el vector de direcciones
     if (!directionStack.empty()) {
         int lastKey = directionStack.back(); // Miramos el final del vector, lo ultimo que ha entrado
-        
         if (lastKey == OF_KEY_LEFT) {
             currentInputState.wantsLeft = true;
         }
         else if (lastKey == OF_KEY_RIGHT) {
             currentInputState.wantsRight = true;
         }
-        
         //Si entramos aquí es que hay dirección
         currentInputState.hasAnyDirection = true;
     }
@@ -90,18 +86,16 @@ void InputManager::updateInputState() {
     if (pressedKeys.count(49)) {
         currentInputState.wantsRun = true;
     }
-
-
 }
 
 
-//*** ACCESO AL ESTADO DESDE EL EXTERIOR ***//
-InputState InputManager::getState() const {
+//*** GET DEL ESTADO DE ENTRADA ACTUAL (WANT) DESDE EL EXTERIOR ***//
+InputState InputManager::getInputState() const {
     // Retornamos la estructura con los booleanos para que el MovementManager los lea
     return currentInputState;
 }
 
-//*** GETS GUI ***
+//*** GETS EXCLUSIVOS PARA GUI ***
 // Retorna un string con las teclas presionadas en formato:  "LEFT + RIGHT + 1"
 std::string InputManager::getPressedKeysAsString() const {
     
@@ -140,9 +134,6 @@ std::string InputManager::getPressedKeysAsString() const {
     
     return result;
 }
-
-
-
 
 // Retorna un string con las intenciones en formato: "WANTS LEFT + WANTS RIGHT + WANTS RUN"
 // Si no hay intenciones activas, retorna "NO WANTS"

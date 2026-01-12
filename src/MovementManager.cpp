@@ -4,6 +4,7 @@
 #include "Utilities.h"
 
 
+// *** CONFIGURACIÓN Y CONEXIÓN ***
 // Inicializa el MovementManager cargando los movimientos desde un archivo JSON y configurando el movimiento actual a "IDLE".
 void MovementManager::setup(const std::string& filename, SpriteSheetManager& spriteSheetManager, InputManager& input) {
     
@@ -17,6 +18,7 @@ void MovementManager::setup(const std::string& filename, SpriteSheetManager& spr
     currentMovementName = "IDLE";
 }
 
+// *** CICLO DE VIDA ***
 // Actualiza el estado del MovementManager basado en el tiempo actual.
 void MovementManager::update(float currentTime) {
     
@@ -37,7 +39,7 @@ void MovementManager::update(float currentTime) {
 
 
 
-//
+// !!!!!!! CEREBRO !!!!!!!
 void MovementManager::updateState() {
     // Si estamos esperando o ejecutando una transición comprometida, no tomamos nuevas decisiones
     if (waitingForTransition || currentState == MovementState::TURNING || currentState == MovementState::STOPPING) {
@@ -45,7 +47,7 @@ void MovementManager::updateState() {
     }
     
     // 1. Obtenemos los "deseos" del jugador desde el InputManager
-    InputState intent = inputManager->getState();
+    InputState intent = inputManager->getInputState();
 
     // 2. Decidimos según el estado actual
     switch (currentState) {
@@ -130,10 +132,7 @@ void MovementManager::updateState() {
 
 
 
-
-
-
-//*** INICIA MOVIMIENTO ***//
+// !!!!!!! PLAY MOVEMENTS !!!!!!! //
 void MovementManager::playMovement(const std::string& movementName, int region) {
 
     // ^^^ PARA MONITORIZAR EN LA GUI ^^^ //
@@ -189,44 +188,11 @@ void MovementManager::playMovement(const std::string& movementName, int region) 
                 std::cout << "*** UNKNOWN (" << static_cast<int>(currentState) << ") ***" << std::endl;
                 break;
         }
-        
-    }
-}
-
-//*** MANEJO DE MOVIMIENTOS CONCRETOS ***//
-// Implementación de handleWalkToRun
-void MovementManager::handleWalkToRun() {
-    // Si el movimiento actual es WALK
-    if (currentMovementName == "WALK") {
-        //std::cout << "WALK TO RUN" << std::endl;
-        // Obtener la región actual de WALK
-        int currentRegion = getCurrentRegion();
-        // Obtener la región de RUN correspondiente
-        int runRegion = walkToRunRegionMap[currentRegion];
-        // Activar el movimiento RUN con la región correspondiente
-        playMovement("RUN", runRegion);
-    }
-}
-// Implementación de handleRunToWalk
-void MovementManager::handleRunToWalk() {
-    // Si el movimiento actual es RUN
-    if (currentMovementName == "RUN") {
-        //std::cout << "RUN TO WALK" << std::endl;
-        // Obtener la región actual de RUN
-        int currentRegion = getCurrentRegion();
-        // Obtener la región de WALK correspondiente
-        int walkRegion = runToWalkRegionMap[currentRegion];
-        // Activar el movimiento WALK con la región correspondiente
-        playMovement("WALK", walkRegion);
     }
 }
 
 
-
-
-
-
-//*** DETERMINAR REGIÓN DE TRANSICIÓN ***//
+// !!!!!!! HANDLE TRANSITIONS !!!!!!!//
 void MovementManager::handleTransition() {
     if (waitingForTransition) return;
     
@@ -265,7 +231,7 @@ void MovementManager::handleTransition() {
         waitingForTransition = true;
         
         // --- ACTUALIZACIÓN LÓGICA ANTICIPADA ---
-        InputState intent = inputManager->getState();
+        InputState intent = inputManager->getInputState();
 
         // Si el jugador quiere moverse a una dirección distinta a la que mira: es un GIRO
         if ((intent.wantsRight && !getIsFacingRight()) || (intent.wantsLeft && getIsFacingRight())) {
@@ -313,13 +279,15 @@ void MovementManager::handleTransition() {
 
 
 
+// !!!!!!! UPDATE REGION !!!!!!! //
+// !!! ESTO ESTÁ AQUÍ PARA TRABAJAR LAS CUATRO FUNCIONES CLAVE !!! //
 // Maneja la lógica de actualización de frames y transiciones
 void MovementManager::updateRegion() {
     // Incrementa la región actual
     currentRegion++;
     
     //OBTENEMOS EL INPUT ACTUAL (Necesario para decidir en las transiciones)
-    InputState intent = inputManager->getState(); //
+    InputState intent = inputManager->getInputState(); //
     
     // 1. COMPROBAR SALIDA (Antes de incrementar)
     // Si esperamos una transicion y estamos en el frame exacto de salida ANTES de avanzar.
@@ -355,7 +323,7 @@ void MovementManager::updateRegion() {
         
 
         //2. ¿QUÉ HACEMOS AHORA? Consultamos el mando para no parar si no es necesario
-        InputState intent = inputManager->getState();
+        InputState intent = inputManager->getInputState();
 
         if (intent.wantsRight || intent.wantsLeft) {
             // Si el jugador sigue pulsando una dirección...
@@ -397,44 +365,65 @@ void MovementManager::updateRegion() {
 }
 
     
+
+
+// *** HANDLE SPECIFIC MOVEMENTS *** //
+// Implementación de handleWalkToRun
+void MovementManager::handleWalkToRun() {
+    // Si el movimiento actual es WALK
+    if (currentMovementName == "WALK") {
+        //std::cout << "WALK TO RUN" << std::endl;
+        // Obtener la región actual de WALK
+        int currentRegion = getCurrentRegion();
+        // Obtener la región de RUN correspondiente
+        int runRegion = walkToRunRegionMap[currentRegion];
+        // Activar el movimiento RUN con la región correspondiente
+        playMovement("RUN", runRegion);
+    }
+}
+// Implementación de handleRunToWalk
+void MovementManager::handleRunToWalk() {
+    // Si el movimiento actual es RUN
+    if (currentMovementName == "RUN") {
+        //std::cout << "RUN TO WALK" << std::endl;
+        // Obtener la región actual de RUN
+        int currentRegion = getCurrentRegion();
+        // Obtener la región de WALK correspondiente
+        int walkRegion = runToWalkRegionMap[currentRegion];
+        // Activar el movimiento WALK con la región correspondiente
+        playMovement("WALK", walkRegion);
+    }
+}
     
 
-// Actualiza los intervalos de frame desde la GUI.
-void MovementManager::updateFrameIntervalFromGUI() {
-    // Lógica para actualizar los intervalos de frame desde la GUI (a completar)
-}
 
 
-
-//GETS
+//*** GETS REGION ***//
 // Obtiene la fila actual del sprite sheet correspondiente al movimiento actual.
 int MovementManager::getCurrentRow() const {
     return currentRow;
 }
-
 // Obtiene la región actual (frame) del sprite sheet correspondiente al movimiento actual.
 int MovementManager::getCurrentRegion() const {
     return currentRegion;
 }
-
 // Obtiene la siguiente región a la que debe llegar (Siguiente Punto de Salida).
 int MovementManager::getNextOutRegion() const {
     return targetRegion;
 }
 
+//*** GETS FRAME INTERVAL ***//
+// Obtiene el intervalo de fotogramas global.
+float MovementManager::getFrameInterval() const {
+    // Devuelve el intervalo de fotogramas global
+    return frameInterval;
+}
 // Obtiene el intervalo de frame del movimiento actual, si está definido, de lo contrario utiliza el intervalo global.
 float MovementManager::getCurrentMovementFrameInterval() const {
     return (currentMovement && currentMovement->frameInterval > 0.0f)
     ? currentMovement->frameInterval
     : frameInterval;
 }
-
-// Obtiene el intervalo de fotogramas global.
-float MovementManager::getFrameInterval() const {
-    // Devuelve el intervalo de fotogramas global
-    return frameInterval;
-}
-
 // Obtiene el intervalo de fotogramas para un movimiento específico
 float MovementManager::getMovementFrameInterval(const std::string& movementName) const {
     // Verifica si el movimiento especificado existe en el mapa de movimientos
@@ -446,16 +435,34 @@ float MovementManager::getMovementFrameInterval(const std::string& movementName)
     return 0.1f;
 }
 
+//*** GETS DIRECTION ***//
 //Obtiene la dirección del personaje
 bool MovementManager::getIsFacingRight() {
     return isFacingRight;
 }
 
-//*** GETS GUI ***
-bool MovementManager::isWaitingForTransition() const {
-    return waitingForTransition;
+//*** GETS MOVEMENT ***//
+// Obtiene el movimiento actual
+const Movement* MovementManager::getCurrentMovement() const {
+    //currentMovement es un std::unique_ptr<Movement>
+    //.get() extrae el puntero crudo (raw pointer) del unique_ptr
+    //Así devolvemos Movement* en lugar de unique_ptr<Movement>
+    return currentMovement.get();
+}
+// Obtiene el nombre del movimiento actual
+std::string MovementManager::getCurrentMovementName() const {
+    return currentMovementName;
+}
+// Obtiene el mapa de todos los movimientos disponibles
+const std::map<std::string, Movement>& MovementManager:: getMovements() const {
+    // movements es un mapa grande (std::map<std::string, Movement>)
+    // Copiarlo cada vez sería ineficiente
+    // Una referencia const lo deja accesible sin copiarlo
+    return movements;
 }
 
+//*** GETS STATE ***//
+// Obtiene un string con el estado actual del personaje
 std::string MovementManager::getCurrentState() const {
     switch (currentState) {
         case MovementState::IDLE:
@@ -472,33 +479,20 @@ std::string MovementManager::getCurrentState() const {
             return "UNKNOWN";
     }
 }
-// Obtiene el movimiento actual
-const Movement* MovementManager::getCurrentMovement() const {
-    //currentMovement es un std::unique_ptr<Movement>
-    //.get() extrae el puntero crudo (raw pointer) del unique_ptr
-    //Así devolvemos Movement* en lugar de unique_ptr<Movement>
-    return currentMovement.get();
+// Retorna true si está esperando una transición, false en caso contrario
+bool MovementManager::isWaitingForTransition() const {
+    return waitingForTransition;
 }
 
-// Obtiene el mapa de todos los movimientos disponibles
-const std::map<std::string, Movement>& MovementManager:: getMovements() const {
-    // movements es un mapa grande (std::map<std::string, Movement>)
-    // Copiarlo cada vez sería ineficiente
-    // Una referencia const lo deja accesible sin copiarlo
-    return movements;
+//*** SETS FRAME INTERVAL ***//
+// Actualiza los intervalos de frame desde la GUI.
+void MovementManager::setFrameIntervalFromGUI() {
+    // Lógica para actualizar los intervalos de frame desde la GUI (a completar)
 }
-
-// Obtiene el nombre del movimiento actual
-std::string MovementManager::getCurrentMovementName() const {
-    return currentMovementName;
-}
-
-//SETS
 // Establece el intervalo de fotogramas global
 void MovementManager::setFrameInterval(float interval) {
     frameInterval = interval;
 }
-
 // Establece el intervalo de fotogramas para un movimiento específico
 void MovementManager::setMovementFrameInterval(const std::string& movementName, float interval) {
     if (movements.count(movementName)) {
@@ -506,22 +500,18 @@ void MovementManager::setMovementFrameInterval(const std::string& movementName, 
     }
 }
 
+//*** SETS DIRECTION ***//
 // Establece la dirección del personaje
 void MovementManager::toggleIsFacingRight() {
     isFacingRight = !isFacingRight;
 }
 
 
-
-
-
-//*** ENGRANAJES (Aquí irá updateRegion() ***
-
+// *** LÓGICA INTERNA (LOS ENGRANAJES) ***
 // Determina si se debe actualizar la región en función del tiempo transcurrido y el intervalo de frame
 bool MovementManager::shouldUpdateRegion(float currentTime, float interval) const {
     return currentMovement && (currentTime - lastUpdateTime >= interval);
 }
-
 // Carga los movimientos desde un archivo JSON.
 void MovementManager::loadMovements(const std::string& filename) {
     ofxJSONElement json;
