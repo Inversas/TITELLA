@@ -472,6 +472,26 @@ std::string MovementManager::getCurrentState() const {
             return "UNKNOWN";
     }
 }
+// Obtiene el movimiento actual
+const Movement* MovementManager::getCurrentMovement() const {
+    //currentMovement es un std::unique_ptr<Movement>
+    //.get() extrae el puntero crudo (raw pointer) del unique_ptr
+    //Así devolvemos Movement* en lugar de unique_ptr<Movement>
+    return currentMovement.get();
+}
+
+// Obtiene el mapa de todos los movimientos disponibles
+const std::map<std::string, Movement>& MovementManager:: getMovements() const {
+    // movements es un mapa grande (std::map<std::string, Movement>)
+    // Copiarlo cada vez sería ineficiente
+    // Una referencia const lo deja accesible sin copiarlo
+    return movements;
+}
+
+// Obtiene el nombre del movimiento actual
+std::string MovementManager::getCurrentMovementName() const {
+    return currentMovementName;
+}
 
 //SETS
 // Establece el intervalo de fotogramas global

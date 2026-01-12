@@ -102,7 +102,7 @@ void GUIManager::update() {
     currentIntention = inputManager->getIntentsAsString();
     
     // Actualiza el nombre del movimiento actual en la GUI
-    currentMovementName = movementManager->currentMovementName;
+    currentMovementName = movementManager->getCurrentMovementName();
 }
 
 

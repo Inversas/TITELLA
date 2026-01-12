@@ -27,7 +27,8 @@ enum class MovementState {
 
 // Clase que gestiona los movimientos en el juego
 class MovementManager {
-    
+
+//"Public" es lo que la clase hace por los demás.
 public:
     
     // *** CONFIGURACIÓN Y CONEXIÓN ***
@@ -56,21 +57,6 @@ public:
     void handleWalkToRun();
     void handleRunToWalk();
     
-    
-    // !!! No necesitamos las funciones ascociadas al controlKeys  !!! //
-    /*
-    // *** HANDLE CONTROL KEYS *** //
-    void handleControlKeys();
-    
-    void cleanControlKeys();
-    // GET para la variable de tipo string
-    void setControlKeys(const std::string& value);
-    // SET para la variable de tipo string
-    std::string getControlKeys() const;
-    */
-    
-    
-    
     // Actualiza el intervalo de fotogramas del movimiento desde la GUI
     void updateFrameIntervalFromGUI();
     
@@ -91,9 +77,6 @@ public:
     // Obtiene la dirección del personaje
     bool getIsFacingRight();
     
-    //Añadir para poder poner el currentName en private
-    //std::string getCurrentMovementName() const { return currentMovementName; }
-    
     
     //*** GETS GUI ***
     // Retorna true si está esperando una transición, false en caso contrario
@@ -102,6 +85,17 @@ public:
     // Retorna un string con el estado actual del personaje
     // Valores posibles: "IDLE", "WALKING", "RUNNING", "TURNING", "STOPPING"
     std::string getCurrentState() const;
+    
+    // Obtiene el movimiento actual
+    std::string getCurrentMovementName() const;
+    
+    // Obtiene el movimiento actual
+    // El primer const significa: "El puntero que devuelvo es constante (no puedes modificar lo que apunta)."
+    // El último const significa: "Esta función no modifica el estado interno del MovementManager."
+    const Movement* getCurrentMovement() const;
+    
+    // Obtiene el mapa de todos los movimientos disponibles
+    const std::map<std::string, Movement>& getMovements() const;
     
     
     
@@ -114,37 +108,18 @@ public:
     void toggleIsFacingRight();
 
     
-    
-    //ESTA EN PUBLIC PARA LA GUI?
-    //Puede que en el futuro veamos como mantener esto private y hacer sus gets i sets (habrá que buscar donde se usa en otras partes del código
+//"Private" es cómo la clase se organiza a sí misma para hacer su trabajo.
+private:
+    // *** DATOS "SAGRADOS" (PROTEGIDOS) ***
     std::unique_ptr<Movement> currentMovement = nullptr;
     std::map<std::string, Movement> movements;
     std::string currentMovementName;
     // Variable para guardar el estado actual
     MovementState currentState = MovementState::IDLE;
     
-    // !!! DEBERÍA IR EN PRIVATE !!!
-    // Determina si se debe actualizar la región en función del tiempo transcurrido y el intervalo de frame
-    bool shouldUpdateRegion(float currentTime, float interval) const;
-    
-    
-    
-    //Get Nombre del movimiento actual
-    //std::string getCurrentMovementName() const;
-    //Set Nombre del movimiento actual
-    //void setCurrentMovementName(const std::string& movementName);
-    
-private:
-    // *** DATOS "SAGRADOS" (PROTEGIDOS) ***
-    //Puede que en el futuro veamos como mantener esto private y hacer sus gets i sets (habrá que buscar donde se usa en otras partes del código
-    //std::unique_ptr<Movement> currentMovement = nullptr;
-    //std::map<std::string, Movement> movements;
-    
     // Puntero al gestor de entradas
     InputManager* inputManager = nullptr;
 
-    
-    
     // *** VARIABLES DE ESTADO INTERNO ***
     int currentRegion = 0; // Región actual en la hoja de sprites
     int currentRow = 0; // Fila actual en la hoja de sprites
@@ -156,27 +131,29 @@ private:
     //Dirección del personaje
     bool isFacingRight = true;
     
-    
-    // !!! No necesitamos el controlKeys  !!! //
-    // Representación de teclas actualmente presionadas
-    //std::string controlKeys;
 
     
     // *** LÓGICA INTERNA (LOS ENGRANAJES) ***
     // Carga los movimientos desde un archivo JSON
     void loadMovements(const std::string& filename);
     
-    //Es pprivate porqu No quieres que desde ofApp.cpp alguien llame por error a movementManager.updateRegion().
+    //Es private porque No quieres que desde ofApp.cpp alguien llame por error a movementManager.updateRegion().
     //Si lo hicieran, los frames podrían avanzar el doble de rápido o saltar cuando no deben, rompiendo la animación.
     //Como es privado, sabes que nadie fuera de esa clase depende de esa función.
-    //"Public" es lo que la clase hace por los demás.
-    //"Private" es cómo la clase se organiza a sí misma para lograrlo.
+
     // Maneja la lógica de actualización de frames y transiciones
     void updateRegion();
+    
+    // Determina si se debe actualizar la región en función del tiempo transcurrido y el intervalo de frame
+    bool shouldUpdateRegion(float currentTime, float interval) const;
     
     
     //AÑADIR EN EL FUTURO
     //bool canInterrupt() const; // Para saber si estamos en un estado flexible
+    
+    
+    
+    
     
     // *** MAPAS DE TRANSICIÓN (ESTÁTICOS) ***
     // Mapa de transiciones de regiones

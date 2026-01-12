@@ -12,7 +12,6 @@ void ofApp::setup() {
     
     // Configura el gestor de la GUI con los gestores de movimientos y de sprites
     guiManager.setup(movementManager, spriteSheetManager, inputManager);
-    
 }
 
 
