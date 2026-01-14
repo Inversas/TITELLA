@@ -43,17 +43,25 @@ public:
     
     
     
+
+    // !!! TRADUCTOR !!!
+    // Input --> Intención
+    void updateIntent();
     
-    // !!! CEREBRO !!!
-    // Esta será la función estrella que decide qué hacer según el Input
-    void updateState();
+    // !!! JUEZ !!!
+    // Switch de estados y llama a playMovement o handleTransition según convenga. Es la única que actualiza el esado.
+    void updateState(MovementState targetState);
     
-    // !!! PLAY MOVEMENTS !!! //
-    // Inicia el movimiento especificado por su nombre, con parámetro opcional para la región inicial
+    
+    // !!! EJECUTOR !!! //
+    // Inicia el movimiento especificado por su nombre, con parámetro opcional para la región inicial. No decide estados
     void playMovement(const std::string& movementName, int region = 0);
 
-    // !!! HANDLE TRANSITIONS !!! //
-    // Maneja la transición de un movimiento a otro
+    // !!! OTEADOR (mira al futuro) !!! //
+    // Mira el JSON del movimiento actual.
+    // Busca el transitionRegion (punto de salida) más cercano.
+    // Activa la bandera waitingForTransition = true.
+    // No hace nada más. Se queda esperando a que el "reloj" la avise.
     void handleTransition();
     
     
@@ -149,14 +157,11 @@ private:
  
     
     
-    
-    
-    // !!! UPDATE REGION !!! //
+    // !!! MOTOR !!! //
     //Es private porque No quieres que desde ofApp.cpp alguien llame por error a movementManager.updateRegion().
     //Si lo hicieran, los frames podrían avanzar el doble de rápido o saltar cuando no deben, rompiendo la animación.
     //Como es privado, sabes que nadie fuera de esa clase depende de esa función.
-
-    // Maneja la lógica de actualización de frames y transiciones
+    // Es el motor, como un cronometro, se limita a avisar.
     void updateRegion();
     
    
