@@ -32,11 +32,12 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     //*** LABELS ***
     gui.add(currentRowGui.setup("Current Row", "0"));
     gui.add(currentRegionGui.setup("Current Region", "0"));
-    gui.add(currentMovementName.setup("MOV", "IDLE"));
+    gui.add(currentMovementNameGui.setup("MOV", "IDLE"));
     gui.add(NextOutRegionGui.setup("Next Out Region", ""));
-    gui.add(currentState.setup("STATE", "IDLE"));
+    gui.add(currentStateGui.setup("STATE", "IDLE"));
+    gui.add(targetStateGui.setup("TARGET", "IDLE"));
     gui.add(controlKeysGui.setup("", "NONE"));
-    gui.add(currentIntention.setup("INTENT", "NO WANTS"));
+    gui.add(currentIntentionGui.setup("INTENT", "NO WANTS"));
 
 
     
@@ -91,6 +92,12 @@ void GUIManager::update() {
         NextOutRegionGui = movementManager->getNextOutRegion() == -1 ? "N/A" : std::to_string(movementManager->getNextOutRegion());
     }
     
+    // Actualiza Estado Actual en la GUI como String
+    currentStateGui = movementManager->getCurrentState();
+    
+    // Actualiza Estado Objetivo en la GUI como String
+    targetStateGui = movementManager->getTargetState();
+    
     // Actualiza Frame Interval Actual en la GUI como String
     //TO DO se debería ver el FramInterval Global, no el que se esta usando en el moviento.
     currentMovementFrameIntervalGui = std::to_string(movementManager->getCurrentMovementFrameInterval());
@@ -99,10 +106,10 @@ void GUIManager::update() {
     controlKeysGui = inputManager->getPressedKeysAsString();
 
     // Actualizar las intenciones
-    currentIntention = inputManager->getIntentsAsString();
+    currentIntentionGui = inputManager->getIntentsAsString();
     
     // Actualiza el nombre del movimiento actual en la GUI
-    currentMovementName = movementManager->getCurrentMovementName();
+    currentMovementNameGui = movementManager->getCurrentMovementName();
 }
 
 

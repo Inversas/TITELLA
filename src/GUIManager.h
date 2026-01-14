@@ -39,11 +39,13 @@ private:
     //*** LABELS ***
     ofxLabel currentRowGui;
     ofxLabel currentRegionGui;
-    ofxLabel currentMovementName; // Label para mostrar el nombre del movimiento actual
-    ofxLabel NextOutRegionGui;
-    ofxLabel currentState;         // Para el estado actual
+    ofxLabel currentMovementNameGui;   // Label para mostrar el nombre del movimiento actual
+    ofxLabel NextOutRegionGui;      // Label para mostrar la siguiente región de salida
+    ofxLabel currentStateGui;          // Para el estado actual
+    ofxLabel targetStateGui;           // Para el estado objetivo
+
     ofxLabel controlKeysGui; // Label para mostrar las teclas de control
-    ofxLabel currentIntention; // Label para mostrar la Intención Actual
+    ofxLabel currentIntentionGui; // Label para mostrar la Intención Actual
 
     MovementManager* movementManager;        // Añadimos una referencia a MovementManager
     SpriteSheetManager* spriteSheetManager;  // Añadimos una referencia a SpriteSheetManager

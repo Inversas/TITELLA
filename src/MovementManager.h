@@ -106,6 +106,8 @@ public:
     //*** GETS STATE ***//
     // Retorna un string con el estado actual del personaje
     std::string getCurrentState() const;
+    // Retorna un string con el estado objetivo del personaje
+    std::string getTargetState() const;
     // Retorna true si está esperando una transición, false en caso contrario
     bool isWaitingForTransition() const;
     
@@ -121,8 +123,10 @@ public:
     //*** SETS DIRECTION ***//
     // Invierte la dirección del personaje
     void toggleIsFacingRight();
-
     
+    //*** SETS STATE ***//
+    //void setCurrentState(MovementState state);
+    //void setTargetState(MovementState state);
     
 //"Private" es cómo la clase se organiza a sí misma para hacer su trabajo.
 private:
@@ -145,9 +149,11 @@ private:
     std::string currentMovementName;
     // Variable para guardar el estado actual (inicializado en IDLE).
     MovementState currentState = MovementState::IDLE;
-    // Puntero al gestor de entradas
-    InputManager* inputManager = nullptr;
+    // Variable para guardar el estado objetivo (inicializado en IDLE)
+    MovementState targetState = MovementState::IDLE;
     
+    // Puntero al gestor de entradas
+     InputManager* inputManager = nullptr;
     
     // *** LÓGICA INTERNA (LOS ENGRANAJES) ***
     // Determina si se debe actualizar la región en función del tiempo transcurrido y el intervalo de frame
