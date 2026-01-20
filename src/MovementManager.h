@@ -177,6 +177,21 @@ private:
     
     
     
+    // TURN_TO_RUN solo se puede dar desde IDLE, pero el estado es TURNING
+    // Para no añadir un estado nuevo, que además entraría en conflicto con RUN_TO_TURN
+    // Creamos este flag que solo se evaluará en currentState IDLE con targetState RUN.
+    bool flag_turn_to_run = false;
+    
+    // Si esto empieza a darse tendremo que crear el Objeto Peticióni modificar el TRADUCTOR y el JUEZ en consecuencia.
+    
+    /*
+     struct MovementRequest {
+         MovementState state;
+         std::string variant = ""; // Aquí el traductor puede decir "TO_RUN"
+     };
+     */
+    
+    
     
     // *** MAPAS DE TRANSICIÓN (ESTÁTICOS) ***
     // Mapa de transiciones de regiones

@@ -41,7 +41,9 @@ void MovementManager::update(float currentTime) {
 
 // !!!!!!! TRADUCTOR !!!!!!!
 void MovementManager::updateIntent() {
-  
+    // Reseteamos el flag TURN_TO_RUNz
+    flag_turn_to_run = false;
+    
     // 1. Obtenemos los "deseos" del jugador desde el InputManager
     InputState intent = inputManager->getInputState();
     
@@ -59,6 +61,12 @@ void MovementManager::updateIntent() {
     //Si quiere girar
     if (wantsTurn) {
         targetState = MovementState::TURNING;
+        
+        // &&&&&&&&&& TURN_TO_RUN &&&&&&&&&& //
+        //Si el giro desde IDLE se da con 1 presionado
+        if (intent.wantsRun) {
+            flag_turn_to_run = true;
+        }
     }
     // Si hay alguna direccion activa
     else if (intent.hasAnyDirection) {
@@ -90,7 +98,17 @@ void MovementManager::updateState(MovementState targetState) {
     if (currentState == targetState) return;
     
     
-    // CONTROL DE ESTADOS COMPROMETIDOS Y TRANSICIONES
+    // CONTROL DE ESTADOS COMPROMETIDOS Y TRANSICIONES (ARREPENTIMIENTOS)
+    
+    // ARREPENTIMIENTO: WALKING --> RUNNING
+    if (waitingForTransition && currentState == MovementState::RUNNING && targetState == MovementState::WALKING) {
+        // Desactivamos la espera de transición
+        waitingForTransition = false;
+        // REPONEMOS ESTADO
+        currentState = MovementState::WALKING;
+
+    }
+        
     // Si estamos esperando o ejecutando una transición comprometida, COMPROVAMOS ARREPENTIMIENTOS EN LAS ESPERAS DE TRANSICION
     if (waitingForTransition || currentState == MovementState::TURNING || currentState == MovementState::STOPPING) {
         
@@ -112,11 +130,21 @@ void MovementManager::updateState(MovementState targetState) {
         
         case MovementState::IDLE:
             if (targetState == MovementState::TURNING) {
-                std::cout << "!!! ESTA IDLE, VAMOS A GIRAR DESDE: "  << currentMovementName << "!!!" << std::endl;
-                // EJECUTAMOS GIRO (COMPROMETIDO)
-                playMovement("TURN");
-                // ACTUALIZAMOS ESTADO
-                currentState = MovementState::TURNING;
+                // Si no quiere correr desde IDLE
+                if(!flag_turn_to_run){
+                    std::cout << "!!! ESTA IDLE, VAMOS A GIRAR DESDE: "  << currentMovementName << "!!!" << std::endl;
+                    // EJECUTAMOS GIRO (COMPROMETIDO)
+                    playMovement("TURN");
+                    // ACTUALIZAMOS ESTADO
+                    currentState = MovementState::TURNING;
+                }
+                // Si quiere correr desde IDLE
+                else {
+                    // EJECUTAMOS GIRO (COMPROMETIDO)
+                    playMovement("TURN_TO_RUN");
+                    // ACTUALIZAMOS ESTADO
+                    currentState = MovementState::TURNING;
+                }
             }
             
             else if (targetState == MovementState::WALKING) {
@@ -142,7 +170,7 @@ void MovementManager::updateState(MovementState targetState) {
                 // ACTUALIZAMOS ESTADO primero por ser TRANSICION
                 currentState = MovementState::STOPPING;
                 // BUSCAR PUNTO DE SALIDA y ACTIVAR ESPERA (lo ejecutará updateRegion())
-                handleTransition(); // buscará WALK_TO_IDLE correcto según puntos de salida cercanos
+                handleTransition();
             }
             
             else if (targetState == MovementState::TURNING) {
@@ -150,15 +178,25 @@ void MovementManager::updateState(MovementState targetState) {
                 // ACTUALIZAMOS ESTADO primero por ser TRANSICION
                 currentState = MovementState::TURNING;
                 // BUSCAR PUNTO DE SALIDA y ACTIVAR ESPERA (lo ejecutará updateRegion())
-                handleTransition(); // buscará el WALK_TURN correcto según puntos de salida cercanos
+                handleTransition();
             }
 
             else if (targetState == MovementState::RUNNING) {
                 std::cout << "!!! ESTA WALKING, VAMOS A CORRER DESDE: "  << currentMovementName << "!!!" << std::endl;
+
+                // @@@@@@@@@@ WALK_TO_RUN @@@@@@@@@@ //
+                // ACTUALIZAMOS ESTADO primero por ser TRANSICION
+                currentState = MovementState::RUNNING;
+                // BUSCAR PUNTO DE SALIDA y ACTIVAR ESPERA (lo ejecutará updateRegion())
+                handleTransition();
+                 
+                
+                /*
                 // EJECUTAMOS CAMBIO
                 handleWalkToRun(); // Cambio según mapa de regiones
                 // ACTUALIZAMOS ESTADO
                 currentState = MovementState::RUNNING;
+                 */
             }
         break;
 
@@ -168,11 +206,20 @@ void MovementManager::updateState(MovementState targetState) {
                 // ACTUALIZAMOS ESTADO primero por ser TRANSICION
                 currentState = MovementState::STOPPING;
                 // BUSCAR PUNTO DE SALIDA y ACTIVAR ESPERA (lo ejecutará updateRegion())
-                handleTransition(); // buscará el RUN_TO_IDLE correcto según puntos de salida cercanos
+                handleTransition();
             }
 
             else if (targetState == MovementState::WALKING) {
                 std::cout << "!!! ESTA RUNNING, VAMOS A CAMINAR DESDE: "  << currentMovementName << "!!!" << std::endl;
+                
+                // ########## RUN_TO_WALK ########## //
+                /*
+                 // ACTUALIZAMOS ESTADO primero por ser TRANSICION
+                 currentState = MovementState::WALKING;
+                 // BUSCAR PUNTO DE SALIDA y ACTIVAR ESPERA (lo ejecutará updateRegion())
+                 handleTransition();
+                 */
+                
                 // EJECUTAMOS CAMBIO
                 handleRunToWalk(); // Cambio según mapa de regiones
                 // ACTUALIZAMOS ESTADO
@@ -184,7 +231,7 @@ void MovementManager::updateState(MovementState targetState) {
                 // ACTUALIZAMOS ESTADO primero por ser TRANSICION
                 currentState = MovementState::TURNING;
                 // BUSCAR PUNTO DE SALIDA y ACTIVAR ESPERA (lo ejecutará updateRegion())
-                handleTransition(); // buscará el RUN_TO_TURN correcto según puntos de salida cercanos
+                handleTransition();
             }
         break;
 
@@ -209,14 +256,42 @@ void MovementManager::updateRegion() {
     //*** DISPARAR TRANSICION ***//
     // Si estamos esperando una transición y hemos llegado al Punto de Salida,
     if (waitingForTransition && currentRegion == targetRegion) {
+        
         waitingForTransition = false;
+        
         std::cout << "!!! DISPARAR TRANSICION : !!!" << std::endl;
         if (currentState == MovementState::TURNING) {
             // EJECUTAMOS
             playMovement(currentMovement->turn_transitions[targetRegion]);
             // ACTUALIZAMOS ESTADO
             currentState = MovementState::TURNING;
-        } else {
+        }
+  
+        // @@@@@@@@@@ WALK_TO_RUN @@@@@@@@@@ //
+        //Si Estabamos esperando transicion y el currentState era RUNNING: solo puede ser WALK_TO_RUN (por ejemplo para frenar se ha puesto STOPPING)
+        else if (currentState == MovementState::RUNNING) {
+            // EJECUTAMOS
+            playMovement(currentMovement->change_transitions[targetRegion]);
+            // ACTUALIZAMOS ESTADO
+            currentState = MovementState::RUNNING; // Lo marcamos como RUNNING (aunque ya se ha marcado en updateState, por ser transición)
+        }
+        
+        
+        
+        // ########## RUN_TO_WALK ########## //
+        
+        //Si Estabamos esperando transicion y el currentState era WALKING: solo puede ser WALK_TO_RUN
+        /*
+        else if (currentState == MovementState::WALKING) {
+            
+            playMovement("RUN_TO_WALK");
+            currentState = MovementState::WALKING; // Lo marcamos como WALKING (aunque ya se ha marcado en updateState, por ser transición)
+        }*/
+
+        
+        
+        
+        else {
             // EJECUTAMOS
             playMovement(currentMovement->transitions[targetRegion]);
             // ACTUALIZAMOS ESTADO
@@ -230,6 +305,8 @@ void MovementManager::updateRegion() {
     if (currentMovement->isTransition && currentRegion >= currentMovement->numRegions) {
         std::cout << "!!! TRANSICION COMPLETADA : !!!" << std::endl;
         
+        
+        // &&&&&&&&&& TURN_TO_RUN &&&&&&&&&& // Por el if que busca TURN, se contempla
         //Era un giro, cambiamos la dirección lógica
         if (currentMovementName.find("TURN") != std::string::npos) {
             std::cout << "!!! ERA UN GIRO : !!!" << std::endl;
@@ -239,23 +316,56 @@ void MovementManager::updateRegion() {
         //2. ¿QUÉ HACEMOS AHORA? Consultamos el mando para no parar si no es necesario
         InputState intent = inputManager->getInputState();
 
+        // Si el jugador sigue pulsando una dirección...
         if (intent.wantsRight || intent.wantsLeft) {
-            // Si el jugador sigue pulsando una dirección...
+            // Si pulsa correr: Directo a RUN
             if (intent.wantsRun) {
-                // ... y pulsa correr: Directo a RUN
-                // EJECUTAMOS FELXIBLE
-                playMovement("RUN");
+                
+                // Si venimos de WALK_TO_RUN
+                if(currentMovementName == "WALK_TO_RUN_1"){
+                    //tiene que empezar en el frame 5 de RUN
+                    playMovement("RUN",10);
+                }
+                else if (currentMovementName == "WALK_TO_RUN_2"){
+                    //tiene que empezar en el frame 5 de RUN
+                    playMovement("RUN",4);
+                }
+                    
+                // Cualquier otra opción empieza en el 1
+                else {
+                    // EJECUTAMOS FELXIBLE
+                    playMovement("RUN");
+                }
+               
                 // ACTUALIZAMOS ESTADO
                 currentState = MovementState::RUNNING;
+                
+            // Si no pulsa correr: Sigue caminando
             } else {
-                // ... y no pulsa correr: Sigue caminando
+                
+                /*
+                 // Si venimos de RUN_TO_WALK_1
+                 if(currentMovementName == "RUN_TO_WALK_1"){
+                     //tiene que empezar en el frame 4 de RUN
+                     playMovement("WALK",4);
+                 }
+                 // Cualquier otra opción empieza en el 1
+                 else {
+                 */
                 // EJECUTAMOS FELXIBLE
                 playMovement("WALK");
                 // ACTUALIZAMOS ESTADO
                 currentState = MovementState::WALKING;
+                
+                
             }
         }
         else {
+            // ########## RUN_TO_WALK ########## //
+            //Añadir la condicion ||  currentMovementName == "RUN_TO_WALK"
+            //else if (currentMovementName.find("WALK_TURN") != std::string::npos ||  currentMovementName == "RUN_TO_WALK")
+            //Podríamos buscar en el string "TO_WALK"
+    
             // Era un giro desde WALK
             if(currentMovementName.find("WALK_TURN") != std::string::npos){
                 std::cout << ">>> Giro en movimiento WALK terminado: Paso de transición antes de frenar." << std::endl;
@@ -263,15 +373,52 @@ void MovementManager::updateRegion() {
                 playMovement("WALK");
                 // ACTUALIZAMOS ESTADO
                 currentState = MovementState::WALKING;
+                
+                // ########## RUN_TO_WALK ########## //
+                //std::cout << ">>> Hemos pasado de RUN A WALK, pero no hay wants, Paso de transición antes de frenar." << std::endl;
+
+              
             }
+            
             // Era un giro desde RUN
-            else if (currentMovementName.find("RUN_TURN") != std::string::npos){
-                std::cout << ">>> Giro en movimiento RUN terminado: Paso de transición antes de frenar." << std::endl;
-                // EJECUTAMOS FELXIBLE
-                playMovement("RUN");
+            // &&&&&&&&&& TURN_TO_RUN &&&&&&&&&& // o Era un TURN_TO_RUN
+            //Añadir la condicion ||  currentMovementName == "TURN_TO_RUN"
+            //else if (currentMovementName.find("RUN_TURN") != std::string::npos || currentMovementName == "TURN_TO_RUN")
+            
+            
+            // @@@@@@@@@@ WALK_TO_RUN @@@@@@@@@@ //
+            //Añadir la condicion ||  currentMovementName == "WALK_TO_RUN"
+            //else if (currentMovementName.find("RUN_TURN") != std::string::npos || currentMovementName == "TURN_TO_RUN"
+            // currentMovementName == "WALK_TO_RUN")
+            //Podríamos buscar en el string "TO_RUN"
+            
+       
+
+            
+            //PASO DE TRANSICIÓN DE RUN (almenos un paso antes de parar)
+            else if (currentMovementName.find("RUN_TURN") != std::string::npos || currentMovementName.find("TO_RUN") != std::string::npos ){
+                std::cout << ">>> Giro en movimiento RUN o WALK_TO_RUN terminado , pero no hay wants: Paso de transición antes de frenar." << std::endl;
+
+                // Si venimos de WALK_TO_RUN
+                if(currentMovementName == "WALK_TO_RUN_1"){
+                    //tiene que empezar en el frame 5 de RUN
+                    playMovement("RUN",10);
+                }
+                else if (currentMovementName == "WALK_TO_RUN_2"){
+                    //tiene que empezar en el frame 5 de RUN
+                    playMovement("RUN",4);
+                }
+                    
+                // Cualquier otra opción empieza en el 1
+                else {
+                    // EJECUTAMOS FELXIBLE
+                    playMovement("RUN");
+                }
+               
                 // ACTUALIZAMOS ESTADO
                 currentState = MovementState::RUNNING;
             }
+            
             else {
                 // ... si no, vuelve a IDLE
                 playMovement("IDLE");
@@ -547,11 +694,15 @@ void MovementManager::loadMovements(const std::string& filename) {
         movement.isTransition = jsonMovement["isTransition"].asBool();
         movement.frameInterval = jsonMovement["frameInterval"].asFloat();
         
+        
+        // !!!! DELETE?
         // Convertir el array JSON a un set de strings
         for (const auto& key : jsonMovement["keys"]) {
             movement.keys.insert(key.asString());
         }
 
+        
+        
         // Carga las regiones de transición del movimiento
         for (const auto& region : jsonMovement["transitionRegions"]) {
             movement.transitionRegions.push_back(region.asInt());
@@ -566,7 +717,12 @@ void MovementManager::loadMovements(const std::string& filename) {
         for (const auto& transition : jsonMovement["turn_transitions"].getMemberNames()) {
             movement.turn_transitions[std::stoi(transition)] = jsonMovement["turn_transitions"][transition].asString();
         }
-
+        
+        // Carga las transiciones de cambio del movimiento
+        for (const auto& transition : jsonMovement["change_transitions"].getMemberNames()) {
+            movement.change_transitions[std::stoi(transition)] = jsonMovement["change_transitions"][transition].asString();
+        }
+        
         // Añade el movimiento al mapa de movimientos
         movements[movement.name] = movement;
     }
