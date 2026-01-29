@@ -1,7 +1,6 @@
 #include "MovementManager.h"
 #include "SpriteSheetManager.h"
 #include "InputManager.h"
-#include "Utilities.h"
 
 // ##########################################
 //             ESTADO ACTUAL
