@@ -6,7 +6,6 @@ Movement::Movement(
              int row,                 // Fila en el sprite sheet
              int numRegions,          // Número de fotogramas
              bool isTransition,       // Si es transición
-             float frameInterval,     // Velocidad predeterminada
-             set<string> keys         // Teclas asociadas
+             float frameInterval      // Velocidad predeterminada
              ) : name(name), row(row), numRegions(numRegions),
-    isTransition(isTransition), frameInterval(frameInterval), keys(keys) {}
+    isTransition(isTransition), frameInterval(frameInterval) {}

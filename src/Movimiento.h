@@ -20,24 +20,12 @@ struct Movement {
     bool isTransition; // Si el movimiento es una transición (no se reproduce en bucle)
     float frameInterval; // Tiempo entre frames en segundos (específico para el movimiento)
     
-    
-    
-    
-    // !!!! DELETE?
-    set<string> keys; // Teclas asociadas al movimiento (almacena códigos como `OF_KEY_RIGHT` y otros)
-    
     // Constructor para inicializar un movimiento
     Movement(
              string name = "",          // Nombre del movimiento
              int row = 0,               // Fila en el sprite sheet
              int numRegions = 1,        // Número de fotogramas
              bool isTransition = false, // Si es transición
-             float frameInterval = -0.1f, // Velocidad predeterminada
-             
-             
-             
-             
-             // !!!! DELETE?
-             set<string> keys = {}      // Teclas asociadas
+             float frameInterval = -0.1f
              );
 };

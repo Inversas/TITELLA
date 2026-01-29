@@ -20,10 +20,15 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     gui.add(walkFrameIntervalGui.setup("F.I. WALK", 0.1f, 0.01, 0.5));
     gui.add(walkToIdle1FrameIntervalGui.setup("F.I. WALK_TO_IDLE_1", 0.1f, 0.01, 0.5));
     gui.add(walkToIdle2FrameIntervalGui.setup("F.I. WALK_TO_IDLE_2", 0.1f, 0.01, 0.5));
+    gui.add(walkToRun1FrameIntervalGui.setup("F.I. WALK_TO_RUN_1", 0.1f, 0.01, 0.5));
+    gui.add(walkToRun2FrameIntervalGui.setup("F.I. WALK_TO_RUN_2", 0.1f, 0.01, 0.5));
     gui.add(runFrameIntervalGui.setup("F.I. RUN", 0.1f, 0.01, 0.5));
     gui.add(runToIdle1FrameIntervalGui.setup("F.I. RUN_TO_IDLE_1", 0.1f, 0.01, 0.5));
     gui.add(runToIdle2FrameIntervalGui.setup("F.I. RUN_TO_IDLE_2", 0.1f, 0.01, 0.5));
+    gui.add(runToWalk1FrameIntervalGui.setup("F.I. RUN_TO_WALK_1", 0.1f, 0.01, 0.5));
+    gui.add(runToWalk2FrameIntervalGui.setup("F.I. RUN_TO_WALK_2", 0.1f, 0.01, 0.5));
     gui.add(turnFrameIntervalGui.setup("F.I. TURN", 0.1f, 0.01, 0.5));
+    gui.add(turnToRunFrameIntervalGui.setup("F.I. TURN_TO_RUN", 0.1f, 0.01, 0.5));
     gui.add(walkTurn1FrameIntervalGui.setup("F.I. WALK_TURN_1", 0.1f, 0.01, 0.5));
     gui.add(walkTurn2FrameIntervalGui.setup("F.I. WALK_TURN_2", 0.1f, 0.01, 0.5));
     gui.add(runTurn1FrameIntervalGui.setup("F.I. RUN_TURN_1", 0.1f, 0.01, 0.5));
@@ -47,10 +52,15 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     walkFrameIntervalGui = movementManager.getMovementFrameInterval("WALK");
     walkToIdle1FrameIntervalGui = movementManager.getMovementFrameInterval("WALK_TO_IDLE_1");
     walkToIdle2FrameIntervalGui = movementManager.getMovementFrameInterval("WALK_TO_IDLE_2");
+    walkToRun1FrameIntervalGui = movementManager.getMovementFrameInterval("WALK_TO_RUN_1");
+    walkToRun2FrameIntervalGui = movementManager.getMovementFrameInterval("WALK_TO_RUN_2");
     runFrameIntervalGui = movementManager.getMovementFrameInterval("RUN");
     runToIdle1FrameIntervalGui = movementManager.getMovementFrameInterval("RUN_TO_IDLE_1");
     runToIdle2FrameIntervalGui = movementManager.getMovementFrameInterval("RUN_TO_IDLE_2");
+    walkToRun1FrameIntervalGui = movementManager.getMovementFrameInterval("WALK_TO_RUN_1");
+    walkToRun2FrameIntervalGui = movementManager.getMovementFrameInterval("WALK_TO_RUN_2");
     turnFrameIntervalGui = movementManager.getMovementFrameInterval("TURN");
+    turnToRunFrameIntervalGui = movementManager.getMovementFrameInterval("TURN_TO_RUN");
     walkTurn1FrameIntervalGui = movementManager.getMovementFrameInterval("WALK_TURN_1");
     walkTurn2FrameIntervalGui = movementManager.getMovementFrameInterval("WALK_TURN_2");
     runTurn1FrameIntervalGui = movementManager.getMovementFrameInterval("RUN_TURN_1");
@@ -64,10 +74,14 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     walkFrameIntervalGui.addListener(this, &GUIManager::onWalkFrameIntervalChanged);
     walkToIdle1FrameIntervalGui.addListener(this, &GUIManager::onWalkToIdle1FrameIntervalChanged);
     walkToIdle2FrameIntervalGui.addListener(this, &GUIManager::onWalkToIdle2FrameIntervalChanged);
+    walkToRun1FrameIntervalGui.addListener(this, &GUIManager::onWalkToRun1FrameIntervalChanged);
+    walkToRun2FrameIntervalGui.addListener(this, &GUIManager::onWalkToRun2FrameIntervalChanged);
     runFrameIntervalGui.addListener(this, &GUIManager::onRunFrameIntervalChanged);
     runToIdle1FrameIntervalGui.addListener(this, &GUIManager::onRunToIdle1FrameIntervalChanged);
-    runToIdle2FrameIntervalGui.addListener(this, &GUIManager::onRunToIdle2FrameIntervalChanged);
+    runToWalk1FrameIntervalGui.addListener(this, &GUIManager::onRunToWalk1FrameIntervalChanged);
+    runToWalk2FrameIntervalGui.addListener(this, &GUIManager::onRunToWalk2FrameIntervalChanged);
     turnFrameIntervalGui.addListener(this, &GUIManager::onTurnFrameIntervalChanged);
+    turnToRunFrameIntervalGui.addListener(this, &GUIManager::onTurnToRunFrameIntervalChanged);
     walkTurn1FrameIntervalGui.addListener(this, &GUIManager::onWalkTurn1FrameIntervalChanged);
     walkTurn2FrameIntervalGui.addListener(this, &GUIManager::onWalkTurn2FrameIntervalChanged);
     runTurn1FrameIntervalGui.addListener(this, &GUIManager::onRunTurn1FrameIntervalChanged);
@@ -143,6 +157,14 @@ void GUIManager::onWalkToIdle2FrameIntervalChanged(float& value) {
     movementManager->setMovementFrameInterval("WALK_TO_IDLE_2", value);
 }
 
+void GUIManager::onWalkToRun1FrameIntervalChanged(float& value) {
+    movementManager->setMovementFrameInterval("WALK_TO_RUN_1", value);
+}
+
+void GUIManager::onWalkToRun2FrameIntervalChanged(float& value) {
+    movementManager->setMovementFrameInterval("WALK_TO_RUN_2", value);
+}
+
 void GUIManager::onRunFrameIntervalChanged(float& value) {
     movementManager->setMovementFrameInterval("RUN", value);  
 }
@@ -155,8 +177,20 @@ void GUIManager::onRunToIdle2FrameIntervalChanged(float& value) {
     movementManager->setMovementFrameInterval("RUN_TO_IDLE_2", value);
 }
 
+void GUIManager::onRunToWalk1FrameIntervalChanged(float& value) {
+    movementManager->setMovementFrameInterval("RUN_TO_WALK_1", value);
+}
+
+void GUIManager::onRunToWalk2FrameIntervalChanged(float& value) {
+    movementManager->setMovementFrameInterval("RUN_TO_WALK_2", value);
+}
+
 void GUIManager::onTurnFrameIntervalChanged(float& value) {
     movementManager->setMovementFrameInterval("TURN", value);
+}
+
+void GUIManager::onTurnToRunFrameIntervalChanged(float& value) {
+    movementManager->setMovementFrameInterval("TURN_TO_RUN", value);
 }
 
 void GUIManager::onWalkTurn1FrameIntervalChanged(float& value) {

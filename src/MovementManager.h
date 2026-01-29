@@ -16,11 +16,11 @@ class InputManager;
 // Estos estados representan lo que el personaje está haciendo lógicamente, independientemente de la animación exacta.
 // La diferencia entre Estado y Movimiento es como la diferencia entre "Querer ir a comprar" y "Caminar hacia la tienda".
 enum class MovementState {
-    IDLE,
-    WALKING,
-    RUNNING,
-    TURNING,    // Cuando está ejecutando una animación de giro
-    STOPPING    // Cuando está en una transición hacia IDLE
+    IDLE,       // [ | ]
+    WALKING,    // [ ~ ]
+    RUNNING,    // [ ≈ ]
+    TURNING,    // [ ↻ ] Cuando está ejecutando una animación de giro
+    STOPPING    // [ ! ] Cuando está en una transición hacia IDLE
 };
 
 
@@ -167,9 +167,10 @@ private:
     //Es private porque No quieres que desde ofApp.cpp alguien llame por error a movementManager.updateRegion().
     //Si lo hicieran, los frames podrían avanzar el doble de rápido o saltar cuando no deben, rompiendo la animación.
     //Como es privado, sabes que nadie fuera de esa clase depende de esa función.
-    // Es el motor, como un cronometro, se limita a avisar.
+    // Es el motor, como un cronometro.
     void updateRegion();
-    
+    void triggerTransition();    
+    void finishedTransition();
    
     
     // !!! AÑADIR EN EL FUTURO !!! SI HACE FALTA
@@ -191,34 +192,4 @@ private:
      };
      */
     
-    
-    
-    // *** MAPAS DE TRANSICIÓN (ESTÁTICOS) ***
-    // Mapa de transiciones de regiones
-    std::map<int, int> runToWalkRegionMap = {
-        {0, 5},
-        {1, 6},
-        {2, 7},
-        {3, 7},
-        {4, 0},
-        {5, 1},
-        {6, 1},
-        {7, 3},
-        {8, 3},
-        {9, 4},
-        {10, 4},
-        {11, 5}
-    };
-    
-    // Mapa de transiciones de regiones para WALK a RUN
-    std::map<int, int> walkToRunRegionMap = {
-        {0, 6},
-        {1, 7},
-        {2, 10},
-        {3, 11},
-        {4, 0},
-        {5, 1},
-        {6, 4},
-        {7, 5}
-    };
 };
