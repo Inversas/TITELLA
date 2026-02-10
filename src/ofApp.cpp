@@ -6,12 +6,15 @@ void ofApp::setup() {
     spriteSheetManager.loadSpriteSheet("ProvaTest_5.png");
     // Configura el gestor de entradas con el gestor de movimientos
     inputManager.setup();
-    
+    // Configura el gestor de físicas con la posición inicial del personaje
+    physicsManager.setup(0,0);
     // Configura el gestor de movimientos con "movements.json"
-    movementManager.setup("movements.json", spriteSheetManager, inputManager);
+    movementManager.setup("movements.json", spriteSheetManager, inputManager, physicsManager);
+    
+
     
     // Configura el gestor de la GUI con los gestores de movimientos y de sprites
-    guiManager.setup(movementManager, spriteSheetManager, inputManager);
+    guiManager.setup(movementManager, spriteSheetManager, inputManager, physicsManager);
 }
 
 
@@ -19,9 +22,15 @@ void ofApp::update() {
     
     // Obtiene el tiempo transcurrido en segundos desde que se ha ejectuado la aplicación
     float currentTime = ofGetElapsedTimef();
+    
+    
+    physicsManager.update();
 
     // Actualiza el gestor de movimientos con el tiempo actual
     movementManager.update(currentTime);
+    
+    // Actualiza el gestor de físicas 
+    //physicsManager.applyVelocity();
     
     // Actualiza el gestor de la GUI
     guiManager.update();
@@ -31,7 +40,7 @@ void ofApp::update() {
 void ofApp::draw() {
     
     // Dibuja el sprite actual basado en el gestor de movimientos
-    spriteSheetManager.draw(movementManager.getCurrentRow(), movementManager.getCurrentRegion(),movementManager.getIsFacingRight());
+    spriteSheetManager.draw(physicsManager.getPosition().x,physicsManager.getPosition().y,movementManager.getCurrentRow(), movementManager.getCurrentRegion(),movementManager.getIsFacingRight());
     
     //Dibuja la GUI
     guiManager.draw();

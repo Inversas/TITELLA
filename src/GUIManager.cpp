@@ -1,10 +1,11 @@
 #include "GUIManager.h"
 
-void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spriteSheetManager, InputManager& inputManager) {
+void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spriteSheetManager, InputManager& inputManager, PhysicsManager& physicsManager) {
     
     this->movementManager = &movementManager;        // Guardamos la referencia a MovementManager
     this->spriteSheetManager = &spriteSheetManager;  // Guardamos la referencia a SpriteSheetManager
     this->inputManager = &inputManager;              // Guardamos la referencia a InputManager
+    this->physicsManager = &physicsManager;
     
     // Inicializar GUI
     gui.setup("Settings");
@@ -37,12 +38,22 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     //*** LABELS ***
     gui.add(currentRowGui.setup("Current Row", "0"));
     gui.add(currentRegionGui.setup("Current Region", "0"));
+    
+    // $$$$$$$$$$$$$ FISICAS $$$$$$$$$$$$$
+    gui.add(currentVelocityXGui.setup("Vel X", "0.0"));
+    // $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
     gui.add(currentMovementNameGui.setup("MOV", "IDLE"));
     gui.add(NextOutRegionGui.setup("Next Out Region", ""));
     gui.add(currentStateGui.setup("STATE", "IDLE"));
     gui.add(targetStateGui.setup("TARGET", "IDLE"));
     gui.add(controlKeysGui.setup("", "NONE"));
     gui.add(currentIntentionGui.setup("INTENT", "NO WANTS"));
+    
+    
+    // $$$$$$$$$$$$$ FISICAS $$$$$$$$$$$$$
+    gui.add(maxSpeedWalkGui.setup("Max Speed Walk", 5.0f, 0.0, 15.0));
+    gui.add(maxSpeedRunGui.setup("Max Speed Run", 10.0f, 0.0, 25.0));
 
 
     
@@ -65,7 +76,15 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     walkTurn2FrameIntervalGui = movementManager.getMovementFrameInterval("WALK_TURN_2");
     runTurn1FrameIntervalGui = movementManager.getMovementFrameInterval("RUN_TURN_1");
     runTurn2FrameIntervalGui = movementManager.getMovementFrameInterval("RUN_TURN_2");
+    
+    
+    // $$$$$$$$$$$$$ FISICAS $$$$$$$$$$$$$
+    currentVelocityXGui = std::to_string(physicsManager.getVelocity().x);
+    maxSpeedWalkGui = physicsManager.getMaxSpeedWalk();
+    maxSpeedRunGui = physicsManager.getMaxSpeedRun();
 
+    
+    
     
     // Asociar listeners a los sliders
     scaleFactorGui.addListener(this, &GUIManager::onScaleFactorChanged);
@@ -86,6 +105,9 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     walkTurn2FrameIntervalGui.addListener(this, &GUIManager::onWalkTurn2FrameIntervalChanged);
     runTurn1FrameIntervalGui.addListener(this, &GUIManager::onRunTurn1FrameIntervalChanged);
     runTurn2FrameIntervalGui.addListener(this, &GUIManager::onRunTurn2FrameIntervalChanged);
+    
+    maxSpeedWalkGui.addListener(this, &GUIManager::onMaxSpeedWalkChanged);
+    maxSpeedRunGui.addListener(this, &GUIManager::onMaxSpeedRunChanged);
     
 }
 
@@ -124,6 +146,10 @@ void GUIManager::update() {
     
     // Actualiza el nombre del movimiento actual en la GUI
     currentMovementNameGui = movementManager->getCurrentMovementName();
+    
+    
+    // Actualizar la velocidad actual del personaje en la GUI
+    currentVelocityXGui = std::to_string(physicsManager->getVelocity().x);
 }
 
 
@@ -135,6 +161,11 @@ void GUIManager::draw() {
 #pragma region Callbacks para los sliders
 void GUIManager::onScaleFactorChanged(float& value) {
     spriteSheetManager->setScaleFactor(value);
+    physicsManager->setCurrentScale(value);
+    
+    //Como el factor de escala solo afecta a las velocidades objetivo, debemos actualizarlas
+    physicsManager->setMaxSpeedWalk(physicsManager->getMaxSpeedWalk());
+    physicsManager->setMaxSpeedRun(physicsManager->getMaxSpeedRun());
 }
 
 void GUIManager::onFrameIntervalChanged(float& value) {
@@ -208,4 +239,14 @@ void GUIManager::onRunTurn1FrameIntervalChanged(float& value) {
 void GUIManager::onRunTurn2FrameIntervalChanged(float& value) {
     movementManager->setMovementFrameInterval("RUN_TURN_2", value);
 }
+
+
+void GUIManager::onMaxSpeedWalkChanged(float& value) {
+    physicsManager->setMaxSpeedWalk(value);
+}
+
+void GUIManager::onMaxSpeedRunChanged(float& value) {
+    physicsManager->setMaxSpeedRun(value);
+}
+
 #pragma endregion

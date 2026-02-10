@@ -7,41 +7,56 @@ bool SpriteSheetManager::loadSpriteSheet(const std::string& filename) {
 }
 
 // Dibuja una región específica de la hoja de sprites
-void SpriteSheetManager::draw(int row, int region, bool isFacingRight) {
+void SpriteSheetManager::draw(float x, float y, int row, int region, bool isFacingRight) {
     
-    // Guarda la matriz de transformación actual
+    // 1. Guardamos la matriz actual
     ofPushMatrix();
     
+    // 2. Traslación base al centro de la ventana (ajustada por tu offset de 150)
+    ofTranslate(ofGetWidth()/2 - 150, ofGetHeight()/2 - 150);
     
-    // Traslada la posición al centro de la ventana
-    ofTranslate(ofGetWidth()/2-150, ofGetHeight()/2-150);
-    
-    //Si la dirección del persona es izquierda
+    // 3. Nos movemos a la posición (x, y) que dicta la física
+    // Esto hace que el dibujo siga al "títere"
+    ofTranslate(x, y);
+
     if (isFacingRight) {
-        // Escala la imagen según el factor de escala
+        // --- DIBUJO DERECHA ---
         ofScale(scaleFactor, scaleFactor);
         
+        // El offset se aplica normalmente
+        float drawX = SPRITE_OFFSET_X;
+
+        drawRectangle(drawX, 0);
+        drawCircle(drawX, 0, 5);
+        
         spriteSheet.drawSubsection(
-                                0, 0, // Dibuja en el origen (0, 0)
-                                REGION_WIDTH, REGION_HEIGHT, // Dimensiones de la región a dibujar
-                                region * REGION_WIDTH, // Coordenada x de la región en la hoja de sprites
-                                row * REGION_HEIGHT // Coordenada y de la región en la hoja de sprites
-                                );
+            drawX, 0,
+            REGION_WIDTH, REGION_HEIGHT,
+            region * REGION_WIDTH,
+            row * REGION_HEIGHT
+        );
     }
     else {
-        ofScale(-scaleFactor, scaleFactor); // Escala invertida horizontalmente
+        // --- DIBUJO IZQUIERDA (ESPEJO) ---
+        ofScale(-scaleFactor, scaleFactor);
         
-        // Ajusta la posición de dibujo para la escala invertida
+        // IMPORTANTE: Al estar en escala negativa, para que el cuerpo
+        // quede en el mismo sitio, debemos desplazarlo hacia el "nuevo negativo"
+        // que visualmente es la derecha.
+        float drawX = -REGION_WIDTH + SPRITE_OFFSET_X;
+
+        drawRectangle(drawX, 0);
+        drawCircle(drawX, 0, 5);
+        
         spriteSheet.drawSubsection(
-                                -REGION_WIDTH + SPRITE_OFFSET_X, 0, // Ajusta la posición x para la escala invertida con el offset
-                                REGION_WIDTH, REGION_HEIGHT, // Dimensiones de la región a dibujar
-                                region * REGION_WIDTH, // Coordenada x de la región en la hoja de sprites
-                                row * REGION_HEIGHT // Coordenada y de la región en la hoja de sprites
-                                );
+            drawX, 0,
+            REGION_WIDTH, REGION_HEIGHT,
+            region * REGION_WIDTH,
+            row * REGION_HEIGHT
+        );
     }
     
-    
-    // Restaura la matriz de transformación guardada
+    // 4. Restauramos la matriz
     ofPopMatrix();
 }
 
@@ -50,3 +65,22 @@ void SpriteSheetManager::setScaleFactor(float scaleFactor) {
     // Asigna el nuevo factor de escala
     this->scaleFactor = scaleFactor;
 }
+
+void SpriteSheetManager::drawRectangle(float x, float y){
+    // --- NUEVO: Dibujo del cuadrado guía ---
+    ofNoFill();            // Solo el contorno
+    ofSetColor(255);       // Color blanco
+    ofDrawRectangle(x, y, REGION_WIDTH, REGION_HEIGHT-65);
+    ofSetColor(255);       // Resetear color para el sprite (por si acaso)
+    // ---------------------------------------
+}
+
+void SpriteSheetManager::drawCircle(float x, float y, float radius){
+    // --- NUEVO: Dibujo del punto guía ---
+    ofNoFill();            // Solo el contorno
+    ofSetColor(255);       // Color blanco
+    ofDrawCircle(x, y, radius);
+    ofSetColor(255);       // Resetear color para el sprite (por si acaso)
+    // ---------------------------------------
+}
+

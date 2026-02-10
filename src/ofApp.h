@@ -3,6 +3,7 @@
 #include "ofMain.h"
 #include "SpriteSheetManager.h"
 #include "MovementManager.h"
+#include "PhysicsManager.h"
 #include "GUIManager.h"
 #include "InputManager.h"
 #include <memory>
@@ -25,6 +26,9 @@ private:
     
     // Gestor de movimientos
     MovementManager movementManager;
+    
+    // Gestor de físicas
+    PhysicsManager physicsManager;
     
     // Gestor de GUI
     GUIManager guiManager;

@@ -10,6 +10,8 @@
 		"12D13C6B-6A90-4AB4-A2A5-F464BFF876BC" /* jsoncpp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = "45CF7A80-45E1-4CC1-9C2A-660BDC24649E" /* jsoncpp.cpp */; };
 		"14113CD4-35E9-4113-A7DD-FDEC7519E318" /* ofxSlider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = "C09ED954-AD47-4DEE-B407-BEFFC85C25CD" /* ofxSlider.cpp */; };
 		"33117081-388A-49CC-8E4C-72797C1B0513" /* ofxPanel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = "BD38AF6D-C5AE-4F14-A13A-A796A44EF503" /* ofxPanel.cpp */; };
+		52088C642F34E60200E19091 /* CollisionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52088C612F34E60200E19091 /* CollisionManager.cpp */; };
+		52088C652F34E60200E19091 /* PhysicsManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52088C622F34E60200E19091 /* PhysicsManager.cpp */; };
 		5236881A2F0EC64B0081284F /* MovementManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5236880F2F0EC64A0081284F /* MovementManager.cpp */; };
 		5236881B2F0EC64B0081284F /* InputManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 523688102F0EC64A0081284F /* InputManager.cpp */; };
 		5236881C2F0EC64B0081284F /* GUIManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 523688122F0EC64A0081284F /* GUIManager.cpp */; };
@@ -65,6 +67,10 @@
 		"4C2BC822-3AB0-473E-A955-8C71ED9EF5DF" /* ofxInputField.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = ofxInputField.cpp; path = ../../../addons/ofxGui/src/ofxInputField.cpp; sourceTree = SOURCE_ROOT; };
 		"512D1593-D542-445D-8872-E636BA58B887" /* ofxButton.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = ofxButton.cpp; path = ../../../addons/ofxGui/src/ofxButton.cpp; sourceTree = SOURCE_ROOT; };
 		"516F2A33-D519-474E-B1C9-34454B05C461" /* ofxLabel.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = ofxLabel.cpp; path = ../../../addons/ofxGui/src/ofxLabel.cpp; sourceTree = SOURCE_ROOT; };
+		52088C602F34E60100E19091 /* CollisionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CollisionManager.h; sourceTree = "<group>"; };
+		52088C612F34E60200E19091 /* CollisionManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CollisionManager.cpp; sourceTree = "<group>"; };
+		52088C622F34E60200E19091 /* PhysicsManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PhysicsManager.cpp; sourceTree = "<group>"; };
+		52088C632F34E60200E19091 /* PhysicsManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PhysicsManager.h; sourceTree = "<group>"; };
 		5236880E2F0EC64A0081284F /* Movimiento.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Movimiento.h; sourceTree = "<group>"; };
 		5236880F2F0EC64A0081284F /* MovementManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MovementManager.cpp; sourceTree = "<group>"; };
 		523688102F0EC64A0081284F /* InputManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InputManager.cpp; sourceTree = "<group>"; };
@@ -233,6 +239,10 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				52088C612F34E60200E19091 /* CollisionManager.cpp */,
+				52088C602F34E60100E19091 /* CollisionManager.h */,
+				52088C622F34E60200E19091 /* PhysicsManager.cpp */,
+				52088C632F34E60200E19091 /* PhysicsManager.h */,
 				523688122F0EC64A0081284F /* GUIManager.cpp */,
 				523688192F0EC64B0081284F /* GUIManager.h */,
 				523688102F0EC64A0081284F /* InputManager.cpp */,
@@ -358,12 +368,14 @@
 				"F33F8341-0C0D-4AA9-81BE-487CBCAB33EE" /* ofxButton.cpp in Sources */,
 				"6417D9C0-BF5E-487C-AA24-D01A70CBF499" /* ofxColorPicker.cpp in Sources */,
 				"BE421A85-FE62-4538-AB3B-4D7E64E2D4D3" /* ofxGuiGroup.cpp in Sources */,
+				52088C642F34E60200E19091 /* CollisionManager.cpp in Sources */,
 				5236881C2F0EC64B0081284F /* GUIManager.cpp in Sources */,
 				"BEBCBEE7-6E5D-4630-A822-E3B1F342DD57" /* ofxInputField.cpp in Sources */,
 				"D9A1CA28-6C7E-48F2-859C-E36AF539F30E" /* ofxLabel.cpp in Sources */,
 				5236881E2F0EC64B0081284F /* SpriteSheetManager.cpp in Sources */,
 				"33117081-388A-49CC-8E4C-72797C1B0513" /* ofxPanel.cpp in Sources */,
 				"14113CD4-35E9-4113-A7DD-FDEC7519E318" /* ofxSlider.cpp in Sources */,
+				52088C652F34E60200E19091 /* PhysicsManager.cpp in Sources */,
 				"66C1B6AA-B694-4482-A14B-791B926BC294" /* ofxSliderGroup.cpp in Sources */,
 				5236881B2F0EC64B0081284F /* InputManager.cpp in Sources */,
 				"996F8224-41D3-436A-8736-877D2290E6A9" /* ofxToggle.cpp in Sources */,

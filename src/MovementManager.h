@@ -10,7 +10,7 @@
 
 class SpriteSheetManager;
 class InputManager;
-
+class PhysicsManager;
 
 // Estados lógicos del personaje
 // Estos estados representan lo que el personaje está haciendo lógicamente, independientemente de la animación exacta.
@@ -35,7 +35,7 @@ public:
     // Inicializa el gestor de movimientos desde un archivo JSON, asociando un gestor de hojas de sprites y un gestor de entradas
     // Más abajo en private definimos el InputManager como puntero, porque necesitamos consultarlo constantemente.
     // Pero no definimos el SpriteSheetManager nos viene de una referencia en ofApp, no necesita guardar su contacto.
-    void setup(const std::string& filename, SpriteSheetManager& spriteSheetManager, InputManager& input);
+    void setup(const std::string& filename, SpriteSheetManager& spriteSheetManager, InputManager& input, PhysicsManager& physics);
     
     // *** CICLO DE VIDA ***
     // Actualiza el estado del MovementManager basado en el tiempo actual.
@@ -153,7 +153,9 @@ private:
     MovementState targetState = MovementState::IDLE;
     
     // Puntero al gestor de entradas
-     InputManager* inputManager = nullptr;
+    InputManager* inputManager = nullptr;
+    // Puntero al gestor de físicas
+    PhysicsManager* physicsManager = nullptr;
     
     // *** LÓGICA INTERNA (LOS ENGRANAJES) ***
     // Determina si se debe actualizar la región en función del tiempo transcurrido y el intervalo de frame
@@ -172,10 +174,12 @@ private:
     void triggerTransition();    
     void finishedTransition();
    
+    // $$$$$$$$$$$$$ FISICAS $$$$$$$$$$$$$
+    void handleMovementPhysics(const std::string& name);
+    
     
     // !!! AÑADIR EN EL FUTURO !!! SI HACE FALTA
     //bool canInterrupt() const; // Para saber si estamos en un estado flexible
-    
     
     
     // TURN_TO_RUN solo se puede dar desde IDLE, pero el estado es TURNING

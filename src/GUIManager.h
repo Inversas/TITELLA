@@ -4,10 +4,11 @@
 #include "MovementManager.h"
 #include "SpriteSheetManager.h"
 #include "InputManager.h"
+#include "PhysicsManager.h"
 
 class GUIManager {
 public:
-    void setup(MovementManager& movementManager, SpriteSheetManager& spriteSheetManager, InputManager& inputManager);
+    void setup(MovementManager& movementManager, SpriteSheetManager& spriteSheetManager, InputManager& inputManager, PhysicsManager& phisicsManager);
     void update();
     void draw();
 
@@ -45,17 +46,32 @@ private:
     //*** LABELS ***
     ofxLabel currentRowGui;
     ofxLabel currentRegionGui;
+    ofxLabel currentVelocityXGui;       // Label para mostrar la velocidad actual del personaje
     ofxLabel currentMovementNameGui;   // Label para mostrar el nombre del movimiento actual
-    ofxLabel NextOutRegionGui;      // Label para mostrar la siguiente región de salida
+    ofxLabel NextOutRegionGui;         // Label para mostrar la siguiente región de salida
     ofxLabel currentStateGui;          // Para el estado actual
     ofxLabel targetStateGui;           // Para el estado objetivo
 
     ofxLabel controlKeysGui; // Label para mostrar las teclas de control
     ofxLabel currentIntentionGui; // Label para mostrar la Intención Actual
+    
+    
+    //*** PHYSICS SLIDERS ***
+    // NUEVOS: Sliders de velocidad (píxeles/frame)
+    ofxFloatSlider maxSpeedWalkGui;
+    ofxFloatSlider maxSpeedRunGui;
+    
+    
 
-    MovementManager* movementManager;        // Añadimos una referencia a MovementManager
-    SpriteSheetManager* spriteSheetManager;  // Añadimos una referencia a SpriteSheetManager
-    InputManager* inputManager;        // Añadimos una referencia a InputManager
+    MovementManager* movementManager;       // Añadimos una referencia a MovementManager
+    SpriteSheetManager* spriteSheetManager; // Añadimos una referencia a SpriteSheetManager
+    InputManager* inputManager;             // Añadimos una referencia a InputManager
+    PhysicsManager* physicsManager;         // Añadimos una referencia a PhysicsManager
+    
+    
+    
+    
+   
 
     
     // Callback for the scale factor slider
@@ -80,6 +96,9 @@ private:
     void onWalkTurn2FrameIntervalChanged(float& value); // Callback para WalkTurn2
     void onRunTurn1FrameIntervalChanged(float& value); // Callback para RunTurn1
     void onRunTurn2FrameIntervalChanged(float& value); // Callback para RunTurn2
+    
+    void onMaxSpeedWalkChanged(float& value); 
+    void onMaxSpeedRunChanged(float& value);
 
     
 };
