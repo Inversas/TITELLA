@@ -4,6 +4,7 @@
 #include "SpriteSheetManager.h"
 #include "MovementManager.h"
 #include "PhysicsManager.h"
+#include "CollisionManager.h"
 #include "GUIManager.h"
 #include "InputManager.h"
 #include <memory>
@@ -29,6 +30,9 @@ private:
     
     // Gestor de físicas
     PhysicsManager physicsManager;
+    
+    // Gestor de colisiones
+    CollisionManager collisionManager;
     
     // Gestor de GUI
     GUIManager guiManager;

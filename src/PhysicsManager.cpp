@@ -1,5 +1,4 @@
 #include "PhysicsManager.h"
-
 #include "CollisionManager.h"
 #include "MovementManager.h"
 #include "SpriteSheetManager.h"
@@ -16,8 +15,8 @@ void PhysicsManager::setup(float startX, float startY) {
     currentScale = 1.0f;
     
     // Valores iniciales por defecto (se pueden cambiar con los setters)
-    maxSpeedWalk = 4.0f;
-    maxSpeedRun = 8.0f;
+    maxSpeedWalk = 7.0f;
+    maxSpeedRun = 18.0f;
     
     // Inicialización de control
     targetVelocityX = 0.0f;

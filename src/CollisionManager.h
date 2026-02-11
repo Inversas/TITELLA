@@ -1,25 +1,25 @@
 #pragma once
 
-#include "Movimiento.h"
-#include "ofxJSON.h"
-#include <memory>
-#include <map>
-#include <string>
-#include <unordered_map>
+#include "ofMain.h"
+#include "Interactor.h"
+#include <vector>
 
-
+using namespace std;
 
 // Clase que gestiona las colisiones en el juego
 class CollisionManager {
 
-//"Public" es lo que la clase hace por los demás.
 public:
-    
+    // Inicializa los límites y el suelo
     void setup();
     
     void update();
+
+    // Dibujará las líneas de colisión para debug
+    void draw();
     
-//"Private" es cómo la clase se organiza a sí misma para hacer su trabajo.
 private:
+    // Lista donde guardamos todos los suelos, paredes y botones
+    vector<Interactor> interactors;
         
 };

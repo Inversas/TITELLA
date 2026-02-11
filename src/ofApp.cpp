@@ -8,6 +8,9 @@ void ofApp::setup() {
     inputManager.setup();
     // Configura el gestor de físicas con la posición inicial del personaje
     physicsManager.setup(0,0);
+    // Configura el gestor de colisiones
+    collisionManager.setup();
+    
     // Configura el gestor de movimientos con "movements.json"
     movementManager.setup("movements.json", spriteSheetManager, inputManager, physicsManager);
     
@@ -38,6 +41,8 @@ void ofApp::update() {
 
 
 void ofApp::draw() {
+    // Dibuja interactors
+    collisionManager.draw();
     
     // Dibuja el sprite actual basado en el gestor de movimientos
     spriteSheetManager.draw(physicsManager.getPosition().x,physicsManager.getPosition().y,movementManager.getCurrentRow(), movementManager.getCurrentRegion(),movementManager.getIsFacingRight());
