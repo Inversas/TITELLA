@@ -11,6 +11,7 @@
 class SpriteSheetManager;
 class InputManager;
 class PhysicsManager;
+class CollisionManager;
 
 // Estados lógicos del personaje
 // Estos estados representan lo que el personaje está haciendo lógicamente, independientemente de la animación exacta.
@@ -35,7 +36,7 @@ public:
     // Inicializa el gestor de movimientos desde un archivo JSON, asociando un gestor de hojas de sprites y un gestor de entradas
     // Más abajo en private definimos el InputManager como puntero, porque necesitamos consultarlo constantemente.
     // Pero no definimos el SpriteSheetManager nos viene de una referencia en ofApp, no necesita guardar su contacto.
-    void setup(const std::string& filename, SpriteSheetManager& spriteSheetManager, InputManager& input, PhysicsManager& physics);
+    void setup(const std::string& filename, SpriteSheetManager& spriteSheetManager, InputManager& input, PhysicsManager& physics, CollisionManager& collision);
     
     // *** CICLO DE VIDA ***
     // Actualiza el estado del MovementManager basado en el tiempo actual.
@@ -156,6 +157,10 @@ private:
     InputManager* inputManager = nullptr;
     // Puntero al gestor de físicas
     PhysicsManager* physicsManager = nullptr;
+    // Puntero al gestor de Sprites
+    SpriteSheetManager* spriteSheetManager = nullptr;
+    // Puntero al gestor de Colisiones
+    CollisionManager* collisionManager = nullptr;
     
     // *** LÓGICA INTERNA (LOS ENGRANAJES) ***
     // Determina si se debe actualizar la región en función del tiempo transcurrido y el intervalo de frame

@@ -7,12 +7,12 @@ void ofApp::setup() {
     // Configura el gestor de entradas con el gestor de movimientos
     inputManager.setup();
     // Configura el gestor de físicas con la posición inicial del personaje
-    physicsManager.setup(0,0);
+    physicsManager.setup(ofGetWidth()/2,ofGetHeight()/2);
     // Configura el gestor de colisiones
     collisionManager.setup();
     
     // Configura el gestor de movimientos con "movements.json"
-    movementManager.setup("movements.json", spriteSheetManager, inputManager, physicsManager);
+    movementManager.setup("movements.json", spriteSheetManager, inputManager, physicsManager, collisionManager);
     
 
     

@@ -58,8 +58,13 @@ public:
 
     
     // *** Setters *** //
+    
+    
+    // !!!!!! ESTO SE DISPARAAA !!!! no puede estar bieeen !!!
     void setMaxSpeedWalk(float maxSpeed) { maxSpeedWalk = maxSpeed * currentScale; }
     void setMaxSpeedRun(float maxSpeed) { maxSpeedRun = maxSpeed * currentScale; }
+    
+    
     void setCurrentScale(float scale) { currentScale = scale; }
     
 

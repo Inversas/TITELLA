@@ -61,6 +61,10 @@ private:
     ofxFloatSlider maxSpeedWalkGui;
     ofxFloatSlider maxSpeedRunGui;
     
+    // *** COLLISION SLIDERS (FROM SPRITE SHEET MANAGER) ***
+    ofxFloatSlider hitBoxWGui;
+    ofxFloatSlider  hitRayFloorXGui;
+    
     
 
     MovementManager* movementManager;       // Añadimos una referencia a MovementManager
@@ -100,5 +104,7 @@ private:
     void onMaxSpeedWalkChanged(float& value); 
     void onMaxSpeedRunChanged(float& value);
 
+    void onHitBoxWChanged(float& value);
+    void onHitRayFloorXChanged(float& value);
     
 };

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
+#include "SpriteSheetManager.h"
 #include "Interactor.h"
 #include <vector>
 
@@ -17,6 +18,11 @@ public:
 
     // Dibujará las líneas de colisión para debug
     void draw();
+    
+    // Retorna un puntero al Interactor chocado, o nullptr si no hay nada
+    Interactor* checkCollisions(ofVec2f currentPos, ofVec2f velocity, SpriteSheetManager& sprite, bool isFacingRight);
+    
+    
     
 private:
     // Lista donde guardamos todos los suelos, paredes y botones

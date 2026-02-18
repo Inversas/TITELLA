@@ -5,11 +5,11 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     this->movementManager = &movementManager;        // Guardamos la referencia a MovementManager
     this->spriteSheetManager = &spriteSheetManager;  // Guardamos la referencia a SpriteSheetManager
     this->inputManager = &inputManager;              // Guardamos la referencia a InputManager
-    this->physicsManager = &physicsManager;
+    this->physicsManager = &physicsManager;          // Guardamos la referencia a PhysicsManager
     
     // Inicializar GUI
     gui.setup("Settings");
-    gui.setPosition(ofGetWidth() - 220, 10);
+    gui.setPosition(ofGetWidth() - 220, 30);
     
     // Añadir los sliders a la GUI
     gui.add(scaleFactorGui.setup("Scale Factor", 1.0f, 0.5, 3.0));
@@ -51,11 +51,15 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     gui.add(currentIntentionGui.setup("INTENT", "NO WANTS"));
     
     
-    // $$$$$$$$$$$$$ FISICAS $$$$$$$$$$$$$
+    // $$$$$$$$$$$$$ FISICAS SLIDERS $$$$$$$$$$$$$
     gui.add(maxSpeedWalkGui.setup("Max Speed Walk", 5.0f, 0.0, 15.0));
     gui.add(maxSpeedRunGui.setup("Max Speed Run", 10.0f, 0.0, 25.0));
-
-
+    // $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+    
+    
+    // *** COLLISION SLIDERS (FROM SPRITE SHEET MANAGER) ***
+    gui.add(hitBoxWGui.setup("HitBox W", spriteSheetManager.getHitboxW(), 100, 400));
+    gui.add(hitRayFloorXGui.setup("HitRayFloor X", spriteSheetManager.getHitRayXFloor(), 0, 200));
     
     // Inicializar los sliders con los valores actuales
     frameIntervalGui = movementManager.getFrameInterval();
@@ -108,6 +112,9 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     
     maxSpeedWalkGui.addListener(this, &GUIManager::onMaxSpeedWalkChanged);
     maxSpeedRunGui.addListener(this, &GUIManager::onMaxSpeedRunChanged);
+    
+    hitBoxWGui.addListener(this, &GUIManager::onHitBoxWChanged);
+    hitRayFloorXGui.addListener(this, &GUIManager::onHitRayFloorXChanged);
     
 }
 
@@ -247,6 +254,14 @@ void GUIManager::onMaxSpeedWalkChanged(float& value) {
 
 void GUIManager::onMaxSpeedRunChanged(float& value) {
     physicsManager->setMaxSpeedRun(value);
+}
+
+void GUIManager::onHitBoxWChanged(float& value) {
+    spriteSheetManager->setHitboxW(value);
+}
+
+void GUIManager::onHitRayFloorXChanged(float& value) {
+    spriteSheetManager->setHitRayXFloor(value);
 }
 
 #pragma endregion

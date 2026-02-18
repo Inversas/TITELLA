@@ -2,6 +2,7 @@
 #include "SpriteSheetManager.h"
 #include "InputManager.h"
 #include "PhysicsManager.h"
+#include "CollisionManager.h"
 
 // ##########################################
 //             ESTADO ACTUAL
@@ -18,11 +19,13 @@
 
 // *** CONFIGURACIÓN Y CONEXIÓN ***
 // Inicializa el MovementManager cargando los movimientos desde un archivo JSON y configurando el movimiento actual a "IDLE".
-void MovementManager::setup(const std::string& filename, SpriteSheetManager& spriteSheetManager, InputManager& input, PhysicsManager& physics) {
+void MovementManager::setup(const std::string& filename, SpriteSheetManager& spriteSheetManager, InputManager& input, PhysicsManager& physics, CollisionManager& collision) {
     
-    // Guardamos la referencia del inputManager para usarla luego
+    // Guardamos las referencias para usarlas luego
     this->inputManager = &input;
     this->physicsManager = &physics;
+    this->spriteSheetManager = &spriteSheetManager;
+    this->collisionManager = &collision;
     
     // Carga los movimientos desde el archivo JSON proporcionado
     loadMovements(filename);
@@ -201,7 +204,7 @@ void MovementManager::updateState(MovementState targetState) {
                 // ==========================================
                 // Si no quiere correr desde IDLE
                 if(!flag_turn_to_run){
-                    std::cout << "!!! ESTA IDLE, VAMOS A GIRAR DESDE: "  << currentMovementName << "!!!" << std::endl;
+                    //std::cout << "!!! ESTA IDLE, VAMOS A GIRAR DESDE: "  << currentMovementName << "!!!" << std::endl;
                     // EJECUTAMOS GIRO (COMPROMETIDO)
                     playMovement("TURN");
                     // ACTUALIZAMOS ESTADO
@@ -227,7 +230,7 @@ void MovementManager::updateState(MovementState targetState) {
                 // ==========================================
                 //                  WALK
                 // ==========================================
-                std::cout << "!!! ESTA IDLE, VAMOS A CAMINAR DESDE: "  << currentMovementName << "!!!" << std::endl;
+                //std::cout << "!!! ESTA IDLE, VAMOS A CAMINAR DESDE: "  << currentMovementName << "!!!" << std::endl;
                 // EJECUTAMOS FELXIBLE
                 playMovement("WALK");
                 // ACTUALIZAMOS ESTADO
@@ -241,7 +244,7 @@ void MovementManager::updateState(MovementState targetState) {
                 // ==========================================
                 //                  RUN
                 // ==========================================
-                std::cout << "!!! ESTA IDLE, VAMOS A CORRER DESDE: "  << currentMovementName << "!!!" << std::endl;
+                //std::cout << "!!! ESTA IDLE, VAMOS A CORRER DESDE: "  << currentMovementName << "!!!" << std::endl;
                 // EJECUTAMOS FELXIBLE
                 playMovement("RUN");
                 // ACTUALIZAMOS ESTADO
@@ -261,7 +264,7 @@ void MovementManager::updateState(MovementState targetState) {
                 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
                 //               STOPPING
                 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-                std::cout << "!!! ESTA WALKING, VAMOS A FRENAR DESDE: "  << currentMovementName << "!!!" << std::endl;
+                //std::cout << "!!! ESTA WALKING, VAMOS A FRENAR DESDE: "  << currentMovementName << "!!!" << std::endl;
                 // ACTUALIZAMOS ESTADO primero por ser TRANSICION
                 currentState = MovementState::STOPPING;
                 // BUSCAR PUNTO DE SALIDA y ACTIVAR ESPERA (lo ejecutará updateRegion())
@@ -275,7 +278,7 @@ void MovementManager::updateState(MovementState targetState) {
                 // ==========================================
                 //             WALK TO TURN
                 // ==========================================
-                std::cout << "!!! ESTA WALKING, VAMOS A GIRAR DESDE: "  << currentMovementName << "!!!" << std::endl;
+                //std::cout << "!!! ESTA WALKING, VAMOS A GIRAR DESDE: "  << currentMovementName << "!!!" << std::endl;
                 // ACTUALIZAMOS ESTADO primero por ser TRANSICION
                 currentState = MovementState::TURNING;
                 // BUSCAR PUNTO DE SALIDA y ACTIVAR ESPERA (lo ejecutará updateRegion())
@@ -289,7 +292,7 @@ void MovementManager::updateState(MovementState targetState) {
                 // ==========================================
                 //              WALK TO RUN
                 // ==========================================
-                std::cout << "!!! ESTA WALKING, VAMOS A CORRER DESDE: "  << currentMovementName << "!!!" << std::endl;
+                //std::cout << "!!! ESTA WALKING, VAMOS A CORRER DESDE: "  << currentMovementName << "!!!" << std::endl;
                 // ACTUALIZAMOS ESTADO primero por ser TRANSICION
                 currentState = MovementState::RUNNING;
                 // BUSCAR PUNTO DE SALIDA y ACTIVAR ESPERA (lo ejecutará updateRegion())
@@ -306,7 +309,7 @@ void MovementManager::updateState(MovementState targetState) {
                 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
                 //               STOPPING
                 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-                std::cout << "!!! ESTA RUNNING, VAMOS A FRENAR DESDE: "  << currentMovementName << "!!!" << std::endl;
+                //std::cout << "!!! ESTA RUNNING, VAMOS A FRENAR DESDE: "  << currentMovementName << "!!!" << std::endl;
                 // ACTUALIZAMOS ESTADO primero por ser TRANSICION
                 currentState = MovementState::STOPPING;
                 // BUSCAR PUNTO DE SALIDA y ACTIVAR ESPERA (lo ejecutará updateRegion())
@@ -320,7 +323,7 @@ void MovementManager::updateState(MovementState targetState) {
                 // ==========================================
                 //             RUN TO TURN
                 // ==========================================
-                std::cout << "!!! ESTA RUNNING, VAMOS A GIRAR DESDE: "  << currentMovementName << "!!!" << std::endl;
+                //std::cout << "!!! ESTA RUNNING, VAMOS A GIRAR DESDE: "  << currentMovementName << "!!!" << std::endl;
                 // ACTUALIZAMOS ESTADO primero por ser TRANSICION
                 currentState = MovementState::TURNING;
                 // BUSCAR PUNTO DE SALIDA y ACTIVAR ESPERA (lo ejecutará updateRegion())
@@ -331,7 +334,7 @@ void MovementManager::updateState(MovementState targetState) {
             //               TO WALKING
             // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
             else if (targetState == MovementState::WALKING) {
-                std::cout << "!!! ESTA RUNNING, VAMOS A CAMINAR DESDE: "  << currentMovementName << "!!!" << std::endl;
+                //std::cout << "!!! ESTA RUNNING, VAMOS A CAMINAR DESDE: "  << currentMovementName << "!!!" << std::endl;
                 // ==========================================
                 //             RUN TO WALK
                 // ==========================================
@@ -419,7 +422,7 @@ void MovementManager::finishedTransition() {
     // ==========================================
     //Era un giro, cambiamos la dirección lógica
     if (currentMovementName.find("TURN") != std::string::npos) {
-        std::cout << "!!! ERA UN GIRO : !!!" << std::endl;
+        //std::cout << "!!! ERA UN GIRO : !!!" << std::endl;
         toggleIsFacingRight(); // Cambia la dirección lógica
     }
 
@@ -486,7 +489,7 @@ void MovementManager::finishedTransition() {
         //      FIN --> WALK TURN / RUN TO WALK
         // ######################################################
         if(currentMovementName.find("WALK_TURN") != std::string::npos || currentMovementName.find("TO_WALK") != std::string::npos){
-            std::cout << ">>> Giro en movimiento WALK o RUN_TO_WALK terminado , pero no hay wants: Paso de transición antes de frenar." << std::endl;
+            //std::cout << ">>> Giro en movimiento WALK o RUN_TO_WALK terminado , pero no hay wants: Paso de transición antes de frenar." << std::endl;
             
             // Algunas transiciones necesitan empezar en un frame concreto
             int startFrame = 0;
@@ -505,7 +508,7 @@ void MovementManager::finishedTransition() {
         //     FIN --> RUN TURN / WALK TO RUN / TURN TO RUN
         // ######################################################
         else if (currentMovementName.find("RUN_TURN") != std::string::npos || currentMovementName.find("TO_RUN") != std::string::npos ){
-            std::cout << ">>> Giro en movimiento RUN o WALK_TO_RUN terminado , pero no hay wants: Paso de transición antes de frenar." << std::endl;
+            //std::cout << ">>> Giro en movimiento RUN o WALK_TO_RUN terminado , pero no hay wants: Paso de transición antes de frenar." << std::endl;
 
             // Algunas transiciones necesitan empezar en un frame concreto
             int startFrame = 0;
@@ -545,10 +548,38 @@ void MovementManager::updateRegion() {
     // Incrementa la región actual
     currentRegion++;
     
+    
 // $$$$$$$$$$$$$ FISICAS $$$$$$$$$$$$$
-//suma un pequeño incremento a la velocidad actual
+    // Suma un pequeño incremento a la velocidad actual
     physicsManager->updateVelocityStep();
+    
+    
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    // CHECK COLLISIONS futuro
+    Interactor* hitObject = collisionManager->checkCollisions(
+        physicsManager->getPosition(),
+        physicsManager->getVelocity(),
+        *spriteSheetManager,
+        getIsFacingRight()
+    );
+
+    if (hitObject != nullptr) {
+        // Accedemos a los datos del interactor chocado
+        cout << "COLISION CON: " << hitObject->name << " (Tipo: " << (int)hitObject->type << ")" << endl;
+        
+    } else {
+        //cout << "NADA COLISIONA - Camino libre" << endl;
+    }
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+    
+    
+    
+// $$$$$$$$$$$$$ FISICAS $$$$$$$$$$$$$
+    // Aplica velocidad
     physicsManager->applyVelocity();
+    
+    
     // ##############################################################################################################################
     //                                                DISPARAR TRANSICION
     // ##############################################################################################################################
@@ -557,7 +588,7 @@ void MovementManager::updateRegion() {
         // Reset Waiting
         waitingForTransition = false;
         
-        std::cout << "!!! DISPARAR TRANSICION : !!!" << std::endl;
+        //std::cout << "!!! DISPARAR TRANSICION : !!!" << std::endl;
         triggerTransition();
         return;
     }
@@ -567,7 +598,7 @@ void MovementManager::updateRegion() {
     // ##############################################################################################################################
     // Si el movimiento actual es una transición y se ha completado,
     if (currentMovement->isTransition && currentRegion >= currentMovement->numRegions) {
-        std::cout << "!!! TRANSICION COMPLETADA : !!!" << std::endl;
+        //std::cout << "!!! TRANSICION COMPLETADA : !!!" << std::endl;
         finishedTransition();
         return;
     }
@@ -590,7 +621,7 @@ void MovementManager::handleMovementPhysics(const std::string& name) {
     // Obtenemos el número de frames (regiones) que dura esta animación
     int frames = movements[name].numRegions;
 
-    std::cout << "Analizando: " << name << std::endl;
+    //std::cout << "Analizando: " << name << std::endl;
 
 // ##############################################################################################################################
 //                                           TRANSICIONES (PRIORIDAD MÁXIMA)
@@ -599,7 +630,7 @@ void MovementManager::handleMovementPhysics(const std::string& name) {
     //                  TURN
     // ==========================================
     if (name.find("TURN_") != std::string::npos) {
-        std::cout << "-> Detectado GIRO en Movimiento" << std::endl;
+        //std::cout << "-> Detectado GIRO en Movimiento" << std::endl;
         // Inicia la rampa en 'V' para invertir la velocidad en el tiempo de giro
         physicsManager->startVelocityTurnChange(frames);
         return;
@@ -609,7 +640,7 @@ void MovementManager::handleMovementPhysics(const std::string& name) {
     //                 TO_IDLE
     // ==========================================
     if (name.find("TO_IDLE") != std::string::npos) {
-        std::cout << "-> Detectado FRENADO (TO_IDLE)" << std::endl;
+        //std::cout << "-> Detectado FRENADO (TO_IDLE)" << std::endl;
         // Crea una rampa hacia velocidad 0 usando los frames de la animación de frenado
         physicsManager->startVelocityChange(0, frames, isFacingRight);
         return;
@@ -619,7 +650,7 @@ void MovementManager::handleMovementPhysics(const std::string& name) {
     //                 RUN_TO_WALK
     // ==========================================
     if (name.find("RUN_TO_WALK") != std::string::npos) {
-        std::cout << "-> Detectado RUN_TO_WALK" << std::endl;
+        //std::cout << "-> Detectado RUN_TO_WALK" << std::endl;
         // Baja la velocidad hasta el tope de caminar usando los frames de transición
         physicsManager->startVelocityChange(physicsManager->getMaxSpeedWalk(), frames, isFacingRight);
         return;
@@ -629,7 +660,7 @@ void MovementManager::handleMovementPhysics(const std::string& name) {
     //                  WALK_TO_RUN
     // ==========================================
     if (name.find("WALK_TO_RUN") != std::string::npos) {
-        std::cout << "-> Detectado WALK_TO_RUN" << std::endl;
+        //std::cout << "-> Detectado WALK_TO_RUN" << std::endl;
         // Acelera hasta correr usando la transición + 3 frames "prestados" del ciclo RUN
         physicsManager->startVelocityChange(physicsManager->getMaxSpeedRun(), frames + 3, isFacingRight);
         return;
@@ -642,7 +673,7 @@ void MovementManager::handleMovementPhysics(const std::string& name) {
     //                   WALK
     // ==========================================
     if (name.find("WALK") != std::string::npos) {
-        std::cout << "-> Detectado WALK simple" << std::endl;
+        //std::cout << "-> Detectado WALK simple" << std::endl;
         // Mantiene o ajusta la velocidad al máximo de caminar, durante el primer ciclo de WALK
         physicsManager->startVelocityChange(physicsManager->getMaxSpeedWalk(), frames, isFacingRight);
     }
@@ -650,7 +681,7 @@ void MovementManager::handleMovementPhysics(const std::string& name) {
     //                    RUN
     // ==========================================
     else if (name.find("RUN") != std::string::npos) {
-        std::cout << "-> Detectado RUN simple" << std::endl;
+        //std::cout << "-> Detectado RUN simple" << std::endl;
         // Mantiene o ajusta la velocidad al máximo de correr, durante el primer ciclo de RUN
         physicsManager->startVelocityChange(physicsManager->getMaxSpeedRun(), frames, isFacingRight);
     }
@@ -658,7 +689,7 @@ void MovementManager::handleMovementPhysics(const std::string& name) {
     //            IDLE, por ejemplo
     // ==========================================
     else {
-        std::cout << name << " No tiene fisicas" << std::endl;
+        //std::cout << name << " No tiene fisicas" << std::endl;
     }
 }
 
@@ -689,7 +720,7 @@ void MovementManager::playMovement(const std::string& movementName, int region) 
         currentRegion = region;
         
         // $$$$$$$$$$$$$ FISICAS $$$$$$$$$$$$$
-        std::cout << "GO FISICAS de: " << currentMovementName << std::endl;
+        //std::cout << "GO FISICAS de: " << currentMovementName << std::endl;
         handleMovementPhysics(currentMovementName);
     }
 }

@@ -9,55 +9,97 @@ bool SpriteSheetManager::loadSpriteSheet(const std::string& filename) {
 // Dibuja una región específica de la hoja de sprites
 void SpriteSheetManager::draw(float x, float y, int row, int region, bool isFacingRight) {
     
-    // 1. Guardamos la matriz actual
+    
+    // ·······························································
+    //             PUNTO ROJO --> CENTRO ORIGINAL DE LA PANNTALLA
+    // ·······························································
+    ofSetColor(255,0,0);
+    drawCircle(0,0,5);
+    
+    
+    // ·······························································
+    //             PUNTO AMARILLO --> CENTRO DE LA VENTANA
+    // ·······························································
+    ofSetColor(255,255,0);
+    drawCircle(ofGetWidth()/2,ofGetHeight()/2,5);
+    
+    
+    
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+    // Guardamos la matriz actual
     ofPushMatrix();
-    
-    // 2. Traslación base al centro de la ventana (ajustada por tu offset de 150)
-    ofTranslate(ofGetWidth()/2 - 150, ofGetHeight()/2 - 150);
-    
-    // 3. Nos movemos a la posición (x, y) que dicta la física
-    // Esto hace que el dibujo siga al "títere"
-    ofTranslate(x, y);
 
+    
+    
+    // El origen (0,0) ahora coincide con la posición del títere (x, y)
+    // Trasladamos el sistema al punto (x, y) que viene del PhysicsManager.
+    // IMPORTANTE: A partir de aquí, las colisiones deben entender que este es el centro del objeto.
+    ofTranslate(x, y);
+    
+    // ·······························································
+    //             PUNTO VERDE --> ORIGEN REAL del personaje, Sin ajuste de REGION. Marca el centro de la region sin Giro ni escala.
+    // ·······························································
+    ofSetColor(0,255,0);
+    drawCircle(0,0,5);
+    
+
+    // DIBUJO FACING RIGHT
     if (isFacingRight) {
-        // --- DIBUJO DERECHA ---
         ofScale(scaleFactor, scaleFactor);
         
-        // El offset se aplica normalmente
-        float drawX = SPRITE_OFFSET_X;
-
-        drawRectangle(drawX, 0);
-        drawCircle(drawX, 0, 5);
+        // Posicion a dibujar, centrando region
+        float drawX = -REGION_WIDTH / 2;
+        float drawY = -REGION_HEIGHT / 2;
         
+        // Draw Guides
+        drawGuides(drawX, drawY);
+        
+        // ·······························································
+        //             PUNTO BLANCO --> Es el (0,0) relativo al sprite (esquina superior izq de la imagen)
+        // ·······························································
+        ofSetColor(255);
+        drawCircle(drawX, drawY, 5);
+        
+        
+        
+        // Personaje
         spriteSheet.drawSubsection(
-            drawX, 0,
+            drawX, drawY,
             REGION_WIDTH, REGION_HEIGHT,
             region * REGION_WIDTH,
             row * REGION_HEIGHT
         );
     }
+    // DIBUJO FACING LEFT (ESPEJO)
     else {
-        // --- DIBUJO IZQUIERDA (ESPEJO) ---
         ofScale(-scaleFactor, scaleFactor);
         
-        // IMPORTANTE: Al estar en escala negativa, para que el cuerpo
-        // quede en el mismo sitio, debemos desplazarlo hacia el "nuevo negativo"
-        // que visualmente es la derecha.
-        float drawX = -REGION_WIDTH + SPRITE_OFFSET_X;
-
-        drawRectangle(drawX, 0);
-        drawCircle(drawX, 0, 5);
+        // Posicion a dibujar (ajustada para el giro horizontal)
+        // El 100 es temporal hasta redibujar bien centrado el sprite
+        float drawX = -REGION_WIDTH / 2 + 100;
+        float drawY = -REGION_HEIGHT / 2;
         
+        // Draw Guides
+        drawGuides(drawX, drawY);
+        
+        // ·······························································
+        //             PUNTO BLANCO --> ANCLAJE PERSONAJE (POSICION)
+        // ·······························································
+        drawCircle(drawX, drawY, 5);
+        
+        // Personaje
         spriteSheet.drawSubsection(
-            drawX, 0,
+            drawX, drawY,
             REGION_WIDTH, REGION_HEIGHT,
             region * REGION_WIDTH,
             row * REGION_HEIGHT
         );
     }
     
-    // 4. Restauramos la matriz
+    // Restauramos la matriz
     ofPopMatrix();
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
 }
 
 // Establece el factor de escala para la hoja de sprites
@@ -66,21 +108,65 @@ void SpriteSheetManager::setScaleFactor(float scaleFactor) {
     this->scaleFactor = scaleFactor;
 }
 
-void SpriteSheetManager::drawRectangle(float x, float y){
-    // --- NUEVO: Dibujo del cuadrado guía ---
+
+
+
+
+// *** DRAWS ***
+void SpriteSheetManager::drawRegion(float x, float y){
     ofNoFill();            // Solo el contorno
-    ofSetColor(255);       // Color blanco
-    ofDrawRectangle(x, y, REGION_WIDTH, REGION_HEIGHT-65);
+    ofSetColor(255,255,255);   // Color Blanco
+    ofDrawRectangle(x, y, REGION_WIDTH, REGION_HEIGHT);
     ofSetColor(255);       // Resetear color para el sprite (por si acaso)
-    // ---------------------------------------
 }
 
-void SpriteSheetManager::drawCircle(float x, float y, float radius){
-    // --- NUEVO: Dibujo del punto guía ---
+void SpriteSheetManager::drawHitBox(float x, float y){
     ofNoFill();            // Solo el contorno
-    ofSetColor(255);       // Color blanco
+    ofSetColor(255);       // Color Blanco
+    ofDrawRectangle(x, y+HITBOX_OFFSET_Y, HITBOX_W, HITBOX_H);
+    ofSetColor(255);       // Resetear color para el sprite (por si acaso)
+}
+
+void SpriteSheetManager::drawHitWall(float x, float y) {
+    ofSetColor(255, 0, 0);
+    ofDrawLine(x + HITBOX_W, y + HITBOX_OFFSET_Y,
+               x + HITBOX_W, y + HITBOX_OFFSET_Y + HITBOX_H);
+}
+
+// --- Línea que detecta el suelo (Horizontal, en la base) ---
+void SpriteSheetManager::drawHitFloor(float x, float y) {
+    
+    float floorY = y + HITBOX_OFFSET_Y + HITBOX_H;
+    
+    ofSetColor(0, 0, 255);
+    ofDrawLine(x, floorY,
+               x + HITBOX_W, y + HITBOX_OFFSET_Y + HITBOX_H);
+    
+    //HITFLOOR RAY
+    ofSetColor(64, 224, 208);
+    
+    // Su posición X es la base (x) + el desplazamiento del slider (hitFloorRayX)
+    float rayX = x + HITRAY_FLOOR_X;
+    ofDrawLine(rayX, floorY, rayX, floorY - 15);
+    ofDrawCircle(rayX, floorY, 3); // El punto de contacto exacto
+}
+
+void SpriteSheetManager::drawGuides(float x, float y) {
+    // Region Base
+    drawRegion(x, y);
+    // Hitbox GUIA
+    drawHitBox(x, y);
+    // HitWall
+    drawHitWall(x, y);
+    // HitFloor
+    drawHitFloor(x, y);
+}
+
+
+void SpriteSheetManager::drawCircle(float x, float y, float radius){
+    //ofNoFill();            // Solo el contorno
+    //ofSetColor(255);       // Color blanco
     ofDrawCircle(x, y, radius);
     ofSetColor(255);       // Resetear color para el sprite (por si acaso)
-    // ---------------------------------------
 }
 
