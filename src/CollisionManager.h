@@ -20,12 +20,15 @@ public:
     void draw();
     
     // Retorna un puntero al Interactor chocado, o nullptr si no hay nada
-    Interactor* checkCollisions(ofVec2f currentPos, ofVec2f velocity, SpriteSheetManager& sprite, bool isFacingRight);
+    Interactor* checkCollisions(ofVec2f currentPos, ofVec2f velocity, float gravity, SpriteSheetManager& sprite, bool isFacingRight);
     
     
     
 private:
     // Lista donde guardamos todos los suelos, paredes y botones
     vector<Interactor> interactors;
+    
+    
+    
         
 };

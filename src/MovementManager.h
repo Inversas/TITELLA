@@ -140,6 +140,8 @@ private:
     float frameInterval = 0.1f; // Intervalo de fotogramas general
     bool isFacingRight = true;  //Dirección del personaje
     
+    // VARIABLES DE ESTADO DE PHYSICS
+    bool isGrounded = false;
     
     // *** CONTEXTOS DE MOVIMIENTO, ESTADO y INPUT ***
     // Puntero único que almacena el movimiento actual (null por defecto).

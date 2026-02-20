@@ -70,7 +70,7 @@ void CollisionManager::draw() {
     }
 }
 
-Interactor* CollisionManager::checkCollisions(ofVec2f currentPos, ofVec2f velocity, SpriteSheetManager& sprite, bool isFacingRight) {
+Interactor* CollisionManager::checkCollisions(ofVec2f currentPos, ofVec2f velocity, float gravity, SpriteSheetManager& sprite, bool isFacingRight) {
     
     // --- HIT WALL---
     float offsetX = -sprite.getRegionWidth()/ 2.0f;
@@ -119,6 +119,57 @@ Interactor* CollisionManager::checkCollisions(ofVec2f currentPos, ofVec2f veloci
                     return &inter;
                 }
             }
+        }
+        
+        
+        // --- 2. DETECCIÓN DE SUELO (SURFACE) ---
+        if (inter.type == InteractorType::SURFACE) {
+            float groundY = inter.p1.y;
+            float groundMinX = min(inter.p1.x, inter.p2.x);
+            float groundMaxX = max(inter.p1.x, inter.p2.x);
+
+            // 1. Calculamos la X exacta del rayo (Copiando tu lógica de giro)
+            float localRayX;
+            if (isFacingRight) {
+                localRayX = -150.0f + sprite.getHitRayXFloor();
+            } else {
+                float ajusteEspejo = -100.0f;
+                localRayX = -(-150.0f + sprite.getHitRayXFloor()) + ajusteEspejo;
+            }
+            
+            float worldRayX = currentPos.x + localRayX;
+
+            // 2. Calculamos la Y de los pies (Actual y Futura)
+            float feetY = currentPos.y - 150.0f + 10 + sprite.getHitboxH();
+            float futureFeetY = (currentPos.y + gravity) - 150.0f + 10 + sprite.getHitboxH();
+
+            // Imprimimos la situación de la Y antes de los IFs
+                cout << "--- EVALUANDO Y (Pies) ---" << endl;
+                cout << "  [1] Y Actual:  " << feetY << endl;
+                cout << "  [2] Y Futura:  " << futureFeetY << endl;
+                cout << "  [3] Y Suelo:   " << groundY << endl;
+
+                // Condición 1: ¿Estoy por encima o justo en la línea ahora?
+                bool actualmenteArriba = (feetY <= groundY);
+                // Condición 2: ¿En el próximo frame estaré por debajo o justo en la línea?
+                bool proximoAbajo = (futureFeetY >= groundY);
+
+                cout << "  ¿Actual Arriba? " << (actualmenteArriba ? "SI" : "NO") << endl;
+                cout << "  ¿Proximo Abajo? " << (proximoAbajo ? "SI" : "NO") << endl;
+
+            
+            // 3. COMPROBACIÓN LÓGICA
+            if (feetY <= groundY) {
+                // ...pero en el siguiente paso estaría abajo (o justo encima)
+                if (futureFeetY >= groundY) {
+                    
+                    // ¡DETECCIÓN PREVENTIVA!
+                    // No esperamos a que atraviese. Avisamos de que el futuro es peligroso.
+                    cout << "[DEBUG] Colisión inminente detectada. Frenando antes de cruzar." << endl;
+                    return &inter;
+                }
+            }
+            
         }
     }
 

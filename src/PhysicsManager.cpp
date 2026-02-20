@@ -10,8 +10,10 @@ void PhysicsManager::setup(float startX, float startY) {
     position.set(startX, startY);
     // Velocidad Inicial
     velocity.set(0, 0);
-    
-    // Esala Inicial
+    // Gravedad
+    gravity.set(0, 9.8f); // Valor de gravedad (ajustable según necesidades)
+
+    // Escala Inicial
     currentScale = 1.0f;
     
     // Valores iniciales por defecto (se pueden cambiar con los setters)
@@ -109,6 +111,10 @@ void PhysicsManager::startVelocityTurnChange(int frames) {
 void PhysicsManager::applyVelocity() {
     // El movimiento real: aquí la posición X (e Y más adelante) se actualizan
     position.x += velocity.x;
+}
+
+void PhysicsManager::applyGravity() {
+        position.y += gravity.y;
 }
 
 

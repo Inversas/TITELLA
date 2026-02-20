@@ -553,12 +553,15 @@ void MovementManager::updateRegion() {
     // Suma un pequeño incremento a la velocidad actual
     physicsManager->updateVelocityStep();
     
+    // 1. Obtenemos la velocidad que la física QUIERE aplicar (ej: 9.8)
+    float currentVel = physicsManager->getGravityY();
     
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     // CHECK COLLISIONS futuro
     Interactor* hitObject = collisionManager->checkCollisions(
         physicsManager->getPosition(),
         physicsManager->getVelocity(),
+        physicsManager->getGravityY(),
         *spriteSheetManager,
         getIsFacingRight()
     );
@@ -567,11 +570,29 @@ void MovementManager::updateRegion() {
         // Accedemos a los datos del interactor chocado
         cout << "COLISION CON: " << hitObject->name << " (Tipo: " << (int)hitObject->type << ")" << endl;
         
+        if (hitObject->type == InteractorType::SURFACE) {
+            isGrounded = true;
+        }
+            
+        
     } else {
         //cout << "NADA COLISIONA - Camino libre" << endl;
     }
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
+    
+    if(!isGrounded){
+        // Si no estamos en el suelo, aplicamos gravedad
+        physicsManager->applyGravity();
+    } else {
+        // 700 (Suelo)
+            // + 150 (Subimos al borde superior de la region)
+            // - 10  (Bajamos el offset Y)
+            // - 222 (Subimos la altura de la hitbox)
+            
+            float yPerfecta = 700 + 150 - 10 - 222;
+        
+        physicsManager->setPositionY(yPerfecta); // Asegura que el personaje se mantenga en el suelo
+    }
     
     
     

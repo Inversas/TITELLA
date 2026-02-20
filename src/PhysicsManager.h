@@ -46,6 +46,9 @@ public:
     // Aplicación final del movimiento
     void applyVelocity();
     
+    // Aplica la gravedad al personaje, con un límite de suelo (ground)
+    void applyGravity();
+    
     
     // Nota: Los Getters y Setters que definimos en el .h como "inline"
     // (dentro de la llave { }) no necesitan escribirse en el .cpp
@@ -55,10 +58,10 @@ public:
     ofVec2f getVelocity() const { return velocity; }
     float getMaxSpeedWalk() const { return maxSpeedWalk; }
     float getMaxSpeedRun() const { return maxSpeedRun; }
-
+    float getGravityY() const { return gravity.y; }
     
     // *** Setters *** //
-    
+    void setPositionY(float newY) { position.y = newY; }
     
     // !!!!!! ESTO SE DISPARAAA !!!! no puede estar bieeen !!!
     void setMaxSpeedWalk(float maxSpeed) { maxSpeedWalk = maxSpeed * currentScale; }
@@ -67,6 +70,8 @@ public:
     
     void setCurrentScale(float scale) { currentScale = scale; }
     
+    
+    
 
 //"Private" es cómo la clase se organiza a sí misma para hacer su trabajo.
 private:
@@ -74,6 +79,7 @@ private:
     // *** VARIABLES DE ESTADO (Dinámica actual) ***
         ofVec2f position;      // Ubicación actual del títere
         ofVec2f velocity;      // Rapidez y dirección actual (píxeles/frame)
+        ofVec2f gravity;       // Fuerza de gravedad aplicada (píxeles/frame^2)
         
         float maxSpeedWalk;    // Límite de velocidad para caminar
         float maxSpeedRun;     // Límite de velocidad para correr
