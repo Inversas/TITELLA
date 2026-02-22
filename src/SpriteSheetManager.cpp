@@ -60,8 +60,7 @@ void SpriteSheetManager::draw(float x, float y, int row, int region, bool isFaci
         ofSetColor(255);
         drawCircle(drawX, drawY, 5);
         
-        
-        
+
         // Personaje
         spriteSheet.drawSubsection(
             drawX, drawY,
@@ -102,14 +101,6 @@ void SpriteSheetManager::draw(float x, float y, int row, int region, bool isFaci
 
 }
 
-// Establece el factor de escala para la hoja de sprites
-void SpriteSheetManager::setScaleFactor(float scaleFactor) {
-    // Asigna el nuevo factor de escala
-    this->scaleFactor = scaleFactor;
-}
-
-
-
 
 
 // *** DRAWS ***
@@ -118,6 +109,25 @@ void SpriteSheetManager::drawRegion(float x, float y){
     ofSetColor(255,255,255);   // Color Blanco
     ofDrawRectangle(x, y, REGION_WIDTH, REGION_HEIGHT);
     ofSetColor(255);       // Resetear color para el sprite (por si acaso)
+}
+
+void SpriteSheetManager::drawCircle(float x, float y, float radius){
+    //ofNoFill();            // Solo el contorno
+    //ofSetColor(255);       // Color blanco
+    ofDrawCircle(x, y, radius);
+    ofSetColor(255);       // Resetear color para el sprite (por si acaso)
+}
+
+
+void SpriteSheetManager::drawGuides(float x, float y) {
+    // Region Base
+    drawRegion(x, y);
+    // Hitbox GUIA
+    drawHitBox(x, y);
+    // HitWall
+    drawHitWall(x, y);
+    // HitFloor
+    drawHitFloor(x, y);
 }
 
 void SpriteSheetManager::drawHitBox(float x, float y){
@@ -133,7 +143,6 @@ void SpriteSheetManager::drawHitWall(float x, float y) {
                x + HITBOX_W, y + HITBOX_OFFSET_Y + HITBOX_H);
 }
 
-// --- Línea que detecta el suelo (Horizontal, en la base) ---
 void SpriteSheetManager::drawHitFloor(float x, float y) {
     
     float floorY = y + HITBOX_OFFSET_Y + HITBOX_H;
@@ -151,22 +160,48 @@ void SpriteSheetManager::drawHitFloor(float x, float y) {
     ofDrawCircle(rayX, floorY, 3); // El punto de contacto exacto
 }
 
-void SpriteSheetManager::drawGuides(float x, float y) {
-    // Region Base
-    drawRegion(x, y);
-    // Hitbox GUIA
-    drawHitBox(x, y);
-    // HitWall
-    drawHitWall(x, y);
-    // HitFloor
-    drawHitFloor(x, y);
+
+
+
+
+
+
+
+// ------------------- GETTERS - SETTERS -------------------
+
+// Establece el factor de escala para la hoja de sprites
+void SpriteSheetManager::setScaleFactor(float scaleFactor) {
+    // Asigna el nuevo factor de escala
+    this->scaleFactor = scaleFactor;
 }
 
 
-void SpriteSheetManager::drawCircle(float x, float y, float radius){
-    //ofNoFill();            // Solo el contorno
-    //ofSetColor(255);       // Color blanco
-    ofDrawCircle(x, y, radius);
-    ofSetColor(255);       // Resetear color para el sprite (por si acaso)
+int SpriteSheetManager::getRegionWidth() const {
+    return REGION_WIDTH;
 }
+
+int SpriteSheetManager::getRegionHeight() const {
+    return REGION_HEIGHT;
+}
+
+float SpriteSheetManager::getHitboxW() const {
+    return HITBOX_W;
+}
+
+float SpriteSheetManager::getHitboxH() const {
+    return HITBOX_H;
+}
+
+float SpriteSheetManager::getHitRayXFloor() const {
+    return HITRAY_FLOOR_X;
+}
+
+void SpriteSheetManager::setHitboxW(float hitboxW) {
+    HITBOX_W = hitboxW;
+}
+
+void SpriteSheetManager::setHitRayXFloor(float hitRayFloor) {
+    HITRAY_FLOOR_X = hitRayFloor;
+}
+
 

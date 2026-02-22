@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
-//
+
 // Clase que gestiona una hoja de sprites
 class SpriteSheetManager {
     
@@ -9,42 +9,43 @@ public:
     // Carga la hoja de sprites desde un archivo
     bool loadSpriteSheet(const std::string& filename);
     
+    
+    // *** DRAWS ***
     // Dibuja una región específica de la hoja de sprites
     void draw(float x, float y, int row, int region, bool isFacingRight);
+    
+    // Dibuja los límites de la región
+    void drawRegion(float x, float y);
+    
+    //Dibuja un Criculo
+    void drawCircle(float x, float y, float radius);
+    
+    //HITBOX
+    void drawGuides(float x, float y);
+    void drawHitBox(float x, float y);
+    void drawHitWall(float x, float y);
+    void drawHitFloor(float x, float y);
+
+
+
+
+    // ------------------- GETTERS - SETTERS -------------------
     
     // Establece el factor de escala para la hoja de sprites
     void setScaleFactor(float scaleFactor);
     
-    //PROVISIONAL
-    void drawRegion(float x, float y);
-    
-    //HITBOX
-    void drawHitBox(float x, float y);
-    void drawHitWall(float x, float y);
-    void drawHitFloor(float x, float y);
-    void drawGuides(float x, float y);
+    // *** HITBOX ***
+    float getHitboxW() const;
+    float getHitboxH() const;
+    void setHitboxW(float hitboxW);
 
-    //PROVISIONAL
-    void drawCircle(float x, float y, float radius);
-    
-    
-    
+    // *** HITRAY_FLOOR ***
+    float getHitRayXFloor() const;
+    void setHitRayXFloor(float hitRayFloor);
 
-    // ------------------- GETTERS - SETTERS -------------------
-    
-    //HITBOX_W
-    float getHitboxW() const { return HITBOX_W; }
-    float getHitboxH() const { return HITBOX_H; }
-    void setHitboxW(float hitboxW) { HITBOX_W = hitboxW; }
-    
-    
-    //HITRAY_FLOOR
-    float getHitRayXFloor() const { return HITRAY_FLOOR_X; }
-    void setHitRayXFloor(float hitRayFloor) { HITRAY_FLOOR_X = hitRayFloor; }
-    
-    //REGION_WIDTH y REGION_HEIGHT
-    int getRegionWidth() const { return REGION_WIDTH; }
-    int getRegionHeight() const { return REGION_HEIGHT; }
+    // *** REGION DIMENSIONS ***
+    int getRegionWidth() const;
+    int getRegionHeight() const;
     
     
 private:
@@ -55,6 +56,10 @@ private:
     float scaleFactor = 1.0f; // Factor de escala para dibujar la hoja de sprites
     
     
+    
+    
+    
+    // !!! DEBERÍA IR A COLLISION MANAGER !!!
     // *** HITBOX ***
     float HITBOX_W = REGION_WIDTH - 100;   // 200px
     float HITBOX_H = REGION_HEIGHT - 78;  // 222px

@@ -1,10 +1,11 @@
 #pragma once
 
 #include "ofxGui.h"
-#include "MovementManager.h"
-#include "SpriteSheetManager.h"
-#include "InputManager.h"
-#include "PhysicsManager.h"
+
+class MovementManager;
+class SpriteSheetManager;
+class InputManager;
+class PhysicsManager;
 
 class GUIManager {
 public:
@@ -61,12 +62,20 @@ private:
     ofxFloatSlider maxSpeedWalkGui;
     ofxFloatSlider maxSpeedRunGui;
     
+    
+    
+    
+    
     // *** COLLISION SLIDERS (FROM SPRITE SHEET MANAGER) ***
     ofxFloatSlider hitBoxWGui;
     ofxFloatSlider  hitRayFloorXGui;
     
-    
 
+    
+    
+    
+    
+    // *** REFERENCIAS A GESTORES *** //
     MovementManager* movementManager;       // Añadimos una referencia a MovementManager
     SpriteSheetManager* spriteSheetManager; // Añadimos una referencia a SpriteSheetManager
     InputManager* inputManager;             // Añadimos una referencia a InputManager
@@ -104,7 +113,14 @@ private:
     void onMaxSpeedWalkChanged(float& value); 
     void onMaxSpeedRunChanged(float& value);
 
+    
+    
+    
+    
     void onHitBoxWChanged(float& value);
     void onHitRayFloorXChanged(float& value);
+    
+    
+    
     
 };

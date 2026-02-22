@@ -1,17 +1,22 @@
 #pragma once
-
-#include "Movimiento.h"
-#include "ofxJSON.h"
 #include <memory>
 #include <map>
 #include <string>
 #include <unordered_map>
 
+#include "Movimiento.h"
+#include "ofxJSON.h"
 
+
+
+// MEJOR SI SOLO USAS UN PUNTERO:
 class SpriteSheetManager;
 class InputManager;
 class PhysicsManager;
 class CollisionManager;
+
+
+
 
 // Estados lógicos del personaje
 // Estos estados representan lo que el personaje está haciendo lógicamente, independientemente de la animación exacta.
@@ -65,14 +70,18 @@ public:
     // No hace nada más. Se queda esperando a que el "reloj" la avise.
     void handleTransition();
     
-    
-    
-
     // *** HANDLE SPECIFIC MOVEMENTS *** //
     // Funciones específicas para manejar transiciones de movimientos
     void handleWalkToRun();
     void handleRunToWalk();
 
+    
+    
+    // ------------------- GETTERS - SETTERS -------------------
+    // Nota: Los Getters y Setters que definimos en el .h como "inline"
+    // (dentro de la llave { }) no necesitan escribirse en el .cpp
+    // EJEMPLO:
+    // int getCurrentRow() const { return currentRow; }
     
     //*** GETS REGION ***//
     // Obtiene la fila actual del sprite sheet correspondiente al movimiento actual.

@@ -1,13 +1,16 @@
 #pragma once
+#include <memory>
 
 #include "ofMain.h"
+
+//NECESARIOS AQUI PARA LAS VARIABLES POR VALOR
 #include "SpriteSheetManager.h"
 #include "MovementManager.h"
 #include "PhysicsManager.h"
 #include "CollisionManager.h"
 #include "GUIManager.h"
 #include "InputManager.h"
-#include <memory>
+
 
 // Clase principal que gestiona la aplicación
 class ofApp : public ofBaseApp {
@@ -21,6 +24,9 @@ public:
     void keyReleased(int key);
     
 private:
+    
+    
+    // *** VARIABLES POR VALOR (El "OBJETO REAL") ***
     
     // Gestor de hojas de sprites
     SpriteSheetManager spriteSheetManager;

@@ -1,12 +1,14 @@
 #pragma once
 
-#include "MovementManager.h"
-
-//Esto comentado y funcionaba igual
-//#include <set>      // Necesario para std::set
-
+#include <set>      // Necesario para std::set
+#include <memory>
+#include <map>
+#include <string>
+#include <unordered_map>
 //De momento lo comento ya veremos si hace falta
 //#include <vector> // Necesario para la pila de direcciones
+
+#include "ofMain.h" // Necesario para ofVec2f y funciones matemáticas básicas, también para KEYS
 
 
 //*** ESTRUCTURA DE ESTADO DE ENTRADA (WANT / INTENCION) ***//
@@ -34,12 +36,15 @@ public:
     // Maneja la liberación de una tecla (llamado desde ofApp)
     void keyReleased(int key);
     
+    
+    
+    
+    // ------------------- GETTERS - SETTERS -------------------
+
     //*** GET ESTADO DE ENTRADA ACTUAL (WANT) ***
     // Devuelve el estado de entrada actual (WANT) de las intenciones (lo consultará el MovementManager)
     InputState getInputState() const;
-    
-    
-    
+        
     //*** GETS EXCLUSIVOS PARA GUI ***
     //Consultar teclas presionadas
     std::string getPressedKeysAsString() const;
@@ -48,8 +53,6 @@ public:
     
 private:
    
-  
-    
     // Conjunto de todas las teclas físicas pulsadas actualmente (no sabe quien llego ultimo)
     //Si el sistema operativo te envía 10 veces la señal de que la tecla '1' está pulsada (porque la dejas mantenida), el set solo guarda una.
     std::set<int> pressedKeys;

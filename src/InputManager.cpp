@@ -89,6 +89,9 @@ void InputManager::updateInputState() {
 }
 
 
+
+// ------------------- GETTERS - SETTERS -------------------
+
 //*** GET DEL ESTADO DE ENTRADA ACTUAL (WANT) DESDE EL EXTERIOR ***//
 InputState InputManager::getInputState() const {
     // Retornamos la estructura con los booleanos para que el MovementManager los lea

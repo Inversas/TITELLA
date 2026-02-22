@@ -1,9 +1,11 @@
 #pragma once
+#include <vector>
 
 #include "ofMain.h"
+
 #include "SpriteSheetManager.h"
 #include "Interactor.h"
-#include <vector>
+
 
 using namespace std;
 

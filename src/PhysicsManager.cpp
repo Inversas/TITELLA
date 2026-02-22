@@ -1,8 +1,4 @@
 #include "PhysicsManager.h"
-#include "CollisionManager.h"
-#include "MovementManager.h"
-#include "SpriteSheetManager.h"
-#include "InputManager.h"
 
 // *** CICLO DE VIDA ***
 void PhysicsManager::setup(float startX, float startY) {
@@ -11,7 +7,7 @@ void PhysicsManager::setup(float startX, float startY) {
     // Velocidad Inicial
     velocity.set(0, 0);
     // Gravedad
-    gravity.set(0, 9.8f); // Valor de gravedad (ajustable según necesidades)
+    gravity.set(0, 9.8f); // Valor de gravedad
 
     // Escala Inicial
     currentScale = 1.0f;
@@ -35,10 +31,10 @@ void PhysicsManager::update() {
 
 
 
-
-// *** EL LATIDO (HEARTBEAT) ***
+// *** EL LATIDO ***
 // Aplica el incremento/decremento calculado en cada paso de animación (Frame Data) y gestiona la finalización de la rampa.
 void PhysicsManager::updateVelocityStep() {
+    
     // Si hay una transición activa y frames pendientes
     if (isVelocityChanging && framesRemaining > 0) {
         
@@ -62,6 +58,7 @@ void PhysicsManager::updateVelocityStep() {
 
 
 
+// *** CAMBIOS DE VELOCIDAD ***
 // Configura una rampa de aceleración o frenado (cambio de velocidad progresivo).
 void PhysicsManager::startVelocityChange(float targetAbsSpeed, int frames, bool lookingRight) {
 
@@ -108,6 +105,8 @@ void PhysicsManager::startVelocityTurnChange(int frames) {
     velocityStep = (targetVelocityX - velocity.x) / (float)framesRemaining;
 }
 
+
+// *** APLICAR FISICAS ***
 void PhysicsManager::applyVelocity() {
     // El movimiento real: aquí la posición X (e Y más adelante) se actualizan
     position.x += velocity.x;
@@ -116,6 +115,55 @@ void PhysicsManager::applyVelocity() {
 void PhysicsManager::applyGravity() {
         position.y += gravity.y;
 }
+
+
+
+
+
+
+// ------------------- GETTERS - SETTERS -------------------
+
+// *** GETTERS ***
+ofVec2f PhysicsManager::getPosition() const {
+    return position;
+}
+ofVec2f PhysicsManager::getVelocity() const {
+    return velocity;
+}
+float PhysicsManager::getMaxSpeedWalk() const {
+    return maxSpeedWalk;
+}
+float PhysicsManager::getMaxSpeedRun() const {
+    return maxSpeedRun;
+}
+float PhysicsManager::getGravityY() const {
+    return gravity.y;
+}
+
+
+// *** GETTERS ***
+void PhysicsManager::setPositionY(float newY) {
+    position.y = newY;
+}
+void PhysicsManager::setCurrentScale(float scale) {
+    currentScale = scale;
+}
+
+
+// !!!!!! ESTO SE DISPARAAA !!!! no puede estar bieeen !!!
+void PhysicsManager::setMaxSpeedWalk(float maxSpeed) {
+    // Aplicamos el escalado directamente en la asignación
+    maxSpeedWalk = maxSpeed * currentScale;
+}
+void PhysicsManager::setMaxSpeedRun(float maxSpeed) {
+    // Aplicamos el escalado directamente en la asignación
+    maxSpeedRun = maxSpeed * currentScale;
+}
+
+
+
+
+
 
 
 // *** MÉTODOS INTERNOS ***
