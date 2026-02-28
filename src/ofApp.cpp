@@ -3,6 +3,8 @@
 void ofApp::setup() {
     
     ofSetFrameRate(60);
+    
+    
     spriteSheetManager.loadSpriteSheet("ProvaTest_5.png");
     // Configura el gestor de entradas con el gestor de movimientos
     inputManager.setup();
@@ -13,15 +15,19 @@ void ofApp::setup() {
     physicsManager.setup(ofGetWidth()/2,ofGetHeight()/2);
     
     // >>>>>>>>>>>> COLISIONES >>>>>>>>>>>>
-    // Configura el gestor de colisiones
-    collisionManager.setup();
-    
+    // Configura el gestor de colisiones, con el tamaño de region de SpriteSheetManager
+    collisionManager.setup(
+        spriteSheetManager.getRegionWidth(),
+        spriteSheetManager.getRegionHeight()
+    );
+
+    spriteSheetManager.setCollisionManager(&collisionManager);
     
     // Configura el gestor de movimientos con "movements.json"
     movementManager.setup("movements.json", spriteSheetManager, inputManager, physicsManager, collisionManager);
     
     // Configura el gestor de la GUI con los gestores de movimientos y de sprites
-    guiManager.setup(movementManager, spriteSheetManager, inputManager, physicsManager);
+    guiManager.setup(movementManager, spriteSheetManager, inputManager, physicsManager, collisionManager);
 }
 
 

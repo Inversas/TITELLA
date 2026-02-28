@@ -6,10 +6,11 @@ class MovementManager;
 class SpriteSheetManager;
 class InputManager;
 class PhysicsManager;
+class CollisionManager;
 
 class GUIManager {
 public:
-    void setup(MovementManager& movementManager, SpriteSheetManager& spriteSheetManager, InputManager& inputManager, PhysicsManager& phisicsManager);
+    void setup(MovementManager& movementManager, SpriteSheetManager& spriteSheetManager, InputManager& inputManager, PhysicsManager& phisicsManager, CollisionManager& collisionManager);
     void update();
     void draw();
 
@@ -62,30 +63,18 @@ private:
     ofxFloatSlider maxSpeedWalkGui;
     ofxFloatSlider maxSpeedRunGui;
     
-    
-    
-    
-    
+
     // *** COLLISION SLIDERS (FROM SPRITE SHEET MANAGER) ***
     ofxFloatSlider hitBoxWGui;
     ofxFloatSlider  hitRayFloorXGui;
-    
 
-    
-    
-    
-    
     // *** REFERENCIAS A GESTORES *** //
     MovementManager* movementManager;       // Añadimos una referencia a MovementManager
     SpriteSheetManager* spriteSheetManager; // Añadimos una referencia a SpriteSheetManager
     InputManager* inputManager;             // Añadimos una referencia a InputManager
-    PhysicsManager* physicsManager;         // Añadimos una referencia a PhysicsManager
+    PhysicsManager* physicsManager;         // Añadimos una referencia a P
+    CollisionManager* collisionManager;     // Añadimos una referencia a CollisionManagercsManager
     
-    
-    
-    
-   
-
     
     // Callback for the scale factor slider
     void onScaleFactorChanged(float& value);
@@ -113,14 +102,6 @@ private:
     void onMaxSpeedWalkChanged(float& value); 
     void onMaxSpeedRunChanged(float& value);
 
-    
-    
-    
-    
     void onHitBoxWChanged(float& value);
     void onHitRayFloorXChanged(float& value);
-    
-    
-    
-    
 };

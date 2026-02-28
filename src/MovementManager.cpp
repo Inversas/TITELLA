@@ -554,30 +554,29 @@ void MovementManager::updateRegion() {
     // Suma un pequeño incremento a la velocidad actual
     physicsManager->updateVelocityStep();
     
-    // 1. Obtenemos la velocidad que la física QUIERE aplicar (ej: 9.8)
-    float currentVel = physicsManager->getGravityY();
     
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     // CHECK COLLISIONS futuro
-    Interactor* hitObject = collisionManager->checkCollisions(
+    CollisionResult col = collisionManager->checkCollisions(
         physicsManager->getPosition(),
         physicsManager->getVelocity(),
         physicsManager->getGravityY(),
-        *spriteSheetManager,
         getIsFacingRight()
     );
+    
+    if (col.floor != nullptr) {
+        //cout << "Estas colisionando con SUELO: " << col.floor->name << endl;
+    }
 
-    if (hitObject != nullptr) {
-        // Accedemos a los datos del interactor chocado
-        cout << "COLISION CON: " << hitObject->name << " (Tipo: " << (int)hitObject->type << ")" << endl;
-        
-        if (hitObject->type == InteractorType::SURFACE) {
-            isGrounded = true;
-        }
-            
-        
+    if (col.wall != nullptr) {
+        cout << "Estas colisionando con PARED: " << col.wall->name << endl;
+    }
+
+    // LÓGICA DE ESTADO (Mantenemos tu estructura actual)
+    if (col.floor != nullptr) {
+        isGrounded = true;
     } else {
-        //cout << "NADA COLISIONA - Camino libre" << endl;
+        isGrounded = false; // Importante resetearlo si el vidente no ve suelo
     }
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     
@@ -586,11 +585,11 @@ void MovementManager::updateRegion() {
         physicsManager->applyGravity();
     } else {
         // 700 (Suelo)
-            // + 150 (Subimos al borde superior de la region)
-            // - 10  (Bajamos el offset Y)
-            // - 222 (Subimos la altura de la hitbox)
-            
-            float yPerfecta = 700 + 150 - 10 - 222;
+        // + 150 (Subimos al borde superior de la region)
+        // - 10  (Bajamos el offset Y)
+        // - 222 (Subimos la altura de la hitbox)
+        
+        float yPerfecta = 700 + 150 - 10 - 222;
         
         physicsManager->setPositionY(yPerfecta); // Asegura que el personaje se mantenga en el suelo
     }

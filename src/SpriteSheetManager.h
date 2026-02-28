@@ -2,10 +2,17 @@
 
 #include "ofMain.h"
 
+class CollisionManager;
+struct HitboxData;
+
 // Clase que gestiona una hoja de sprites
 class SpriteSheetManager {
     
 public:
+    //Usamos * (Puntero) "puede o no" tener un Manager de colisiones, queremos poder asignarlo después del setup. (Tipo puntero)
+    //Usarías & (Referencia) si fuera absolutamente imposible que el Sprite existiera sin el CollisionManager. (Dirección de)
+    void setCollisionManager(CollisionManager* collision);
+    
     // Carga la hoja de sprites desde un archivo
     bool loadSpriteSheet(const std::string& filename);
     
@@ -22,9 +29,9 @@ public:
     
     //HITBOX
     void drawGuides(float x, float y);
-    void drawHitBox(float x, float y);
-    void drawHitWall(float x, float y);
-    void drawHitFloor(float x, float y);
+    void drawHitBox(float x, float y, const HitboxData& hitbox);
+    void drawHitWall(float x, float y, const HitboxData& hitbox);
+    void drawHitFloor(float x, float y, const HitboxData& hitbox);
 
 
 
@@ -34,15 +41,6 @@ public:
     // Establece el factor de escala para la hoja de sprites
     void setScaleFactor(float scaleFactor);
     
-    // *** HITBOX ***
-    float getHitboxW() const;
-    float getHitboxH() const;
-    void setHitboxW(float hitboxW);
-
-    // *** HITRAY_FLOOR ***
-    float getHitRayXFloor() const;
-    void setHitRayXFloor(float hitRayFloor);
-
     // *** REGION DIMENSIONS ***
     int getRegionWidth() const;
     int getRegionHeight() const;
@@ -55,17 +53,6 @@ private:
     static const int SPRITE_OFFSET_X = 50; // Desplazamiento del sprite
     float scaleFactor = 1.0f; // Factor de escala para dibujar la hoja de sprites
     
-    
-    
-    
-    
-    // !!! DEBERÍA IR A COLLISION MANAGER !!!
-    // *** HITBOX ***
-    float HITBOX_W = REGION_WIDTH - 100;   // 200px
-    float HITBOX_H = REGION_HEIGHT - 78;  // 222px
-    float HITBOX_OFFSET_Y = 10;           // El ajuste vertical
-    
-    
-    float HITRAY_FLOOR_X = 97.0f; // Posición horizontal del rayo de detección del suelo (ajustable por GUI)
-    
+    // Conexión al CollisionManager
+    CollisionManager* collisionManager = nullptr;    
 };

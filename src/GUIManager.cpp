@@ -4,13 +4,15 @@
 #include "SpriteSheetManager.h"
 #include "InputManager.h"
 #include "PhysicsManager.h"
+#include "CollisionManager.h"
 
-void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spriteSheetManager, InputManager& inputManager, PhysicsManager& physicsManager) {
+void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spriteSheetManager, InputManager& inputManager, PhysicsManager& physicsManager, CollisionManager& collisionManager) {
     
     this->movementManager = &movementManager;        // Guardamos la referencia a MovementManager
     this->spriteSheetManager = &spriteSheetManager;  // Guardamos la referencia a SpriteSheetManager
     this->inputManager = &inputManager;              // Guardamos la referencia a InputManager
     this->physicsManager = &physicsManager;          // Guardamos la referencia a PhysicsManager
+    this->collisionManager = &collisionManager;      // Guardamos la referencia a CollisionManagerthis->
     
     // Inicializar GUI
     gui.setup("Settings");
@@ -66,8 +68,8 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     
     
     // >>> COLLISION SLIDERS (FROM SPRITE SHEET MANAGER) >>>
-    gui.add(hitBoxWGui.setup("HitBox W", spriteSheetManager.getHitboxW(), 100, 400));
-    gui.add(hitRayFloorXGui.setup("HitRayFloor X", spriteSheetManager.getHitRayXFloor(), 0, 200));
+    gui.add(hitBoxWGui.setup("HitBox W", collisionManager.getHitbox().width, 100, 400));
+    gui.add(hitRayFloorXGui.setup("HitRayFloor X", collisionManager.getHitbox().floorRayX, 0, 200));
     
     
     
@@ -282,11 +284,11 @@ void GUIManager::onMaxSpeedRunChanged(float& value) {
 
 // >>>>>>>>>>>> COLISIONES >>>>>>>>>>>>
 void GUIManager::onHitBoxWChanged(float& value) {
-    spriteSheetManager->setHitboxW(value);
+    collisionManager->setHitboxWidth(value);
 }
 
 void GUIManager::onHitRayFloorXChanged(float& value) {
-    spriteSheetManager->setHitRayXFloor(value);
+    collisionManager->setHitRayXFloor(value);
 }
 
 
