@@ -55,8 +55,11 @@ public:
     void updateIntent();
     
     // !!! JUEZ !!!
-    // Switch de estados y llama a playMovement o handleTransition según convenga. Es la única que actualiza el esado.
+    // Switch de estados y llama a playMovement o handleTransition según convenga.
     void updateState(MovementState targetState);
+    
+    //void updateGroundedState(MovementState targetState);
+    //void updateAirState(MovementState targetState);
     
     
     // !!! EJECUTOR !!! //
@@ -151,6 +154,7 @@ private:
     
     // VARIABLES DE ESTADO DE PHYSICS
     bool isGrounded = false;
+    bool isWalled = false;
     
     // *** CONTEXTOS DE MOVIMIENTO, ESTADO y INPUT ***
     // Puntero único que almacena el movimiento actual (null por defecto).

@@ -19,8 +19,8 @@ void CollisionManager::setup(float regionW, float regionH) {
     // *** INTERACTORS ***
     // 1. Definimos el suelo (desde la esquina inferior izquierda a la derecha)
     interactors.push_back(Interactor(
-        ofVec2f(0, 700),            // Punto inicial (0, alto)
-        ofVec2f(ofGetWidth(), 700), // Punto final (ancho, alto)
+        ofVec2f(0, 1000),            // Punto inicial (0, alto)
+        ofVec2f(ofGetWidth(), 1000), // Punto final (ancho, alto)
         InteractorType::SURFACE,              // Es un SUELO
         "actGround"
     ));

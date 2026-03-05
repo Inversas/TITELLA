@@ -129,6 +129,31 @@ void MovementManager::updateIntent() {
 // Switch de estados y llama a playMovement o handleTransition según convenga.
 void MovementManager::updateState(MovementState targetState) {
     
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // [NOTA PARA EL FUTURO]: Tendremos que estudiar los casos en que se pierde el suelo
+    
+    // Se propone algo así, pero todo lo que sea romper de emergencia es peligroso para el proyecto, no podemos perder las transiciones
+    
+    /*if (!isGrounded && currentState != MovementState::AIRBORNE) {
+        forceTransitionToAir();
+        return;
+    }*/
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    
+    
+    // EL CONTROL DE SEGURIDAD (La "llave" del Juez)
+    if (!isGrounded ) {
+        // Por ahora, como no hay estados de aire,
+        // aquí es donde en el futuro diríamos: targetState = FALLING;
+        // O simplemente bloquearíamos cualquier intento de caminar.
+         return; // Si retornamos aquí, la marioneta se "congela" en su frame actual si pierde el suelo
+    }
+    
+    
+    
+    
+    
     //Bloqueo si Ya estamos en el estado deseado
     if (currentState == targetState) return;
     
@@ -564,15 +589,15 @@ void MovementManager::updateRegion() {
         getIsFacingRight()
     );
     
-    if (col.floor != nullptr) {
-        //cout << "Estas colisionando con SUELO: " << col.floor->name << endl;
+    if (col.floor == nullptr) {
+        cout << "AIRE " << endl;
     }
 
     if (col.wall != nullptr) {
         cout << "Estas colisionando con PARED: " << col.wall->name << endl;
     }
 
-    // LÓGICA DE ESTADO (Mantenemos tu estructura actual)
+    // LÓGICA DE ESTADO
     if (col.floor != nullptr) {
         isGrounded = true;
     } else {
@@ -584,12 +609,12 @@ void MovementManager::updateRegion() {
         // Si no estamos en el suelo, aplicamos gravedad
         physicsManager->applyGravity();
     } else {
-        // 700 (Suelo)
+        // 1000 (Suelo)
         // + 150 (Subimos al borde superior de la region)
         // - 10  (Bajamos el offset Y)
         // - 222 (Subimos la altura de la hitbox)
         
-        float yPerfecta = 700 + 150 - 10 - 222;
+        float yPerfecta = 1000 + 150 - 10 - 222;
         
         physicsManager->setPositionY(yPerfecta); // Asegura que el personaje se mantenga en el suelo
     }
