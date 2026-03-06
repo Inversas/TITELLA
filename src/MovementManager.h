@@ -7,11 +7,13 @@
 #include "Movimiento.h"
 #include "ofxJSON.h"
 
+// Para pasar Tipos InputState
+#include "InputManager.h"
 
 
 // MEJOR SI SOLO USAS UN PUNTERO:
 class SpriteSheetManager;
-class InputManager;
+//class InputManager;
 class PhysicsManager;
 class CollisionManager;
 
@@ -58,8 +60,8 @@ public:
     // Switch de estados y llama a playMovement o handleTransition según convenga.
     void updateState(MovementState targetState);
     
-    //void updateGroundedState(MovementState targetState);
-    //void updateAirState(MovementState targetState);
+    void updateGroundedState(MovementState targetState);
+    void updateAirState(MovementState targetState);
     
     
     // !!! EJECUTOR !!! //
@@ -154,7 +156,8 @@ private:
     
     // VARIABLES DE ESTADO DE PHYSICS
     bool isGrounded = false;
-    bool isWalled = false;
+    bool isWalledLeft = false;
+    bool isWalledRight = false;
     
     // *** CONTEXTOS DE MOVIMIENTO, ESTADO y INPUT ***
     // Puntero único que almacena el movimiento actual (null por defecto).
@@ -193,6 +196,19 @@ private:
     void updateRegion();
     void triggerTransition();    
     void finishedTransition();
+    
+    void triggerGroundedTransition();
+    void triggerAirTransition();
+    
+    
+    // & (Referencia): Evita que el ordenador cree una "copia" de toda la estructura InputState en la memoria cada vez que llamas a la función.
+    // Las referencias (&) siempre apuntan a algo que existe, así que el código queda más limpio y seguro.
+
+    //El const: El const garantiza que no vas a modificar accidentalmente los valores de intent dentro de la función.
+
+    // * (Puntero): Los punteros pueden ser nullptr (nulos), lo que te obligaría a poner un if (intent != nullptr) por seguridad.
+    void finishedGroundedTransition(const InputState& intent);
+    void finishedAirTransition(const InputState& intent);
    
     // $$$$$$$$$$$$$ FISICAS $$$$$$$$$$$$$
     void handleMovementPhysics(const std::string& name);
@@ -202,11 +218,15 @@ private:
     //bool canInterrupt() const; // Para saber si estamos en un estado flexible
     
     
+    
+    
     // TURN_TO_RUN solo se puede dar desde IDLE, pero el estado es TURNING
     // Para no añadir un estado nuevo, que además entraría en conflicto con RUN_TO_TURN
     // Creamos este flag que solo se evaluará en currentState IDLE con targetState RUN.
     bool flag_turn_to_run = false;
     
+    
+    // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
     // Si esto empieza a darse tendremo que crear el Objeto Peticióni modificar el TRADUCTOR y el JUEZ en consecuencia.
     
     /*
@@ -215,5 +235,7 @@ private:
          std::string variant = ""; // Aquí el traductor puede decir "TO_RUN"
      };
      */
+    // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+
     
 };

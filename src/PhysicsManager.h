@@ -49,6 +49,7 @@ public:
     float getGravityY() const;
 
     // *** SETTERS ***
+    void setPositionX(float newX);
     void setPositionY(float newY);
     void setCurrentScale(float scale);
     

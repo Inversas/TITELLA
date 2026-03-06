@@ -142,6 +142,9 @@ float PhysicsManager::getGravityY() const {
 
 
 // *** GETTERS ***
+void PhysicsManager::setPositionX(float newX) {
+    position.x = newX;
+}
 void PhysicsManager::setPositionY(float newY) {
     position.y = newY;
 }
@@ -150,6 +153,9 @@ void PhysicsManager::setCurrentScale(float scale) {
 }
 
 
+
+
+// |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
 // !!!!!! ESTO SE DISPARAAA !!!! no puede estar bieeen !!!
 void PhysicsManager::setMaxSpeedWalk(float maxSpeed) {
     // Aplicamos el escalado directamente en la asignación
@@ -159,6 +165,7 @@ void PhysicsManager::setMaxSpeedRun(float maxSpeed) {
     // Aplicamos el escalado directamente en la asignación
     maxSpeedRun = maxSpeed * currentScale;
 }
+// ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 
 
 

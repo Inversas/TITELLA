@@ -78,3 +78,10 @@ void ofApp::keyReleased(int key) {
     // Maneja la liberación de una tecla
     inputManager.keyReleased(key);
 }
+
+
+
+void ofApp::mousePressed(int x, int y, int button){
+        physicsManager.setPositionX((float)x);
+        physicsManager.setPositionY((float)y);    
+}

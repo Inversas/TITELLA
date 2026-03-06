@@ -1,7 +1,7 @@
 #include "MovementManager.h"
 
 #include "SpriteSheetManager.h"
-#include "InputManager.h"
+//#include "InputManager.h"
 #include "PhysicsManager.h"
 #include "CollisionManager.h"
 
@@ -95,20 +95,32 @@ void MovementManager::updateIntent() {
     // Si hay alguna direccion activa
     else if (intent.hasAnyDirection) {
         
-        // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        //              TO RUNNING
-        // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        // Si quiere correr
-        if (intent.wantsRun) {
-            targetState = MovementState::RUNNING;
-            
-        // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        //              TO WALKING
-        // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        // Si no, quiere caminar
-        } else {
-            targetState = MovementState::WALKING;
-        }
+        // >>>>>>>>>>>> COLISIONES >>>>>>>>>>>>
+        // Comprobamos si el camino hacia donde queremos ir está bloqueado
+        // Comprobamos si el camino hacia donde queremos ir está bloqueado
+            bool blockedRight = intent.wantsRight && isWalledRight;
+            bool blockedLeft = intent.wantsLeft && isWalledLeft;
+
+            if (blockedRight || blockedLeft) {
+                // Si hay muro en la dirección del deseo, el objetivo es quedarse quieto
+                targetState = MovementState::IDLE;
+            }
+            else {
+                // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                //              TO RUNNING
+                // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                // Si quiere correr
+                if (intent.wantsRun) {
+                    targetState = MovementState::RUNNING;
+                    
+                    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                    //              TO WALKING
+                    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                    // Si no, quiere caminar
+                } else {
+                    targetState = MovementState::WALKING;
+                }
+            }
     }
     
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -129,8 +141,8 @@ void MovementManager::updateIntent() {
 // Switch de estados y llama a playMovement o handleTransition según convenga.
 void MovementManager::updateState(MovementState targetState) {
     
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // [NOTA PARA EL FUTURO]: Tendremos que estudiar los casos en que se pierde el suelo
+    // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
+    // Tendremos que estudiar los casos en que se pierde el suelo
     
     // Se propone algo así, pero todo lo que sea romper de emergencia es peligroso para el proyecto, no podemos perder las transiciones
     
@@ -138,20 +150,23 @@ void MovementManager::updateState(MovementState targetState) {
         forceTransitionToAir();
         return;
     }*/
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 
     
-    
-    // EL CONTROL DE SEGURIDAD (La "llave" del Juez)
-    if (!isGrounded ) {
-        // Por ahora, como no hay estados de aire,
-        // aquí es donde en el futuro diríamos: targetState = FALLING;
-        // O simplemente bloquearíamos cualquier intento de caminar.
-         return; // Si retornamos aquí, la marioneta se "congela" en su frame actual si pierde el suelo
+    // SUB MAQUINAS DE ESTADOS
+    if (isGrounded) {
+        updateGroundedState(targetState);
+        return;
     }
-    
-    
-    
+    else {
+        updateAirState(targetState);
+        return;
+    }
+}
+
+
+// !!!!!!! JUEZ DE SUELO !!!!!!! //
+void MovementManager::updateGroundedState(MovementState targetState) {
     
     
     //Bloqueo si Ya estamos en el estado deseado
@@ -383,14 +398,34 @@ void MovementManager::updateState(MovementState targetState) {
     }
 }
 
+// !!!!!!! JUEZ DE AIRE !!!!!!! //
+void MovementManager::updateAirState(MovementState targetState) {
+    // Aquí podríamos manejar estados específicos para cuando el personaje está en el aire, como saltando o cayendo.
+    cout << "AIRE " << endl;
+
+}
 
 
 
 
 // ##############################################################################################################################
-//                                                DISPARAR TRANSICION
+//                                              DISPARAR TRANSICIONES
 // ##############################################################################################################################
 void MovementManager::triggerTransition() {
+    if (isGrounded) {
+            triggerGroundedTransition();
+        } else {
+            triggerAirTransition();
+        }
+}
+
+// ##############################################################################################################################
+//                                            DISPARAR TRANSICION SUELO
+// ##############################################################################################################################
+void MovementManager::triggerGroundedTransition(){
+    
+
+    
     
     switch (currentState) {
         // ##########################################
@@ -436,13 +471,24 @@ void MovementManager::triggerTransition() {
             currentState = MovementState::STOPPING;
         break;
     }
-    
 }
+
+// ##############################################################################################################################
+//                                            DISPARAR TRANSICION AIRE
+// ##############################################################################################################################
+void MovementManager::triggerAirTransition() {
+   cout << "TRANSICION AIRE" << endl;
+}
+
+
+
 
 // ##############################################################################################################################
 //                                               TRANSICION COMPLETADA
 // ##############################################################################################################################
 void MovementManager::finishedTransition() {
+
+    
     // ==========================================
     //              ANY "TURN"
     // ==========================================
@@ -454,7 +500,21 @@ void MovementManager::finishedTransition() {
 
     // ¿QUÉ HACEMOS AHORA?
     InputState intent = inputManager->getInputState();
+    
+    if (isGrounded) {
+            finishedGroundedTransition(intent);
+        } else {
+            finishedAirTransition(intent);
+        }
 
+    
+    updateIntent();
+}
+
+// ##############################################################################################################################
+//                                            TRANSICION COMPLETADA SUELO
+// ##############################################################################################################################
+void MovementManager::finishedGroundedTransition(const InputState& intent) {
     // ##############################################################################################################################
     //                                                        SIGUE
     // ##############################################################################################################################
@@ -559,9 +619,14 @@ void MovementManager::finishedTransition() {
             currentState = MovementState::IDLE;
         }
     }
-    updateIntent();
 }
 
+// ##############################################################################################################################
+//                                            TRANSICION COMPLETADA AIRE
+// ##############################################################################################################################
+void MovementManager::finishedAirTransition(const InputState& intent){
+    cout << "FINAL TRANSICION AIRE" << endl;
+}
 
 
 
@@ -588,33 +653,24 @@ void MovementManager::updateRegion() {
         physicsManager->getGravityY(),
         getIsFacingRight()
     );
-    
-    if (col.floor == nullptr) {
-        cout << "AIRE " << endl;
-    }
-
-    if (col.wall != nullptr) {
-        cout << "Estas colisionando con PARED: " << col.wall->name << endl;
-    }
 
     // LÓGICA DE ESTADO
-    if (col.floor != nullptr) {
-        isGrounded = true;
-    } else {
-        isGrounded = false; // Importante resetearlo si el vidente no ve suelo
-    }
+    isGrounded = col.isGrounded;
+    isWalledLeft = col.isWalledLeft;
+    isWalledRight = col.isWalledRight;
+    
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     
     if(!isGrounded){
         // Si no estamos en el suelo, aplicamos gravedad
         physicsManager->applyGravity();
     } else {
-        // 1000 (Suelo)
+        // col.floor->p1.y; (Suelo)
         // + 150 (Subimos al borde superior de la region)
         // - 10  (Bajamos el offset Y)
         // - 222 (Subimos la altura de la hitbox)
         
-        float yPerfecta = 1000 + 150 - 10 - 222;
+        float yPerfecta = col.floor->p1.y + 150 - 10 - 222;
         
         physicsManager->setPositionY(yPerfecta); // Asegura que el personaje se mantenga en el suelo
     }

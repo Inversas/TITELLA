@@ -15,16 +15,20 @@ enum class InteractorType {
 
 // Estructura para definir un interactor (objeto interactivo)
 struct Interactor {
-    ofVec2f p1;         // Punto inicial
-    ofVec2f p2;         // Punto final
-    InteractorType type; // Tipo: SURFACE, WALL o BUTTON
-    string name;        // Nombre identificador
+    ofVec2f p1;            // Punto inicial
+    ofVec2f p2;            // Punto final
+    InteractorType type;   // Tipo: SURFACE, WALL o BUTTON
+    string name;           // Nombre identificador
+    float influenceRadius; // Radio de influencia propio
+    bool hit;          // Estado de contacto
 
     // Constructor para inicializar un interactor (Estilo Movement)
     Interactor(
         ofVec2f p1 = ofVec2f(0,0),
         ofVec2f p2 = ofVec2f(0,0),
         InteractorType type = InteractorType::SURFACE,
-        string name = ""
+        string name = "",
+       float influenceRadius = 150.0f, // Valor por defecto
+       bool hit = false
     );
 };

@@ -33,7 +33,13 @@ struct CollisionResult {
     Interactor* wall = nullptr;
     Interactor* floor = nullptr;
     
+    bool isWalledLeft = false;
+    bool isWalledRight = false;
+    bool isGrounded = false;
+    
     bool hasAny() const { return wall != nullptr || floor != nullptr; }
+    
+    bool hasAnyWall() const { return wall != nullptr; }
 };
 
 // Clase que gestiona las colisiones en el juego
@@ -59,6 +65,9 @@ public:
     void setHitboxWidth(float w);
     void setHitRayXFloor(float x);
     
+    const vector<Interactor>& getInteractors() const;
+    CollisionResult getLastResult() const;
+    
     
 private:
     // Lista donde guardamos todos los suelos, paredes y botones
@@ -67,11 +76,20 @@ private:
     // La instancia real de los datos
     HitboxData currentHitbox;
     
+    // Guardamos el último resultado
+    CollisionResult lastResult;
+    
     // CACULA SENSORES FUTUROS
     SensorState calculateSensors(ofVec2f pos, ofVec2f vel, float grav, bool isFacingRight);
     
     // CHECK SURFACE COLLISION
     bool checkFloorCollision(Interactor& inter, const SensorState& s);
     // CHECK WALL COLLISION
-    bool checkWallCollision(Interactor& inter, const SensorState& s);
+    bool checkWallRightCollision(Interactor& inter, const SensorState& s);
+    bool checkWallLeftCollision(Interactor& inter, const SensorState& s);
+    
+    // Recibe la referencia al interactor para saber su posición y radio
+    void drawWallHighlight(const Interactor& inter);
+    // Recibe la referencia al interactor para saber su ancho y posición
+    void drawFloorHighlight(const Interactor& inter);
 };

@@ -27,9 +27,15 @@ public:
     //Dibuja un Criculo
     void drawCircle(float x, float y, float radius);
     
+    
+    // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
+    // Todos estas funciones de dibujar, podrían ir al CollisionManager
+    // y que en spriteSheetManager sea solo un drawDebug();
+    // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+    
     //HITBOX
     void drawGuides(float x, float y);
-    void drawHitBox(float x, float y, const HitboxData& hitbox);
+    void drawHitBox(float x, float y, const HitboxData& hitbox, bool isHitWall);
     void drawHitWall(float x, float y, const HitboxData& hitbox);
     void drawHitFloor(float x, float y, const HitboxData& hitbox);
 

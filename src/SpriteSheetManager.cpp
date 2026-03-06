@@ -135,21 +135,38 @@ void SpriteSheetManager::drawGuides(float x, float y) {
     // Pero pondremos Hitbox para más claridad
     HitboxData hitbox = collisionManager->getHitbox();
     
+    // 2. Recuperamos el ÚLTIMO resultado de colisión que se calculó en el update
+    bool isHitWall = collisionManager->getLastResult().hasAnyWall();
+    
     // Region Base
     drawRegion(x, y);
     // Hitbox GUIA
-    drawHitBox(x, y, hitbox);
+    drawHitBox(x, y, hitbox, isHitWall);
     // HitWall
     drawHitWall(x, y, hitbox);
     // HitFloor
     drawHitFloor(x, y, hitbox);
 }
 
-void SpriteSheetManager::drawHitBox(float x, float y, const HitboxData& hitbox) {
-    ofNoFill();            // Solo el contorno
-    ofSetColor(255);       // Color Blanco
+void SpriteSheetManager::drawHitBox(float x, float y, const HitboxData& hitbox, bool isHitWall) {
+    
+    if (isHitWall) {
+        // 1. DIBUJAMOS EL RELLENO (Rojo muy transparente)
+        ofFill();
+        ofSetColor(255, 0, 0, 40); // 40 es un rojo muy suave, cámbialo a tu gusto
+        ofDrawRectangle(x, y + hitbox.offsetY, hitbox.width, hitbox.height);
+        ofNoFill();
+        //ofSetColor(255, 0, 0, 255);
+    } else {
+        // ESTADO NORMAL: Solo contorno blanco
+        ofNoFill();
+        ofSetColor(255);
+    }
     ofDrawRectangle(x, y+hitbox.offsetY, hitbox.width, hitbox.height);
     ofSetColor(255);       // Resetear color para el sprite (por si acaso)
+    
+    
+    
 }
 
 void SpriteSheetManager::drawHitWall(float x, float y, const HitboxData& hitbox) {
