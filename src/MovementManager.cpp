@@ -665,6 +665,8 @@ void MovementManager::updateRegion() {
         // Si no estamos en el suelo, aplicamos gravedad
         physicsManager->applyGravity();
     } else {
+        // Si estamos en el suelo, la velocidad vertical es 0
+        physicsManager->setVelocityY(0);
         // col.floor->p1.y; (Suelo)
         // + 150 (Subimos al borde superior de la region)
         // - 10  (Bajamos el offset Y)

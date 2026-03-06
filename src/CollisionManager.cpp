@@ -46,13 +46,20 @@ void CollisionManager::setup(float regionW, float regionH) {
     
     // PRUEBA PARED INTERMEDIA
     interactors.push_back(Interactor(
-    ofVec2f(700, 0),             // Punto inicial (arriba)
-    ofVec2f(700, ofGetHeight()), // Punto final (abajo)
+    ofVec2f(700, 500),             // Punto inicial (arriba)
+    ofVec2f(700, 800), // Punto final (abajo)
     InteractorType::WALL,                 // Es una PARED
-    "prova",
+    "prova_wall",
     regionW
      ));
 
+    // PRUEBA SUELO INTERMEDIO
+    interactors.push_back(Interactor(
+        ofVec2f(300, 500),            // Punto inicial (0, alto)
+        ofVec2f(700, 500), // Punto final (ancho, alto)
+        InteractorType::SURFACE,              // Es un SUELO
+        "prova_surf"
+    ));
 }
 
 
@@ -155,26 +162,35 @@ CollisionResult CollisionManager::checkCollisions(ofVec2f currentPos, ofVec2f ve
             // Calculamos la distancia absoluta desde el centro (floorRayX) hasta la pared
             float distAlMuro = abs(inter.p1.x - sensors.floorRayX);
             
+            float radioInfluencia = inter.influenceRadius;
             
-             float radioInfluencia = inter.influenceRadius;
+            // DETERMINAR LÍMITES VERTICALES DE LA PARED (p1 y p2 pueden estar invertidos)
+            float wallTop = min(inter.p1.y, inter.p2.y);
+            float wallBottom = max(inter.p1.y, inter.p2.y);
             
-            // PRIMER FILTRO: ¿Está la pared dentro de mi radio de acción?
-            if (distAlMuro <= radioInfluencia) {
+            // FILTRO VERTICAL: ¿Está el personaje en el rango de la pared?
+            // Si la Cabeza está más arriba que el final de la pared
+            // Y los Pies están más abajo que la base de la pared
+            if (sensors.headY < wallBottom && sensors.feetY > wallTop) {
                 
-                if(isFacingRight && inter.p1.x > sensors.floorRayX ){
-                    // Comprobamos bloqueo derecho
-                    if (checkWallRightCollision(inter, sensors)) {
-                        inter.hit = true;     // Interactor Hitted
-                        result.isWalledRight = true;
-                        result.wall = &inter; // Guardamos la referencia por si el Juez la necesita
+                // FILTRO DE INFUENCIA: ¿Está la pared dentro de mi radio de acción?
+                if (distAlMuro <= radioInfluencia) {
+                    
+                    if(isFacingRight && inter.p1.x > sensors.floorRayX ){
+                        // Comprobamos bloqueo derecho
+                        if (checkWallRightCollision(inter, sensors)) {
+                            inter.hit = true;     // Interactor Hitted
+                            result.isWalledRight = true;
+                            result.wall = &inter; // Guardamos la referencia por si el Juez la necesita
+                        }
                     }
-                }
-                else if(!isFacingRight && inter.p1.x < sensors.floorRayX ){
-                    // Comprobamos bloqueo izquierdo
-                    if (checkWallLeftCollision(inter, sensors)) {
-                        inter.hit = true; // Interactor Hitted
-                        result.isWalledLeft = true;
-                        result.wall = &inter;
+                    else if(!isFacingRight && inter.p1.x < sensors.floorRayX ){
+                        // Comprobamos bloqueo izquierdo
+                        if (checkWallLeftCollision(inter, sensors)) {
+                            inter.hit = true; // Interactor Hitted
+                            result.isWalledLeft = true;
+                            result.wall = &inter;
+                        }
                     }
                 }
             }
@@ -222,6 +238,9 @@ SensorState CollisionManager::calculateSensors(ofVec2f pos, ofVec2f vel, float g
         s.wallCurrent = pos.x - (drawX + h.width) + ajuste;
         s.wallFuture  = (pos.x + vel.x) - (drawX + h.width) + ajuste;
     }
+    
+    // Calculamos la parte superior de la hitbox (posicion base menos offset de region + margen)
+    s.headY = pos.y - h.regionW / 2.0f + 10;
 
     // Suelo
     // El rayo X se calcula a partir del centro del personaje más un desplazamiento específico (floorRayX)
@@ -241,7 +260,10 @@ SensorState CollisionManager::calculateSensors(ofVec2f pos, ofVec2f vel, float g
     // Bajamos desde el centro (drawX es -150) + margen de seguridad (10) + altura hitbox.
     s.floorRayX    = pos.x + localRayX;
     s.floorCurrentY = pos.y - h.regionW / 2.0f + 10 + h.height;
-    s.floorFutureY  = (pos.y + grav) - h.regionW / 2.0f + 10 + h.height;
+    s.floorFutureY  = (pos.y + vel.y + grav) - h.regionW / 2.0f + 10 + h.height;
+    
+    // Guardamos la posición de los pies para usarla en la lógica de colisión de paredes
+    s.feetY = s.floorCurrentY;
 
     return s;
 }
@@ -293,7 +315,7 @@ bool CollisionManager::checkFloorCollision(Interactor& inter, const SensorState&
 bool CollisionManager::checkWallRightCollision(Interactor& inter, const SensorState& s) {
     
     float wallX = inter.p1.x;
-    
+
     // SOLO una cosa: ¿He pasado la pared?
     // Si mi X actual YA está al otro lado (más allá) = colisión
     return s.wallCurrent >= wallX;

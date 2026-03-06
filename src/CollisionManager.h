@@ -26,6 +26,8 @@ struct SensorState {
     float wallCurrent, wallFuture;
     float floorRayX;
     float floorCurrentY, floorFutureY;
+    float headY;
+    float feetY;   // Será el floorCurrentY
 };
 
 // PAQUETE DE COLISIONES, para evitar exclusiones (si detectaba suelo, ya no detectaba pared)

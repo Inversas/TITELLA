@@ -52,6 +52,7 @@ public:
     void setPositionX(float newX);
     void setPositionY(float newY);
     void setCurrentScale(float scale);
+    void setVelocityY(float newY);
     
     void setMaxSpeedWalk(float maxSpeed);
     void setMaxSpeedRun(float maxSpeed);
