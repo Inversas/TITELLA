@@ -271,7 +271,7 @@ void MovementManager::updateGroundedState(MovementState targetState) {
                 // ==========================================
                 //                  WALK
                 // ==========================================
-                //std::cout << "!!! ESTA IDLE, VAMOS A CAMINAR DESDE: "  << currentMovementName << "!!!" << std::endl;
+                //std::cout << "!!! ESTA IDLE, VAMOS A EMPEZAR A CAMINAR DESDE: "  << currentMovementName << "!!!" << std::endl;
                 // EJECUTAMOS FELXIBLE
                 playMovement("WALK");
                 // ACTUALIZAMOS ESTADO
@@ -285,7 +285,7 @@ void MovementManager::updateGroundedState(MovementState targetState) {
                 // ==========================================
                 //                  RUN
                 // ==========================================
-                //std::cout << "!!! ESTA IDLE, VAMOS A CORRER DESDE: "  << currentMovementName << "!!!" << std::endl;
+                //std::cout << "!!! ESTA IDLE, VAMOS A EMPEZAR A CORRER DESDE: "  << currentMovementName << "!!!" << std::endl;
                 // EJECUTAMOS FELXIBLE
                 playMovement("RUN");
                 // ACTUALIZAMOS ESTADO
@@ -466,7 +466,7 @@ void MovementManager::triggerGroundedTransition(){
         // seria case MovementState::STOPPING:
         default:
             // EJECUTAMOS
-            playMovement(currentMovement->transitions[targetRegion]);
+            playMovement(currentMovement->stop_transitions[targetRegion]);
             // ACTUALIZAMOS ESTADO
             currentState = MovementState::STOPPING;
         break;
@@ -668,11 +668,9 @@ void MovementManager::updateRegion() {
         // Si estamos en el suelo, la velocidad vertical es 0
         physicsManager->setVelocityY(0);
         // col.floor->p1.y; (Suelo)
-        // + 150 (Subimos al borde superior de la region)
-        // - 10  (Bajamos el offset Y)
-        // - 222 (Subimos la altura de la hitbox)
+        // - 150            (Subimos media región para que la base del cuadrado de 300px apoye en el suelo)
         
-        float yPerfecta = col.floor->p1.y + 150 - 10 - 222;
+        float yPerfecta = col.floor->p1.y - 150;
         
         physicsManager->setPositionY(yPerfecta); // Asegura que el personaje se mantenga en el suelo
     }
@@ -842,20 +840,37 @@ void MovementManager::handleTransition() {
     // Variable para guardar el Nombre de la transición a ejecutar
     std::string transitionName;
     
+    //*** SELECCIONA TRANSICIONES SEGÚN  ESTADO ***//
+    // Usamos un puntero para no copiar el mapa, solo apuntar al que necesitamos
+    std::map<int, std::string>* transitionMap = nullptr;
+    
+    // Transiciones segun ESTADOS
+    if (currentState == MovementState::TURNING) {
+        transitionMap = &movement.turn_transitions;
+    }
+    else if (currentState == MovementState::STOPPING) {
+        transitionMap = &movement.stop_transitions;
+    }
+    else if (currentState == MovementState::WALKING || currentState == MovementState::RUNNING) {
+        transitionMap = &movement.change_transitions;
+    }
+
+    // Si el mapa no existe o está vacío, no hay transiciones que buscar
+    if (!transitionMap || transitionMap->empty()) return;
+    
     
     //*** ENCUENTRA LA REGIÓN DE TRANSICIÓN MÁS CERCANA ***//
-    for (int region : movement.transitionRegions) {
-        // Verifica si la región es mayor que la región actual
-        // Y si es la más cercana encontrada hasta ahora
+    // Iteramos por el transitionMap
+    for (auto const& [region, name] : *transitionMap) {
         if (region > currentRegion && (closestRegion == -1 || region < closestRegion)) {
-            // Actualiza la región de transición más cercana
             closestRegion = region;
         }
     }
-    // Si no se encontró una región de transición cercana (pasamos la útima y debe encontrar la siguiente al iniciar el bucle) usa la primera disponible.
-    if (closestRegion == -1 && !movement.transitionRegions.empty()) {
-        // Usa la primera región de transición disponible
-        closestRegion = movement.transitionRegions[0];
+
+    // Si no se encontró una región mayor que la actual, usamos la primera del mapa
+    if (closestRegion == -1) {
+        // En un std::map, begin() siempre apunta al valor de clave más pequeño
+        closestRegion = transitionMap->begin()->first;
     }
     
     //*** DEFINE LA REGIÓN DE TRANSICIÓN Y ACTIVA ESPERA ***//
@@ -1026,21 +1041,19 @@ void MovementManager::loadMovements(const std::string& filename) {
         movement.isTransition = jsonMovement["isTransition"].asBool();
         movement.frameInterval = jsonMovement["frameInterval"].asFloat();
         
-        // Carga las regiones de transición del movimiento
-        for (const auto& region : jsonMovement["transitionRegions"]) {
-            movement.transitionRegions.push_back(region.asInt());
-        }
-
-        // Carga las transiciones del movimiento
-        for (const auto& transition : jsonMovement["transitions"].getMemberNames()) {
-            movement.transitions[std::stoi(transition)] = jsonMovement["transitions"][transition].asString();
+        // STOP
+        // Carga las transiciones de parada del movimiento
+        for (const auto& transition : jsonMovement["stop_transitions"].getMemberNames()) {
+            movement.stop_transitions[std::stoi(transition)] = jsonMovement["stop_transitions"][transition].asString();
         }
         
+        // TURN
         // Carga las transiciones de giro del movimiento
         for (const auto& transition : jsonMovement["turn_transitions"].getMemberNames()) {
             movement.turn_transitions[std::stoi(transition)] = jsonMovement["turn_transitions"][transition].asString();
         }
         
+        // CHANGE
         // Carga las transiciones de cambio del movimiento
         for (const auto& transition : jsonMovement["change_transitions"].getMemberNames()) {
             movement.change_transitions[std::stoi(transition)] = jsonMovement["change_transitions"][transition].asString();

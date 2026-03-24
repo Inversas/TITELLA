@@ -56,7 +56,7 @@ private:
     ofImage spriteSheet; // Objeto que contiene la imagen de la hoja de sprites
     static const int REGION_WIDTH = 300; // Ancho de cada región en la hoja de sprites
     static const int REGION_HEIGHT = 300; // Alto de cada región en la hoja de sprites
-    static const int SPRITE_OFFSET_X = 50; // Desplazamiento del sprite
+    static const int SPRITE_OFFSET_X = 0; // Desplazamiento del sprite
     float scaleFactor = 1.0f; // Factor de escala para dibujar la hoja de sprites
     
     // Conexión al CollisionManager

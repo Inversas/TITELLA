@@ -5,7 +5,7 @@ void ofApp::setup() {
     ofSetFrameRate(60);
     
     
-    spriteSheetManager.loadSpriteSheet("ProvaTest_5.png");
+    spriteSheetManager.loadSpriteSheet("ProvaTest_7.png");
     // Configura el gestor de entradas con el gestor de movimientos
     inputManager.setup();
     

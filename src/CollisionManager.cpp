@@ -7,10 +7,9 @@
 void CollisionManager::setup(float regionW, float regionH) {
     
     // *** HITBOX ***
-    currentHitbox.width = regionW;     
-    currentHitbox.height = regionH - 78;     // 222px
-    currentHitbox.offsetY = 10.0f;           // El ajuste vertical
-    currentHitbox.floorRayX = 97.0f;         // Posición horizontal del rayo de detección del suelo (ajustable por GUI)
+    currentHitbox.width = regionW + 87;  // Mayor que la region, para no traspasar si la frenada tiene que llegar a un PS lejano
+    currentHitbox.height = regionH;      // 300px
+    currentHitbox.floorRayX = regionW/2;         // Posición horizontal del rayo de detección del suelo (ajustable por GUI)
     currentHitbox.regionW = regionW;         // Guardamos el ancho de la región para usarlo en los cálculos de colisión
     currentHitbox.regionH = regionH;         // Guardamos la altura de la región para usarlo en los cálculos de colisión
     
@@ -43,7 +42,7 @@ void CollisionManager::setup(float regionW, float regionH) {
         "actLimitR",
         regionW
     ));
-    
+    /*
     // PRUEBA PARED INTERMEDIA
     interactors.push_back(Interactor(
     ofVec2f(700, 500),             // Punto inicial (arriba)
@@ -59,7 +58,7 @@ void CollisionManager::setup(float regionW, float regionH) {
         ofVec2f(700, 500), // Punto final (ancho, alto)
         InteractorType::SURFACE,              // Es un SUELO
         "prova_surf"
-    ));
+    ));*/
 }
 
 
@@ -233,14 +232,12 @@ SensorState CollisionManager::calculateSensors(ofVec2f pos, ofVec2f vel, float g
         // Lo mismo pero con la velocidad aplicada
         s.wallFuture  = (pos.x + vel.x) + drawX + h.width;
     } else {
-        // De momento compesnamos el desplazamiento visual del sprite al girar
-        float ajuste = -100.0f;
-        s.wallCurrent = pos.x - (drawX + h.width) + ajuste;
-        s.wallFuture  = (pos.x + vel.x) - (drawX + h.width) + ajuste;
+        s.wallCurrent = pos.x - (drawX + h.width);
+        s.wallFuture  = (pos.x + vel.x) - (drawX + h.width);
     }
     
     // Calculamos la parte superior de la hitbox (posicion base menos offset de region + margen)
-    s.headY = pos.y - h.regionW / 2.0f + 10;
+    s.headY = pos.y - h.regionW / 2.0f;
 
     // Suelo
     // El rayo X se calcula a partir del centro del personaje más un desplazamiento específico (floorRayX)
@@ -251,16 +248,15 @@ SensorState CollisionManager::calculateSensors(ofVec2f pos, ofVec2f vel, float g
         localRayX = drawX + h.floorRayX;
     }
     else {
-        // Lógica de Espejo: Invertimos la posición respecto al centro y aplicamos el ajuste
-        float ajuste = -100.0f;
-        localRayX = -(drawX + h.floorRayX) + ajuste;
+        // Lógica de Espejo: Invertimos la posición respecto al centro
+        localRayX = -(drawX + h.floorRayX);
     }
     
     // Posición Y de los pies, actual y futura:
     // Bajamos desde el centro (drawX es -150) + margen de seguridad (10) + altura hitbox.
     s.floorRayX    = pos.x + localRayX;
-    s.floorCurrentY = pos.y - h.regionW / 2.0f + 10 + h.height;
-    s.floorFutureY  = (pos.y + vel.y + grav) - h.regionW / 2.0f + 10 + h.height;
+    s.floorCurrentY = pos.y - h.regionW / 2.0f + h.height;
+    s.floorFutureY  = (pos.y + vel.y + grav) - h.regionW / 2.0f + h.height;
     
     // Guardamos la posición de los pies para usarla en la lógica de colisión de paredes
     s.feetY = s.floorCurrentY;

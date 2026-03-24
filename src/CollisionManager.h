@@ -14,7 +14,6 @@ class SpriteSheetManager;
 struct HitboxData {
     float width;
     float height;
-    float offsetY;
     float floorRayX;
     float feetOffset; // El cálculo de los +82px
     float regionW;

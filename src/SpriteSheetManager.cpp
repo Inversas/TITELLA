@@ -20,6 +20,7 @@ void SpriteSheetManager::draw(float x, float y, int row, int region, bool isFaci
     //             PUNTO ROJO --> CENTRO ORIGINAL DE LA PANNTALLA
     // ·······························································
     ofSetColor(255,0,0);
+    ofNoFill();
     drawCircle(0,0,5);
     
     
@@ -27,6 +28,7 @@ void SpriteSheetManager::draw(float x, float y, int row, int region, bool isFaci
     //             PUNTO AMARILLO --> CENTRO DE LA VENTANA
     // ·······························································
     ofSetColor(255,255,0);
+    ofNoFill();
     drawCircle(ofGetWidth()/2,ofGetHeight()/2,5);
     
     
@@ -43,7 +45,7 @@ void SpriteSheetManager::draw(float x, float y, int row, int region, bool isFaci
     ofTranslate(x, y);
     
     // ·······························································
-    //             PUNTO VERDE --> ORIGEN REAL del personaje, Sin ajuste de REGION. Marca el centro de la region sin Giro ni escala.
+    //             PUNTO VERDE --> ORIGEN REAL del personaje. Marca el centro de la region sin escala.
     // ·······························································
     // Por el translate, sería como hacer: drawCircle(x, y, 5);
     ofSetColor(0,255,0);
@@ -82,7 +84,7 @@ void SpriteSheetManager::draw(float x, float y, int row, int region, bool isFaci
         
         // Posicion a dibujar (ajustada para el giro horizontal)
         // El 100 es temporal hasta redibujar bien centrado el sprite
-        float drawX = -REGION_WIDTH / 2 + 100;
+        float drawX = -REGION_WIDTH / 2;
         float drawY = -REGION_HEIGHT / 2;
         
         // Draw Guides
@@ -154,7 +156,7 @@ void SpriteSheetManager::drawHitBox(float x, float y, const HitboxData& hitbox, 
         // 1. DIBUJAMOS EL RELLENO (Rojo muy transparente)
         ofFill();
         ofSetColor(255, 0, 0, 40); // 40 es un rojo muy suave, cámbialo a tu gusto
-        ofDrawRectangle(x, y + hitbox.offsetY, hitbox.width, hitbox.height);
+        ofDrawRectangle(x, y, hitbox.width, hitbox.height);
         ofNoFill();
         //ofSetColor(255, 0, 0, 255);
     } else {
@@ -162,7 +164,7 @@ void SpriteSheetManager::drawHitBox(float x, float y, const HitboxData& hitbox, 
         ofNoFill();
         ofSetColor(255);
     }
-    ofDrawRectangle(x, y+hitbox.offsetY, hitbox.width, hitbox.height);
+    ofDrawRectangle(x, y, hitbox.width, hitbox.height);
     ofSetColor(255);       // Resetear color para el sprite (por si acaso)
     
     
@@ -171,17 +173,17 @@ void SpriteSheetManager::drawHitBox(float x, float y, const HitboxData& hitbox, 
 
 void SpriteSheetManager::drawHitWall(float x, float y, const HitboxData& hitbox) {
     ofSetColor(255, 0, 0);
-    ofDrawLine(x + hitbox.width, y + hitbox.offsetY,
-               x + hitbox.width, y + hitbox.offsetY + hitbox.height);
+    ofDrawLine(x + hitbox.width, y,
+               x + hitbox.width, y + hitbox.height);
 }
 
 void SpriteSheetManager::drawHitFloor(float x, float y, const HitboxData& hitbox) {
     
-    float floorY = y + hitbox.offsetY + hitbox.height;
+    float floorY = y + hitbox.height;
     
     ofSetColor(0, 0, 255);
     ofDrawLine(x, floorY,
-               x + hitbox.width, y + hitbox.offsetY + hitbox.height);
+               x + hitbox.width, y + hitbox.height);
     
     //HITFLOOR RAY
     ofSetColor(64, 224, 208);

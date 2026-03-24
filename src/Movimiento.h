@@ -13,8 +13,7 @@ struct Movement {
     string name; // Nombre del movimiento (ej. "WALK", "IDLE")
     int row;     // Fila en el sprite sheet donde están los fotogramas de este movimiento
     int numRegions; // Número de regiones o fotogramas en esta fila (cuántos cuadros animan el movimiento)
-    vector<int> transitionRegions; // Regiones específicas para iniciar transiciones al dejar de presionar la tecla
-    map<int, string> transitions;  // Mapa que asocia una región específica con el nombre de una transición
+    map<int, string> stop_transitions;  // Mapa que asocia una región específica con el nombre de una transición
     map<int, string> turn_transitions;  // Mapa que asocia una región específica con el nombre de una transición de giro
     map<int, string> change_transitions;  // Mapa que asocia una región específica con el nombre de una transición de cambio
     bool isTransition; // Si el movimiento es una transición (no se reproduce en bucle)
