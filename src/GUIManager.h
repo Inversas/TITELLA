@@ -43,6 +43,8 @@ private:
     ofxFloatSlider walkTurn2FrameIntervalGui; // Slider para WalkTurn2
     ofxFloatSlider runTurn1FrameIntervalGui; // Slider para RunTurn1
     ofxFloatSlider runTurn2FrameIntervalGui; // Slider para RunTurn2
+    ofxFloatSlider idleToWalkFrameIntervalGui; // Slider para Idle To Walk
+    ofxFloatSlider idleToRunFrameIntervalGui;; // Slider para Idle To Run
     
     
     //*** LABELS ***
@@ -98,6 +100,8 @@ private:
     void onWalkTurn2FrameIntervalChanged(float& value); // Callback para WalkTurn2
     void onRunTurn1FrameIntervalChanged(float& value); // Callback para RunTurn1
     void onRunTurn2FrameIntervalChanged(float& value); // Callback para RunTurn2
+    void onIdleToWalkFrameIntervalChanged(float& value); // Callback para Idle To Walk
+    void onIdleToRunFrameIntervalChanged(float& value); // Callback para Idle To Run
     
     void onMaxSpeedWalkChanged(float& value); 
     void onMaxSpeedRunChanged(float& value);

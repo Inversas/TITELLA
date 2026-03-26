@@ -18,6 +18,7 @@ struct Movement {
     map<int, string> change_transitions;  // Mapa que asocia una región específica con el nombre de una transición de cambio
     bool isTransition; // Si el movimiento es una transición (no se reproduce en bucle)
     float frameInterval; // Tiempo entre frames en segundos (específico para el movimiento)
+    int target_frame; // Frame donde debe empezar el siguiente movimiento
     
     // Constructor para inicializar un movimiento
     Movement(
@@ -25,6 +26,7 @@ struct Movement {
              int row = 0,               // Fila en el sprite sheet
              int numRegions = 1,        // Número de fotogramas
              bool isTransition = false, // Si es transición
-             float frameInterval = -0.1f
+             float frameInterval = -0.1f,
+             int target_frame = 0
              );
 };

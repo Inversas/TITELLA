@@ -26,7 +26,7 @@ public:
     // Calcula cuánto debe cambiar la velocidad en cada frame de la animación actual.
     // targetSpeedX: Velocidad final deseada.
     // frames: Cuántos frames de animación dura el cambio.
-    void startVelocityChange(float targetAbsSpeed, int frames, bool lookingRight);
+    void startVelocityChange(float targetAbsSpeed, int frames, bool lookingRight, int delay = 0);
     void startVelocityTurnChange(int frames);
     
 
@@ -77,9 +77,9 @@ private:
     float targetVelocityX;  // A qué velocidad queremos llegar (ej: 200.0 o 0.0)
     float velocityStep;    // Cuánta velocidad sumamos/restamos en cada tick de animación
     int framesRemaining;    // Cuántos "pasos" quedan para terminar el cambio de velocidad
+    int delayFramesRemaining = 0; // Cuántos "pasos" quedan para empezar el cambio de velocidad
     bool isVelocityChanging;   // Flag de seguridad para saber si hay un cambio de velocidad en curso
 
     // *** MÉTODOS INTERNOS ***
-    // Asegura que la velocidad no supere los límites configurados.
-    void limitSpeed();
+    float cleanFloat(float value);
 };

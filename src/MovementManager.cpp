@@ -272,8 +272,8 @@ void MovementManager::updateGroundedState(MovementState targetState) {
                 //                  WALK
                 // ==========================================
                 //std::cout << "!!! ESTA IDLE, VAMOS A EMPEZAR A CAMINAR DESDE: "  << currentMovementName << "!!!" << std::endl;
-                // EJECUTAMOS FELXIBLE
-                playMovement("WALK");
+                // EJECUTAMOS TRANSICION A FELXIBLE
+                playMovement("IDLE_TO_WALK");
                 // ACTUALIZAMOS ESTADO
                 currentState = MovementState::WALKING;
             }
@@ -286,8 +286,8 @@ void MovementManager::updateGroundedState(MovementState targetState) {
                 //                  RUN
                 // ==========================================
                 //std::cout << "!!! ESTA IDLE, VAMOS A EMPEZAR A CORRER DESDE: "  << currentMovementName << "!!!" << std::endl;
-                // EJECUTAMOS FELXIBLE
-                playMovement("RUN");
+                // EJECUTAMOS TRANSICION A FELXIBLE
+                playMovement("IDLE_TO_RUN");
                 // ACTUALIZAMOS ESTADO
                 currentState = MovementState::RUNNING;
             }
@@ -530,38 +530,64 @@ void MovementManager::finishedGroundedTransition(const InputState& intent) {
         else {
             
             // ####################################################################################################
-            //     FIN --> RUN TURN / WALK TO RUN
+            //     FIN --> RUN TURN / WALK TO RUN / IDLE_TO_RUN
             // ####################################################################################################
             // Si pulsa correr
             if (intent.wantsRun) {
-                // Algunas transiciones necesitan empezar en un frame concreto
-                int startFrame = 0;
-                if(currentMovementName == "WALK_TO_RUN_1") startFrame = 10;
-                else if (currentMovementName == "WALK_TO_RUN_2") startFrame = 4;
                 
+                // ==========================================
+                //               WALK TO RUN
+                // ==========================================
+                if(currentMovementName.find("WALK_TURN") != std::string::npos){
+                    if(currentMovementName == "WALK_TURN_1"){
+                        playMovement("WALK_TO_RUN_1");
+                    }
+                    else if (currentMovementName == "WALK_TURN_2"){
+                        playMovement("WALK_TO_RUN_2");
+                    }
+
+                }
                 // ==========================================
                 //                   RUN
                 // ==========================================
-                // EJECUTAMOS FELXIBLE
-                playMovement("RUN", startFrame);
-                // ACTUALIZAMOS ESTADO
-                currentState = MovementState::RUNNING;
+                else {
+                    // EJECUTAMOS FELXIBLE
+                    // Algunas transiciones necesitan que el siguiente movimiento empiece en un frame concreto
+                    playMovement("RUN", currentMovement->target_frame);
+                    // ACTUALIZAMOS ESTADO
+                    currentState = MovementState::RUNNING;
+                }
                 
                 // ####################################################################################################
-                //     FIN --> WALK TURN / RUN TO WALK
+                //     FIN --> WALK TURN / RUN TO WALK / IDLE_TO_WALK
                 // ####################################################################################################
                 // Si no pulsa correr
             } else {
-                int startFrame = 0;
-                if(currentMovementName == "RUN_TO_WALK_1") startFrame = 4;
                 
+                // !!! IMPLEMENTAR !!!
+                // ==========================================
+                //               RUN TO WALK
+                // ==========================================
+                if(currentMovementName.find("RUN_TURN") != std::string::npos){
+                    if(currentMovementName == "RUN_TURN_1"){
+                        playMovement("RUN_TO_WALK_1");
+                    }
+                    else if (currentMovementName == "RUN_TURN_2"){
+                        playMovement("RUN_TO_WALK_2");
+                    }
+                }
                 // ==========================================
                 //                   WALK
                 // ==========================================
-                // EJECUTAMOS FELXIBLE
-                playMovement("WALK", startFrame);
-                // ACTUALIZAMOS ESTADO
-                currentState = MovementState::WALKING;
+                else {
+                    // EJECUTAMOS FELXIBLE
+                    // Algunas transiciones necesitan que el siguiente movimiento empiece en un frame concreto
+                    playMovement("WALK", currentMovement->target_frame);
+                    // ACTUALIZAMOS ESTADO
+                    currentState = MovementState::WALKING;
+                }
+                
+               
             }
         }
     }
@@ -572,40 +598,47 @@ void MovementManager::finishedGroundedTransition(const InputState& intent) {
     else {
         
         // ######################################################
-        //      FIN --> WALK TURN / RUN TO WALK
+        //      FIN --> WALK TURN / RUN TO WALK / IDLE_TO_WALK
         // ######################################################
         if(currentMovementName.find("WALK_TURN") != std::string::npos || currentMovementName.find("TO_WALK") != std::string::npos){
             //std::cout << ">>> Giro en movimiento WALK o RUN_TO_WALK terminado , pero no hay wants: Paso de transición antes de frenar." << std::endl;
             
-            // Algunas transiciones necesitan empezar en un frame concreto
-            int startFrame = 0;
-            if(currentMovementName == "RUN_TO_WALK_1") startFrame = 4;
+
+            // AQUÍ NO HACE FALTA PORQUE ENCAJAN LOS FRAMES CON LA PARADA
+            /*
+            if(currentMovementName.find("WALK_TURN") != std::string::npos){
+                cout << "DEBEMOS PASAR A RUN TO WALK !!!! PARA FRENAR !!!! " << endl;
+                
+            }*/
             
             // ==========================================
             //                   WALK
             // ==========================================
             // EJECUTAMOS FELXIBLE
-            playMovement("WALK", startFrame);
+            // Algunas transiciones necesitan que el siguiente movimiento empiece en un frame concreto
+            playMovement("WALK", currentMovement->target_frame);
             // ACTUALIZAMOS ESTADO
             currentState = MovementState::WALKING;
         }
 
         // ######################################################
-        //     FIN --> RUN TURN / WALK TO RUN / TURN TO RUN
+        //     FIN --> RUN TURN / WALK TO RUN / TURN TO RUN  / IDLE_TO_RUN
         // ######################################################
         else if (currentMovementName.find("RUN_TURN") != std::string::npos || currentMovementName.find("TO_RUN") != std::string::npos ){
             //std::cout << ">>> Giro en movimiento RUN o WALK_TO_RUN terminado , pero no hay wants: Paso de transición antes de frenar." << std::endl;
-
-            // Algunas transiciones necesitan empezar en un frame concreto
-            int startFrame = 0;
-            if(currentMovementName == "WALK_TO_RUN_1") startFrame = 10;
-            else if (currentMovementName == "WALK_TO_RUN_2") startFrame = 4;
+            
+            // AQUÍ NO HACE FALTA PORQUE ENCAJAN LOS FRAMES CON LA PARADA
+            /*
+            if(currentMovementName.find("RUN_TURN") != std::string::npos){
+                cout << "DEBEMOS PASAR A WALK TO RUN !!!! PARA FRENAR !!!!" << endl;
+            }*/
             
             // ==========================================
             //                   RUN
             // ==========================================
             // EJECUTAMOS FELXIBLE
-            playMovement("RUN", startFrame);
+            // Algunas transiciones necesitan que el siguiente movimiento empiece en un frame concreto
+            playMovement("RUN", currentMovement->target_frame);
             // ACTUALIZAMOS ESTADO
             currentState = MovementState::RUNNING;
         }
@@ -670,7 +703,7 @@ void MovementManager::updateRegion() {
         // col.floor->p1.y; (Suelo)
         // - 150            (Subimos media región para que la base del cuadrado de 300px apoye en el suelo)
         
-        float yPerfecta = col.floor->p1.y - 150;
+        float yPerfecta = col.floor->p1.y - spriteSheetManager->getRegionHeight()/2;
         
         physicsManager->setPositionY(yPerfecta); // Asegura que el personaje se mantenga en el suelo
     }
@@ -733,8 +766,21 @@ void MovementManager::handleMovementPhysics(const std::string& name) {
     // ==========================================
     if (name.find("TURN_") != std::string::npos) {
         //std::cout << "-> Detectado GIRO en Movimiento" << std::endl;
-        // Inicia la rampa en 'V' para invertir la velocidad en el tiempo de giro
-        physicsManager->startVelocityTurnChange(frames);
+        
+        // TURN_TO_RUN , sus primeros frames no mueven el personaje, usamos un delay
+        if(name == "TURN_TO_RUN"){
+            //std::cout << "-> Detectado TURN_TO_RUN " << std::endl;
+            
+            // isFacingRight ya está cambiado pero esta animación en concreto debe interpretar que aun no lo está
+            //al terminar y pasarle el testigo a otra animación ya estará bien.
+            physicsManager->startVelocityChange(physicsManager->getMaxSpeedWalk(), frames, !isFacingRight, 3);
+            
+        }
+        // Para los demás usa los frames del movimiento
+       else{
+            // Inicia la rampa en 'V' para invertir la velocidad en el tiempo de giro
+            physicsManager->startVelocityTurnChange(frames);
+        }
         return;
     }
     
@@ -743,8 +789,17 @@ void MovementManager::handleMovementPhysics(const std::string& name) {
     // ==========================================
     if (name.find("TO_IDLE") != std::string::npos) {
         //std::cout << "-> Detectado FRENADO (TO_IDLE)" << std::endl;
-        // Crea una rampa hacia velocidad 0 usando los frames de la animación de frenado
-        physicsManager->startVelocityChange(0, frames, isFacingRight);
+        
+        // RUN TO IDLE debe terminar antes, es una frenada más brusca
+        if(name == "RUN_TO_IDLE"){
+        // Crea una rampa hacia velocidad 0 usando los frames menos 2 de la animación de frenado
+        physicsManager->startVelocityChange(0, frames-2, isFacingRight);
+        }
+        // Para los demás usa los frames del movimiento
+        else {
+            // Crea una rampa hacia velocidad 0 usando los frames de la animación de frenado
+            physicsManager->startVelocityChange(0, frames, isFacingRight);
+        }
         return;
     }
 
@@ -753,8 +808,8 @@ void MovementManager::handleMovementPhysics(const std::string& name) {
     // ==========================================
     if (name.find("RUN_TO_WALK") != std::string::npos) {
         //std::cout << "-> Detectado RUN_TO_WALK" << std::endl;
-        // Baja la velocidad hasta el tope de caminar usando los frames de transición
-        physicsManager->startVelocityChange(physicsManager->getMaxSpeedWalk(), frames, isFacingRight);
+        // Baja la velocidad hasta el tope de caminar usando los frames de transición más 3 frames "prestados" del ciclo WALK
+        physicsManager->startVelocityChange(physicsManager->getMaxSpeedWalk(), frames+3, isFacingRight);
         return;
     }
 
@@ -772,7 +827,7 @@ void MovementManager::handleMovementPhysics(const std::string& name) {
 //                                           BUCLES (PRIORIDAD BAJA)
 // ##############################################################################################################################
     // ==========================================
-    //                   WALK
+    //             WALK / IDLE_TO_WALK
     // ==========================================
     if (name.find("WALK") != std::string::npos) {
         //std::cout << "-> Detectado WALK simple" << std::endl;
@@ -780,12 +835,21 @@ void MovementManager::handleMovementPhysics(const std::string& name) {
         physicsManager->startVelocityChange(physicsManager->getMaxSpeedWalk(), frames, isFacingRight);
     }
     // ==========================================
-    //                    RUN
+    //             RUN / IDLE_TO_RUN
     // ==========================================
     else if (name.find("RUN") != std::string::npos) {
         //std::cout << "-> Detectado RUN simple" << std::endl;
-        // Mantiene o ajusta la velocidad al máximo de correr, durante el primer ciclo de RUN
-        physicsManager->startVelocityChange(physicsManager->getMaxSpeedRun(), frames, isFacingRight);
+        
+        // IDLE TO RUN no debe llegar a su velocidad máxima durante los frames del movimiento, usamos un delay
+        if(name.find("IDLE_TO_RUN") != std::string::npos ){
+            //std::cout << "-> Detectado IDLE_TO_RUN " << std::endl;
+            physicsManager->startVelocityChange(physicsManager->getMaxSpeedWalk(), frames, isFacingRight,2);
+        }
+        // Para los demás usa los frames del movimiento
+        else {
+            //std::cout << "-> Detectado RUN " << std::endl;
+            physicsManager->startVelocityChange(physicsManager->getMaxSpeedRun(), frames, isFacingRight);
+        }
     }
     // ==========================================
     //            IDLE, por ejemplo
@@ -1040,6 +1104,9 @@ void MovementManager::loadMovements(const std::string& filename) {
         movement.numRegions = jsonMovement["numRegions"].asInt();
         movement.isTransition = jsonMovement["isTransition"].asBool();
         movement.frameInterval = jsonMovement["frameInterval"].asFloat();
+        
+        // Cargamos el target_frame (si no existe, pondrá 0 por defecto)
+        movement.target_frame = jsonMovement.get("target_frame", 0).asInt();
         
         // STOP
         // Carga las transiciones de parada del movimiento

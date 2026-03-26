@@ -35,8 +35,15 @@ void PhysicsManager::update() {
 // Aplica el incremento/decremento calculado en cada paso de animación (Frame Data) y gestiona la finalización de la rampa.
 void PhysicsManager::updateVelocityStep() {
     
+    if (!isVelocityChanging) return;
+
+    // Algunos movimientos tienen un delay
+    if(delayFramesRemaining > 0) {
+        delayFramesRemaining--; // Gastamos un frame de espera
+        framesRemaining--;      // El tiempo total del movimiento también corre
+    }
     // Si hay una transición activa y frames pendientes
-    if (isVelocityChanging && framesRemaining > 0) {
+    else if (framesRemaining > 0) {
         
         // Aplicamos el paso de velocidad (aceleración o frenado)
         velocity.x += velocityStep;
@@ -46,8 +53,8 @@ void PhysicsManager::updateVelocityStep() {
 
         // Si hemos llegado al final de la transición
         if (framesRemaining <= 0) {
-            // Forzamos la velocidad al objetivo exacto para evitar floats raros (2.99998 en vez de 3.0).
-            velocity.x = targetVelocityX;
+            // Para evitar floats raros (2.99998 en vez de 3.0), usamos la función cleanFloat para redondear a un decimal limpio.
+            velocity.x = cleanFloat(velocity.x);
             
             // Limpieza de estado: detenemos el proceso y reseteamos el diferencial
             isVelocityChanging = false;
@@ -60,14 +67,16 @@ void PhysicsManager::updateVelocityStep() {
 
 // *** CAMBIOS DE VELOCIDAD ***
 // Configura una rampa de aceleración o frenado (cambio de velocidad progresivo).
-void PhysicsManager::startVelocityChange(float targetAbsSpeed, int frames, bool lookingRight) {
+void PhysicsManager::startVelocityChange(float targetAbsSpeed, int frames, bool lookingRight, int delay) {
+    
+  
 
     // Determinar el vector de velocidad objetivo según la orientación del personaje
     float targetSpeedWithDirection = lookingRight ? targetAbsSpeed : -targetAbsSpeed;
 
-    // CASO INSTANTÁNEO: Si no hay frames de transición, aplicamos la velocidad de golpe
+    // CASO INSTANTÁNEO: Si no hay frames de transición y no hay delay, aplicamos la velocidad de golpe
     // Para no dividir entre 0
-    if (frames <= 0) {
+    if (frames <= 0 && delay <= 0) {
         velocity.x = targetSpeedWithDirection;
         targetVelocityX = targetSpeedWithDirection;
         isVelocityChanging = false;
@@ -76,10 +85,13 @@ void PhysicsManager::startVelocityChange(float targetAbsSpeed, int frames, bool 
     }
 
     // CONFIGURACIÓN DE LA RAMPA:
-    // Guardamos la meta final y el tiempo (frames) que tenemos para llegar
+    // Actualizamos si tiene delay
+    delayFramesRemaining = delay;
+    // Guardamos la meta final y el tiempo (frames, incluido el delay) que tenemos para llegar
     targetVelocityX = targetSpeedWithDirection;
     framesRemaining = frames;
     isVelocityChanging = true;
+
     
     // CÁLCULO DEL DIFERENCIAL (Step):
     // Determinamos cuánto debe cambiar la velocidad en cada frame de animación.
@@ -179,11 +191,15 @@ void PhysicsManager::setMaxSpeedRun(float maxSpeed) {
 
 
 // *** MÉTODOS INTERNOS ***
-/*
-void PhysicsManager::limitSpeed() {
-    // Si quisiéramos un límite duro por seguridad fuera de las rampas
-    if (velocity.x > maxSpeedRun) velocity.x = maxSpeedRun;
-    if (velocity.x < -maxSpeedRun) velocity.x = -maxSpeedRun;
+float PhysicsManager::cleanFloat(float value) {
+    // Multiplicamos por 10 para trabajar con el primer decimal como unidad
+    float multi = value * 10.0f;
+    
+    // Si la diferencia con el redondeo es minúscula (error de float)
+    if (abs(multi - round(multi)) < 0.01f) {
+        return round(multi) / 10.0f;
+    }
+    
+    return value; // Si no hay "ruido", devolvemos el original
 }
- */
 

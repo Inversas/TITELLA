@@ -41,6 +41,8 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     gui.add(walkTurn2FrameIntervalGui.setup("F.I. WALK_TURN_2", 0.1f, 0.01, 0.5));
     gui.add(runTurn1FrameIntervalGui.setup("F.I. RUN_TURN_1", 0.1f, 0.01, 0.5));
     gui.add(runTurn2FrameIntervalGui.setup("F.I. RUN_TURN_2", 0.1f, 0.01, 0.5));
+    gui.add(idleToWalkFrameIntervalGui.setup("F.I. IDLE_TO_WALK", 0.1f, 0.01, 0.5));
+    gui.add(idleToRunFrameIntervalGui.setup("F.I. IDLE_TO_RUN", 0.1f, 0.01, 0.5));
     
     //*** LABELS ***
     gui.add(currentRowGui.setup("Current Row", "0"));
@@ -95,6 +97,8 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     walkTurn2FrameIntervalGui = movementManager.getMovementFrameInterval("WALK_TURN_2");
     runTurn1FrameIntervalGui = movementManager.getMovementFrameInterval("RUN_TURN_1");
     runTurn2FrameIntervalGui = movementManager.getMovementFrameInterval("RUN_TURN_2");
+    idleToWalkFrameIntervalGui = movementManager.getMovementFrameInterval("IDLE_TO_WALK");
+    idleToRunFrameIntervalGui = movementManager.getMovementFrameInterval("IDLE_TO_RUN");
     
     
     // $$$$$$$$$$$$$ FISICAS $$$$$$$$$$$$$
@@ -124,6 +128,9 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     walkTurn2FrameIntervalGui.addListener(this, &GUIManager::onWalkTurn2FrameIntervalChanged);
     runTurn1FrameIntervalGui.addListener(this, &GUIManager::onRunTurn1FrameIntervalChanged);
     runTurn2FrameIntervalGui.addListener(this, &GUIManager::onRunTurn2FrameIntervalChanged);
+    idleToWalkFrameIntervalGui.addListener(this, &GUIManager::onIdleToWalkFrameIntervalChanged);
+    idleToRunFrameIntervalGui.addListener(this, &GUIManager::onIdleToRunFrameIntervalChanged);
+                                          
     
     maxSpeedWalkGui.addListener(this, &GUIManager::onMaxSpeedWalkChanged);
     maxSpeedRunGui.addListener(this, &GUIManager::onMaxSpeedRunChanged);
@@ -267,6 +274,14 @@ void GUIManager::onRunTurn1FrameIntervalChanged(float& value) {
 
 void GUIManager::onRunTurn2FrameIntervalChanged(float& value) {
     movementManager->setMovementFrameInterval("RUN_TURN_2", value);
+}
+
+void GUIManager::onIdleToWalkFrameIntervalChanged(float& value) {
+    movementManager->setMovementFrameInterval("IDLE_TO_WALK", value);
+}
+
+void GUIManager::onIdleToRunFrameIntervalChanged(float& value) {
+    movementManager->setMovementFrameInterval("IDLE_TO_RUN", value);
 }
 
 
