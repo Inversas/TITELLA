@@ -33,6 +33,9 @@ void MovementManager::setup(const std::string& filename, SpriteSheetManager& spr
     // Establece el movimiento actual en "IDLE" utilizando el movimiento cargado desde el JSON
     currentMovement = std::make_unique<Movement>(movements["IDLE"]);
     currentMovementName = "IDLE";
+    
+    //Inicializamos todos los ScaleFactor
+    setScaleFactor(1.0f);
 }
 
 // *** CICLO DE VIDA ***
@@ -701,9 +704,11 @@ void MovementManager::updateRegion() {
         // Si estamos en el suelo, la velocidad vertical es 0
         physicsManager->setVelocityY(0);
         // col.floor->p1.y; (Suelo)
-        // - 150            (Subimos media región para que la base del cuadrado de 300px apoye en el suelo)
-        
-        float yPerfecta = col.floor->p1.y - spriteSheetManager->getRegionHeight()/2;
+        // - Subimos media región para que la base del cuadrado de 300px (en escala 1) apoye en el suelo.
+        // Usamos la Hitbox, por si ha cambiado la escala, entonces no son 300 y cojemos el tamaño escalado.
+
+        // O con el CollisionManager
+        float yPerfecta = col.floor->p1.y - (collisionManager->getHitbox().regionH/2);
         
         physicsManager->setPositionY(yPerfecta); // Asegura que el personaje se mantenga en el suelo
     }
@@ -1015,6 +1020,14 @@ const std::map<std::string, Movement>& MovementManager:: getMovements() const {
     return movements;
 }
 
+
+//*** GETS SCALE ***//
+const float MovementManager::getScaleFactor() const {
+    return scaleFactor;
+}
+
+
+
 //*** GETS STATE ***//
 // Obtiene un string con el estado actual del personaje
 std::string MovementManager::getCurrentState() const {
@@ -1077,6 +1090,13 @@ void MovementManager::toggleIsFacingRight() {
     isFacingRight = !isFacingRight;
 }
 
+//*** SETS SCALE ***//
+void MovementManager::setScaleFactor(float scaleFactor){
+    this->scaleFactor = scaleFactor;
+    spriteSheetManager->setCurrentScale(scaleFactor);
+    physicsManager->setCurrentScale(scaleFactor);
+    collisionManager->setCurrentScale(scaleFactor);
+}
 
 // *** LÓGICA INTERNA (LOS ENGRANAJES) ***
 // Determina si se debe actualizar la región en función del tiempo transcurrido y el intervalo de frame

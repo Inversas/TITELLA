@@ -65,19 +65,12 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     gui.add(maxSpeedRunGui.setup("Max Speed Run", 10.0f, 0.0, 25.0));
     // $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
     
-    
-    
-    
-    
+
     // >>> COLLISION SLIDERS (FROM SPRITE SHEET MANAGER) >>>
     gui.add(hitBoxWGui.setup("HitBox W", collisionManager.getHitbox().width, 100, 400));
     gui.add(hitRayFloorXGui.setup("HitRayFloor X", collisionManager.getHitbox().floorRayX, 0, 200));
     
-    
-    
-    
-    
-    
+
     // Inicializar los sliders con los valores actuales
     frameIntervalGui = movementManager.getFrameInterval();
     idleFrameIntervalGui = movementManager.getMovementFrameInterval("IDLE");
@@ -107,8 +100,6 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     maxSpeedRunGui = physicsManager.getMaxSpeedRun();
 
     
-    
-    
     // Asociar listeners a los sliders
     scaleFactorGui.addListener(this, &GUIManager::onScaleFactorChanged);
     frameIntervalGui.addListener(this, &GUIManager::onFrameIntervalChanged);
@@ -135,15 +126,10 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     maxSpeedWalkGui.addListener(this, &GUIManager::onMaxSpeedWalkChanged);
     maxSpeedRunGui.addListener(this, &GUIManager::onMaxSpeedRunChanged);
     
-    
-    
-    
+
     // >>>>>>>>>>>> COLISIONES >>>>>>>>>>>>
     hitBoxWGui.addListener(this, &GUIManager::onHitBoxWChanged);
     hitRayFloorXGui.addListener(this, &GUIManager::onHitRayFloorXChanged);
-    
-    
-    
     
 }
 
@@ -184,8 +170,13 @@ void GUIManager::update() {
     currentMovementNameGui = movementManager->getCurrentMovementName();
     
     
-    // Actualizar la velocidad actual del personaje en la GUI
+    // Actualizar la velocidad actual del personaje en la GUI, es la base sin escalado
     currentVelocityXGui = std::to_string(physicsManager->getVelocity().x);
+    
+    
+    // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
+    // Añadir un label con la velocidad escalada?
+    // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 }
 
 
@@ -196,12 +187,11 @@ void GUIManager::draw() {
 
 #pragma region Callbacks para los sliders
 void GUIManager::onScaleFactorChanged(float& value) {
-    spriteSheetManager->setScaleFactor(value);
-    physicsManager->setCurrentScale(value);
+    // Al escalar, Reposicionar el personaje, media región arriba de la posición actual
+    physicsManager->setPositionY(physicsManager->getPosition().y - (spriteSheetManager->getRegionHeight()/2) * value);
     
-    //Como el factor de escala solo afecta a las velocidades objetivo, debemos actualizarlas
-    physicsManager->setMaxSpeedWalk(physicsManager->getMaxSpeedWalk());
-    physicsManager->setMaxSpeedRun(physicsManager->getMaxSpeedRun());
+    // Actualitzar todos los factores de escala
+    movementManager->setScaleFactor(value);
 }
 
 void GUIManager::onFrameIntervalChanged(float& value) {

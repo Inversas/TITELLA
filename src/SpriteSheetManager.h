@@ -43,9 +43,10 @@ public:
 
 
     // ------------------- GETTERS - SETTERS -------------------
-    
+    // Recupera el factor de escala actual para la hoja de sprites
+    float getCurrentScale() const;
     // Establece el factor de escala para la hoja de sprites
-    void setScaleFactor(float scaleFactor);
+    void setCurrentScale(float scaleFactor);
     
     // *** REGION DIMENSIONS ***
     int getRegionWidth() const;
@@ -57,7 +58,7 @@ private:
     static const int REGION_WIDTH = 300; // Ancho de cada región en la hoja de sprites
     static const int REGION_HEIGHT = 300; // Alto de cada región en la hoja de sprites
     static const int SPRITE_OFFSET_X = 0; // Desplazamiento del sprite
-    float scaleFactor = 1.0f; // Factor de escala para dibujar la hoja de sprites
+    float currentScale; // Factor de escala para dibujar la hoja de sprites
     
     // Conexión al CollisionManager
     CollisionManager* collisionManager = nullptr;    

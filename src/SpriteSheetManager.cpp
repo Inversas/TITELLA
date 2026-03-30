@@ -54,7 +54,7 @@ void SpriteSheetManager::draw(float x, float y, int row, int region, bool isFaci
 
     // DIBUJO FACING RIGHT
     if (isFacingRight) {
-        ofScale(scaleFactor, scaleFactor);
+        ofScale(currentScale, currentScale);
         
         // Posicion a dibujar, centrando region
         float drawX = -REGION_WIDTH / 2;
@@ -80,7 +80,7 @@ void SpriteSheetManager::draw(float x, float y, int row, int region, bool isFaci
     }
     // DIBUJO FACING LEFT (ESPEJO)
     else {
-        ofScale(-scaleFactor, scaleFactor);
+        ofScale(-currentScale, currentScale);
         
         // Posicion a dibujar (ajustada para el giro horizontal)
         // El 100 es temporal hasta redibujar bien centrado el sprite
@@ -91,7 +91,7 @@ void SpriteSheetManager::draw(float x, float y, int row, int region, bool isFaci
         drawGuides(drawX, drawY);
         
         // ·······························································
-        //             PUNTO BLANCO --> ANCLAJE PERSONAJE (POSICION)
+        //             PUNTO BLANCO --> Es el (0,0) relativo al sprite (esquina superior derecha (al estar volteado) de la imagen)
         // ·······························································
         ofSetColor(255);
         drawCircle(drawX, drawY, 5);
@@ -135,7 +135,8 @@ void SpriteSheetManager::drawGuides(float x, float y) {
     // Se puede poner auto: "Oye, tú ya sabes qué tipo de dato devuelve la función getHitbox(), así que asígnale ese tipo automáticamente a la variable data"
     // auto data = collisionManager->getHitbox();
     // Pero pondremos Hitbox para más claridad
-    HitboxData hitbox = collisionManager->getHitbox();
+    //Usamos la Base porque al dibujar ya aplicamos la escala con ofScale
+    HitboxData hitbox = collisionManager->getBaseHitbox();
     
     // 2. Recuperamos el ÚLTIMO resultado de colisión que se calculó en el update
     bool isHitWall = collisionManager->getLastResult().hasAnyWall();
@@ -203,10 +204,15 @@ void SpriteSheetManager::drawHitFloor(float x, float y, const HitboxData& hitbox
 
 // ------------------- GETTERS - SETTERS -------------------
 
+// Recupera el factor de escala actual para la hoja de sprites
+float SpriteSheetManager::getCurrentScale() const {
+    return currentScale;
+}
+
 // Establece el factor de escala para la hoja de sprites
-void SpriteSheetManager::setScaleFactor(float scaleFactor) {
+void SpriteSheetManager::setCurrentScale(float scaleFactor) {
     // Asigna el nuevo factor de escala
-    this->scaleFactor = scaleFactor;
+    this->currentScale = scaleFactor;
 }
 
 

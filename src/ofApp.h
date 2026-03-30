@@ -29,21 +29,21 @@ private:
     
     // *** VARIABLES POR VALOR (El "OBJETO REAL") ***
     
+    // Gestor de entradas (teclado, ratón, etc.)
+    InputManager inputManager;
+    
     // Gestor de hojas de sprites
     SpriteSheetManager spriteSheetManager;
-    
-    // Gestor de movimientos
-    MovementManager movementManager;
-    
+  
     // Gestor de físicas
     PhysicsManager physicsManager;
     
     // Gestor de colisiones
     CollisionManager collisionManager;
     
+    // Gestor de movimientos
+    MovementManager movementManager;
+    
     // Gestor de GUI
     GUIManager guiManager;
-    
-    // Gestor de entradas (teclado, ratón, etc.)
-    InputManager inputManager;
 };

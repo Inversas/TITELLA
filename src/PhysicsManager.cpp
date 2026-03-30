@@ -6,21 +6,25 @@ void PhysicsManager::setup(float startX, float startY) {
     position.set(startX, startY);
     // Velocidad Inicial
     velocity.set(0, 0);
+    
+    
     // Gravedad
-    gravity.set(0, 5.8f); // Valor de gravedad
-
+    baseGravity.set(0, 5.8f); // Valor de gravedad
+    // Valores iniciales por defecto (se pueden cambiar con los setters)
+    baseMaxSpeedWalk = 7.0f;
+    baseMaxSpeedRun = 18.0f;
+    
     // Escala Inicial
     currentScale = 1.0f;
-    
-    // Valores iniciales por defecto (se pueden cambiar con los setters)
-    maxSpeedWalk = 7.0f;
-    maxSpeedRun = 18.0f;
     
     // Inicialización de control
     targetVelocityX = 0.0f;
     velocityStep = 0.0f;
     framesRemaining = 0;
     isVelocityChanging = false;
+    
+    // Debemos dar valor a las variables de trabajo con la escala inicial
+    updateScaledPhysics();
 }
 
 
@@ -69,8 +73,6 @@ void PhysicsManager::updateVelocityStep() {
 // Configura una rampa de aceleración o frenado (cambio de velocidad progresivo).
 void PhysicsManager::startVelocityChange(float targetAbsSpeed, int frames, bool lookingRight, int delay) {
     
-  
-
     // Determinar el vector de velocidad objetivo según la orientación del personaje
     float targetSpeedWithDirection = lookingRight ? targetAbsSpeed : -targetAbsSpeed;
 
@@ -153,9 +155,14 @@ float PhysicsManager::getMaxSpeedRun() const {
 float PhysicsManager::getGravityY() const {
     return gravity.y;
 }
+float PhysicsManager::getCurrentScale() const{
+    return currentScale;
+}
 
 
-// *** GETTERS ***
+// *** SETTERS ***
+
+
 void PhysicsManager::setPositionX(float newX) {
     position.x = newX;
 }
@@ -164,25 +171,25 @@ void PhysicsManager::setPositionY(float newY) {
 }
 void PhysicsManager::setCurrentScale(float scale) {
     currentScale = scale;
+    // Debemos recalcular las físicas si la escala cambia.
+    updateScaledPhysics();
 }
 void PhysicsManager::setVelocityY(float newY) {
     velocity.y = newY;
 }
 
-
-
-
-// |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
-// !!!!!! ESTO SE DISPARAAA !!!! no puede estar bieeen !!!
 void PhysicsManager::setMaxSpeedWalk(float maxSpeed) {
-    // Aplicamos el escalado directamente en la asignación
-    maxSpeedWalk = maxSpeed * currentScale;
+    // Guardamos el valor puro que viene del GUI
+    baseMaxSpeedWalk = maxSpeed;
+    // Sincronizamos para que el valor de trabajo (maxSpeedWalk) se actualice
+    updateScaledPhysics();
 }
 void PhysicsManager::setMaxSpeedRun(float maxSpeed) {
-    // Aplicamos el escalado directamente en la asignación
-    maxSpeedRun = maxSpeed * currentScale;
+    // Guardamos el valor puro que viene del GUI
+    baseMaxSpeedRun = maxSpeed;
+    // Sincronizamos para que el valor de trabajo (maxSpeedRun) se actualice
+    updateScaledPhysics();
 }
-// ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 
 
 
@@ -191,6 +198,18 @@ void PhysicsManager::setMaxSpeedRun(float maxSpeed) {
 
 
 // *** MÉTODOS INTERNOS ***
+void PhysicsManager::updateScaledPhysics() {
+    // Actualizamos la gravedad y las velocidades máximas según la escala actual
+    gravity.y = baseGravity.y * currentScale;
+    
+    // Debemos aplicar un facotr de amoritguación para sentirlo más realista.
+    float velocityFactor;
+    velocityFactor = sqrt(currentScale);
+
+    maxSpeedWalk = baseMaxSpeedWalk * velocityFactor;
+    maxSpeedRun = baseMaxSpeedRun * velocityFactor;
+}
+
 float PhysicsManager::cleanFloat(float value) {
     // Multiplicamos por 10 para trabajar con el primer decimal como unidad
     float multi = value * 10.0f;

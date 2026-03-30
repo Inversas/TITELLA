@@ -5,7 +5,16 @@ void ofApp::setup() {
     ofSetFrameRate(60);
     
     
+    
+    
+    
+    // IMATGES SPRITES SHEETS
     spriteSheetManager.loadSpriteSheet("ProvaTest_7.png");
+    
+    
+    
+    
+    
     // Configura el gestor de entradas con el gestor de movimientos
     inputManager.setup();
     
@@ -21,12 +30,13 @@ void ofApp::setup() {
         spriteSheetManager.getRegionHeight()
     );
 
+    // SPRITE SHEET
     spriteSheetManager.setCollisionManager(&collisionManager);
     
-    // Configura el gestor de movimientos con "movements.json"
+    // GESTOR DE MOVIMIENTOS
     movementManager.setup("movements.json", spriteSheetManager, inputManager, physicsManager, collisionManager);
     
-    // Configura el gestor de la GUI con los gestores de movimientos y de sprites
+    // GUI
     guiManager.setup(movementManager, spriteSheetManager, inputManager, physicsManager, collisionManager);
 }
 
@@ -36,24 +46,23 @@ void ofApp::update() {
     // Obtiene el tiempo transcurrido en segundos desde que se ha ejectuado la aplicación
     float currentTime = ofGetElapsedTimef();
     
+    // $$$$$$$$$$$$$ FISICAS $$$$$$$$$$$$$
     physicsManager.update();
 
-    // Actualiza el gestor de movimientos con el tiempo actual
+    // GESTOR DE MOVIMIENTOS
     movementManager.update(currentTime);
     
-    // Actualiza el gestor de físicas 
-    //physicsManager.applyVelocity();
-    
-    // Actualiza el gestor de la GUI
+    // GUI
     guiManager.update();
 }
 
 
 void ofApp::draw() {
-    // Dibuja interactors
+    
+    // >>>>>>>>>>>> COLISIONES >>>>>>>>>>>>
     collisionManager.draw();
     
-    // Dibuja el sprite actual basado en el gestor de movimientos
+    // SPRITE SHEET
     spriteSheetManager.draw(
         physicsManager.getPosition().x,
         physicsManager.getPosition().y,
@@ -62,7 +71,7 @@ void ofApp::draw() {
         movementManager.getIsFacingRight()
     );
     
-    //Dibuja la GUI
+    // GUI
     guiManager.draw();
 }
 
@@ -78,8 +87,6 @@ void ofApp::keyReleased(int key) {
     // Maneja la liberación de una tecla
     inputManager.keyReleased(key);
 }
-
-
 
 void ofApp::mousePressed(int x, int y, int button){
         physicsManager.setPositionX((float)x);

@@ -118,6 +118,10 @@ public:
     // Obtiene el mapa de todos los movimientos disponibles
     const std::map<std::string, Movement>& getMovements() const;
     
+    //*** GETS SCALE ***//
+    const float getScaleFactor() const;
+
+    
     //*** GETS STATE ***//
     // Retorna un string con el estado actual del personaje
     std::string getCurrentState() const;
@@ -139,9 +143,11 @@ public:
     // Invierte la dirección del personaje
     void toggleIsFacingRight();
     
+    //*** SETS SCALE ***//
+    void setScaleFactor(float scaleFactor);
+    
     //*** SETS STATE ***//
-    //void setCurrentState(MovementState state);
-    //void setTargetState(MovementState state);
+
     
 //"Private" es cómo la clase se organiza a sí misma para hacer su trabajo.
 private:
@@ -153,6 +159,7 @@ private:
     float lastUpdateTime = 0.0f; // Última vez que se actualizó el movimiento
     float frameInterval = 0.1f; // Intervalo de fotogramas general
     bool isFacingRight = true;  //Dirección del personaje
+    float scaleFactor = 1.0f;
     
     // VARIABLES DE ESTADO DE PHYSICS
     bool isGrounded = false;
@@ -189,14 +196,13 @@ private:
     
     
     // !!! MOTOR !!! //
-    //Es private porque No quieres que desde ofApp.cpp alguien llame por error a movementManager.updateRegion().
-    //Si lo hicieran, los frames podrían avanzar el doble de rápido o saltar cuando no deben, rompiendo la animación.
-    //Como es privado, sabes que nadie fuera de esa clase depende de esa función.
+    // Es private porque No quieres que desde ofApp.cpp alguien llame por error a movementManager.updateRegion().
+    // Si lo hicieran, los frames podrían avanzar el doble de rápido o saltar cuando no deben, rompiendo la animación.
+    // Como es privado, sabes que nadie fuera de esa clase depende de esa función.
     // Es el motor, como un cronometro.
     void updateRegion();
     void triggerTransition();    
     void finishedTransition();
-    
     void triggerGroundedTransition();
     void triggerAirTransition();
     
@@ -214,17 +220,11 @@ private:
     void handleMovementPhysics(const std::string& name);
     
     
-    // !!! AÑADIR EN EL FUTURO !!! SI HACE FALTA
-    //bool canInterrupt() const; // Para saber si estamos en un estado flexible
-    
-    
-    
-    
+
     // TURN_TO_RUN solo se puede dar desde IDLE, pero el estado es TURNING
     // Para no añadir un estado nuevo, que además entraría en conflicto con RUN_TO_TURN
     // Creamos este flag que solo se evaluará en currentState IDLE con targetState RUN.
     bool flag_turn_to_run = false;
-    
     
     // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
     // Si esto empieza a darse tendremo que crear el Objeto Peticióni modificar el TRADUCTOR y el JUEZ en consecuencia.

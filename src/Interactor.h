@@ -19,7 +19,7 @@ struct Interactor {
     ofVec2f p2;            // Punto final
     InteractorType type;   // Tipo: SURFACE, WALL o BUTTON
     string name;           // Nombre identificador
-    float influenceRadius; // Radio de influencia propio
+    float influenceRadius; // Radio de influencia propio, se usa en WALLS, i se pone como el regionW
     bool hit;          // Estado de contacto
 
     // Constructor para inicializar un interactor (Estilo Movement)
@@ -28,7 +28,7 @@ struct Interactor {
         ofVec2f p2 = ofVec2f(0,0),
         InteractorType type = InteractorType::SURFACE,
         string name = "",
-       float influenceRadius = 150.0f, // Valor por defecto
+       float influenceRadius = 150.0f, // Valor por defecto,
        bool hit = false
     );
 };

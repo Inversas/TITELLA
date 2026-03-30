@@ -6,14 +6,17 @@
 
 void CollisionManager::setup(float regionW, float regionH) {
     
-    // *** HITBOX ***
-    currentHitbox.width = regionW + 87;  // Mayor que la region, para no traspasar si la frenada tiene que llegar a un PS lejano
-    currentHitbox.height = regionH;      // 300px
-    currentHitbox.floorRayX = regionW/2;         // Posición horizontal del rayo de detección del suelo (ajustable por GUI)
-    currentHitbox.regionW = regionW;         // Guardamos el ancho de la región para usarlo en los cálculos de colisión
-    currentHitbox.regionH = regionH;         // Guardamos la altura de la región para usarlo en los cálculos de colisión
+    // *** HITBOX BASE, valores sin escalar ***
+    baseHitbox.width = regionW + 87;  // Mayor que la region, para no traspasar si la frenada tiene que llegar a un PS lejano
+    baseHitbox.height = regionH;      // 300px
+    baseHitbox.floorRayX = regionW/2;         // Posición horizontal del rayo de detección del suelo (ajustable por GUI)
+    baseHitbox.regionW = regionW;         // Guardamos el ancho de la región para usarlo en los cálculos de colisión
+    baseHitbox.regionH = regionH;         // Guardamos la altura de la región para usarlo en los cálculos de colisión
     
+    currentScale = 1.0f;
     
+    // Debemos dar valor a las hitbox de trabajo con la escala inicial
+    updateScaledHitbox();
     
     // *** INTERACTORS ***
     // 1. Definimos el suelo (desde la esquina inferior izquierda a la derecha)
@@ -161,7 +164,8 @@ CollisionResult CollisionManager::checkCollisions(ofVec2f currentPos, ofVec2f ve
             // Calculamos la distancia absoluta desde el centro (floorRayX) hasta la pared
             float distAlMuro = abs(inter.p1.x - sensors.floorRayX);
             
-            float radioInfluencia = inter.influenceRadius;
+            // El radio depende de la escala
+            float radioInfluencia = inter.influenceRadius * currentScale;
             
             // DETERMINAR LÍMITES VERTICALES DE LA PARED (p1 y p2 pueden estar invertidos)
             float wallTop = min(inter.p1.y, inter.p2.y);
@@ -213,6 +217,15 @@ CollisionResult CollisionManager::checkCollisions(ofVec2f currentPos, ofVec2f ve
     
 }
     
+// !!!!!!!!!!!!!!! COLLISION SCALED !!!!!!!!!!!!!!!
+void CollisionManager::updateScaledHitbox() {
+    currentHitbox.regionW = baseHitbox.regionW * currentScale;
+    currentHitbox.regionH = baseHitbox.regionH * currentScale;
+    currentHitbox.width   = baseHitbox.width * currentScale;
+    currentHitbox.height  = baseHitbox.height * currentScale;
+    currentHitbox.floorRayX = baseHitbox.floorRayX * currentScale;
+}
+
 
 // CALCULA SENSORES FUTUROS
 //Traduce las coordenadas locales del personaje al mundo real.
@@ -335,11 +348,11 @@ void CollisionManager::drawWallHighlight(const Interactor& inter) {
     ofFill();
     ofSetColor(0, 150, 255, 50); // Azul con poca opacidad
     
-    // 2. Calculamos el rectángulo del radio de influencia
+    // 2. Calculamos el rectángulo del radio de influencia (escalado)
     // La pared es vertical, así que usamos p1.x y la altura entre p1.y y p2.y
-    float x = inter.p1.x - inter.influenceRadius;
+    float x = inter.p1.x - (inter.influenceRadius * currentScale);
     float y = inter.p1.y;
-    float w = inter.influenceRadius * 2;
+    float w = (inter.influenceRadius * currentScale) * 2;
     float h = abs(inter.p2.y - inter.p1.y);
     
     ofDrawRectangle(x, y, w, h);
@@ -365,12 +378,20 @@ HitboxData CollisionManager::getHitbox() const {
     return currentHitbox;
 }
 
+HitboxData CollisionManager::getBaseHitbox() const {
+    return baseHitbox;
+}
+
 void CollisionManager::setHitboxWidth(float w) {
-    currentHitbox.width = w;
+    baseHitbox.width = w;
+    // Debemos recalcular la hitbox de trabajo
+    updateScaledHitbox();
 }
 
 void CollisionManager::setHitRayXFloor(float x) {
-    currentHitbox.floorRayX = x;
+    baseHitbox.floorRayX = x;
+    // Debemos recalcular la hitbox de trabajo
+    updateScaledHitbox();
 }
 
 const vector<Interactor>& CollisionManager::getInteractors() const {
@@ -379,4 +400,11 @@ const vector<Interactor>& CollisionManager::getInteractors() const {
 
 CollisionResult CollisionManager::getLastResult() const {
     return lastResult;
+}
+
+// Modifica el valor de escala
+void CollisionManager::setCurrentScale(float scale) {
+    currentScale = scale;
+    // Debemos recalcular la hitbox de trabajo
+    updateScaledHitbox();
 }

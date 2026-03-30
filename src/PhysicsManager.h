@@ -47,7 +47,8 @@ public:
     float getMaxSpeedWalk() const;
     float getMaxSpeedRun() const;
     float getGravityY() const;
-
+    float getCurrentScale() const;
+    
     // *** SETTERS ***
     void setPositionX(float newX);
     void setPositionY(float newY);
@@ -65,10 +66,16 @@ private:
     // *** VARIABLES DE ESTADO (Dinámica actual) ***
     ofVec2f position;      // Ubicación actual del títere
     ofVec2f velocity;      // Rapidez y dirección actual (píxeles/frame)
-    ofVec2f gravity;       // Fuerza de gravedad aplicada (píxeles/frame^2)
     
-    float maxSpeedWalk;    // Límite de velocidad para caminar
-    float maxSpeedRun;     // Límite de velocidad para correr
+    // VALORES BASE
+    ofVec2f baseGravity;   // Gravedad base, sin escalar
+    float baseMaxSpeedWalk;   // Velocidad base para caminar, sin escalar
+    float baseMaxSpeedRun;    // Velocidad base para correr, sin escalar
+    
+    // VALORES DE TRABAJO
+    ofVec2f gravity;       // Fuerza de gravedad aplicada (píxeles/frame^2), escalada
+    float maxSpeedWalk;    // Límite de velocidad para caminar, escalada
+    float maxSpeedRun;     // Límite de velocidad para correr, escalada
     
     // Escala actual del personaje (1.0 = 100%)
     float currentScale = 1.0f;
@@ -81,5 +88,10 @@ private:
     bool isVelocityChanging;   // Flag de seguridad para saber si hay un cambio de velocidad en curso
 
     // *** MÉTODOS INTERNOS ***
+    // Actualiza los valores de trabajo segun la escala
+    void updateScaledPhysics();
+    
+    // Redondea a un decimal limpio
     float cleanFloat(float value);
+    
 };

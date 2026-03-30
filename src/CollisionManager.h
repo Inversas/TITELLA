@@ -15,7 +15,6 @@ struct HitboxData {
     float width;
     float height;
     float floorRayX;
-    float feetOffset; // El cálculo de los +82px
     float regionW;
     float regionH;
 };
@@ -63,22 +62,36 @@ public:
     
     // ------------------- GETTERS - SETTERS -------------------
     HitboxData getHitbox() const;
+    HitboxData getBaseHitbox() const;
     void setHitboxWidth(float w);
     void setHitRayXFloor(float x);
     
     const vector<Interactor>& getInteractors() const;
     CollisionResult getLastResult() const;
     
+    // Modifica el valor de escala
+    void setCurrentScale(float scale);
+    
     
 private:
+
+    
     // Lista donde guardamos todos los suelos, paredes y botones
     vector<Interactor> interactors;
     
-    // La instancia real de los datos
+    // VALORES BASE
+    HitboxData baseHitbox;
+    // VALORES DE TRABAJO
     HitboxData currentHitbox;
-    
+
     // Guardamos el último resultado
     CollisionResult lastResult;
+    
+    // Escala actual del personaje (1.0 = 100%)
+    float currentScale = 1.0f;
+    
+    // Actualiza los valores de trabajo segun la escala
+    void updateScaledHitbox();
     
     // CACULA SENSORES FUTUROS
     SensorState calculateSensors(ofVec2f pos, ofVec2f vel, float grav, bool isFacingRight);
@@ -89,8 +102,13 @@ private:
     bool checkWallRightCollision(Interactor& inter, const SensorState& s);
     bool checkWallLeftCollision(Interactor& inter, const SensorState& s);
     
+    
+    
+    
+    
     // Recibe la referencia al interactor para saber su posición y radio
     void drawWallHighlight(const Interactor& inter);
     // Recibe la referencia al interactor para saber su ancho y posición
     void drawFloorHighlight(const Interactor& inter);
+    
 };
