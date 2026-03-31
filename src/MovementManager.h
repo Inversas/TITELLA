@@ -95,6 +95,8 @@ public:
     int getCurrentRegion() const;
     // Obtiene la siguiente región a la que debe llegar.
     int getNextOutRegion() const;
+    // Obtiene el archvio del movimiento actual
+    string getCurrentFile() const;
     
     //*** GETS FRAME INTERVAL ***//
     // Obtiene el intervalo de fotogramas global

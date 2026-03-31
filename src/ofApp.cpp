@@ -3,21 +3,9 @@
 void ofApp::setup() {
     
     ofSetFrameRate(60);
-    
-    
-    
-    
-    
-    // IMATGES SPRITES SHEETS
-    spriteSheetManager.loadSpriteSheet("ProvaTest_7.png");
-    
-    
-    
-    
-    
+   
     // Configura el gestor de entradas con el gestor de movimientos
     inputManager.setup();
-    
     
     // $$$$$$$$$$$$$ FISICAS $$$$$$$$$$$$$
     // Configura el gestor de físicas con la posición inicial del personaje
@@ -68,7 +56,8 @@ void ofApp::draw() {
         physicsManager.getPosition().y,
         movementManager.getCurrentRow(),
         movementManager.getCurrentRegion(),
-        movementManager.getIsFacingRight()
+        movementManager.getIsFacingRight(),
+        movementManager.getCurrentFile()
     );
     
     // GUI

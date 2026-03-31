@@ -6,14 +6,31 @@ void SpriteSheetManager::setCollisionManager(CollisionManager* collision) {
     this->collisionManager = collision;
 }
 
-// Carga la hoja de sprites desde un archivo
+// Carga la hoja de sprites dado su nombre
 bool SpriteSheetManager::loadSpriteSheet(const std::string& filename) {
-    // Carga la imagen de la hoja de sprites desde el archivo especificado
-    return spriteSheet.load(filename);
+    // Comprobamos si ya está cargada
+    if (spriteSheets.find(filename) != spriteSheets.end()) {
+        return true; // Ya existe, no hace falta cargarla de nuevo
+    }
+
+    // Si no existe, intentamos cargarla
+    ofImage newSheet;
+    if (newSheet.load(filename)) {
+        // La guardamos en el mapa usando el nombre como llave
+        spriteSheets[filename] = newSheet;
+        ofLogNotice("SpriteSheetManager") << "Cargada nueva hoja: " << filename;
+        return true;
+    }
+
+    ofLogError("SpriteSheetManager") << "Error al cargar el archivo: " << filename;
+    return false;
 }
 
 // Dibuja una región específica de la hoja de sprites
-void SpriteSheetManager::draw(float x, float y, int row, int region, bool isFacingRight) {
+void SpriteSheetManager::draw(float x, float y, int row, int region, bool isFacingRight, const string& sheetName) {
+    
+    // Identificamos y recuperamos el archivo imagen del movimiento
+    ofImage& spriteSheet = spriteSheets[sheetName];
     
     
     // ·······························································

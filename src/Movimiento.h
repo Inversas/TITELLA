@@ -11,6 +11,7 @@ using namespace std;
 // Estructura para definir un movimiento
 struct Movement {
     string name; // Nombre del movimiento (ej. "WALK", "IDLE")
+    string spriteSheetName; // Nombre del Archivo (Imagen.png) del movimiento
     int row;     // Fila en el sprite sheet donde están los fotogramas de este movimiento
     int numRegions; // Número de regiones o fotogramas en esta fila (cuántos cuadros animan el movimiento)
     map<int, string> stop_transitions;  // Mapa que asocia una región específica con el nombre de una transición
@@ -23,6 +24,7 @@ struct Movement {
     // Constructor para inicializar un movimiento
     Movement(
              string name = "",          // Nombre del movimiento
+             string spriteSheetName = "", // Nombre del archivo de la imagen SpriteSheet
              int row = 0,               // Fila en el sprite sheet
              int numRegions = 1,        // Número de fotogramas
              bool isTransition = false, // Si es transición

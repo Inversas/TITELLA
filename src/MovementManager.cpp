@@ -529,6 +529,13 @@ void MovementManager::finishedGroundedTransition(const InputState& intent) {
             playMovement("IDLE");
             currentState = MovementState::IDLE;
         }
+        // Si era TURN
+        else if (currentMovementName == "TURN") {
+            playMovement("IDLE_TO_WALK");
+            // ACTUALIZAMOS ESTADO
+            currentState = MovementState::WALKING;
+        }
+        
         // Si NO era un TO_IDLE
         else {
             
@@ -548,6 +555,8 @@ void MovementManager::finishedGroundedTransition(const InputState& intent) {
                     else if (currentMovementName == "WALK_TURN_2"){
                         playMovement("WALK_TO_RUN_2");
                     }
+                    // ACTUALIZAMOS ESTADO
+                    currentState = MovementState::RUNNING;
 
                 }
                 // ==========================================
@@ -578,6 +587,8 @@ void MovementManager::finishedGroundedTransition(const InputState& intent) {
                     else if (currentMovementName == "RUN_TURN_2"){
                         playMovement("RUN_TO_WALK_2");
                     }
+                    // ACTUALIZAMOS ESTADO
+                    currentState = MovementState::WALKING;
                 }
                 // ==========================================
                 //                   WALK
@@ -647,7 +658,7 @@ void MovementManager::finishedGroundedTransition(const InputState& intent) {
         }
         
         // ######################################################
-        //     FIN --> WALK TO IDLE / RUN TO IDLE
+        //     FIN --> WALK TO IDLE / RUN TO IDLE / TURN
         // ######################################################
         else {
             // ... si no, vuelve a IDLE
@@ -970,6 +981,10 @@ int MovementManager::getCurrentRegion() const {
 int MovementManager::getNextOutRegion() const {
     return targetRegion;
 }
+// Obtiene el archvio del movimiento actual
+string MovementManager::getCurrentFile() const {
+    return currentMovement->spriteSheetName;
+}
 
 //*** GETS FRAME INTERVAL ***//
 // Obtiene el intervalo de fotogramas global.
@@ -1113,42 +1128,56 @@ void MovementManager::loadMovements(const std::string& filename) {
         return;
     }
 
-    // Itera sobre cada movimiento en el JSON
-    for (const auto& movementKey : json["movements"].getMemberNames()) {
-        const auto& jsonMovement = json["movements"][movementKey];
+    // --- NUEVO: Iteramos sobre el array de "sprite_sheets" ---
+    const auto& sheets = json["sprite_sheets"];
+    for (int i = 0; i < sheets.size(); i++) {
+        
+        // Guardamos el nombre del archivo de este bloque para asignarlo a sus movimientos
+        string currentSheetFile = sheets[i]["file"].asString();
+        const auto& movementsInSheet = sheets[i]["movements"];
 
-        // Crea un nuevo objeto Movement y lo inicializa con los datos del JSON
-        Movement movement;
-        movement.name = jsonMovement["name"].asString();
-        movement.row = jsonMovement["row"].asInt();
-        movement.numRegions = jsonMovement["numRegions"].asInt();
-        movement.isTransition = jsonMovement["isTransition"].asBool();
-        movement.frameInterval = jsonMovement["frameInterval"].asFloat();
-        
-        // Cargamos el target_frame (si no existe, pondrá 0 por defecto)
-        movement.target_frame = jsonMovement.get("target_frame", 0).asInt();
-        
-        // STOP
-        // Carga las transiciones de parada del movimiento
-        for (const auto& transition : jsonMovement["stop_transitions"].getMemberNames()) {
-            movement.stop_transitions[std::stoi(transition)] = jsonMovement["stop_transitions"][transition].asString();
+        // Itera sobre cada movimiento dentro de esta hoja de sprites
+        for (const auto& movementKey : movementsInSheet.getMemberNames()) {
+            const auto& jsonMovement = movementsInSheet[movementKey];
+
+            // Crea un nuevo objeto Movement y lo inicializa con los datos del JSON
+            Movement movement;
+            movement.name = movementKey; // Usamos la clave como nombre
+            
+            // --- AQUÍ SE ASIGNA EL ARCHIVO AUTOMÁTICAMENTE ---
+            movement.spriteSheetName = currentSheetFile;
+            spriteSheetManager->loadSpriteSheet(currentSheetFile);
+            
+            
+            movement.row = jsonMovement["row"].asInt();
+            movement.numRegions = jsonMovement["numRegions"].asInt();
+            movement.isTransition = jsonMovement["isTransition"].asBool();
+            movement.frameInterval = jsonMovement["frameInterval"].asFloat();
+            
+            // Cargamos el target_frame (si no existe, pondrá 0 por defecto)
+            movement.target_frame = jsonMovement.get("target_frame", 0).asInt();
+            
+            // STOP
+            for (const auto& transition : jsonMovement["stop_transitions"].getMemberNames()) {
+                movement.stop_transitions[std::stoi(transition)] = jsonMovement["stop_transitions"][transition].asString();
+            }
+            
+            // TURN
+            for (const auto& transition : jsonMovement["turn_transitions"].getMemberNames()) {
+                movement.turn_transitions[std::stoi(transition)] = jsonMovement["turn_transitions"][transition].asString();
+            }
+            
+            // CHANGE
+            for (const auto& transition : jsonMovement["change_transitions"].getMemberNames()) {
+                movement.change_transitions[std::stoi(transition)] = jsonMovement["change_transitions"][transition].asString();
+            }
+            
+            // Añade el movimiento al mapa global de movimientos
+            movements[movement.name] = movement;
         }
-        
-        // TURN
-        // Carga las transiciones de giro del movimiento
-        for (const auto& transition : jsonMovement["turn_transitions"].getMemberNames()) {
-            movement.turn_transitions[std::stoi(transition)] = jsonMovement["turn_transitions"][transition].asString();
-        }
-        
-        // CHANGE
-        // Carga las transiciones de cambio del movimiento
-        for (const auto& transition : jsonMovement["change_transitions"].getMemberNames()) {
-            movement.change_transitions[std::stoi(transition)] = jsonMovement["change_transitions"][transition].asString();
-        }
-        
-        // Añade el movimiento al mapa de movimientos
-        movements[movement.name] = movement;
     }
 }
+
+
 
 

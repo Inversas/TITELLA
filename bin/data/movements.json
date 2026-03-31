@@ -1,231 +1,241 @@
 {
-  "movements": {
-    "IDLE": {
-      "name": "IDLE",
-      "row": 0,
-      "numRegions": 8,
-      "isTransition": false,
-      "target_frame": 0,
-      "frameInterval": -0.1,
-      "stop_transitions": {},
-      "turn_transitions": {},
-      "change_transitions": {}
-    },
-    "WALK": {
-      "name": "WALK",
-      "row": 1,
-      "numRegions": 8,
-      "isTransition": false,
-      "target_frame": 0,
-      "frameInterval": -0.1,
-      "stop_transitions": {
-        "5": "WALK_TO_IDLE_2",
-        "1": "WALK_TO_IDLE_1"
-      },
-      "turn_transitions": {
-        "5": "WALK_TURN_2",
-        "1": "WALK_TURN_1"
-      },
-      "change_transitions": {
-        "5": "WALK_TO_RUN_2",
-        "1": "WALK_TO_RUN_1"
+  "sprite_sheets": [
+    {
+      "file": "Sprite_1.png",
+      "movements": {
+        "IDLE": {
+          "name": "IDLE",
+          "row": 0,
+          "numRegions": 8,
+          "isTransition": false,
+          "target_frame": 0,
+          "frameInterval": -0.1,
+          "stop_transitions": {},
+          "turn_transitions": {},
+          "change_transitions": {}
+        },
+        "TURN": {
+          "name": "TURN",
+          "row": 1,
+          "numRegions": 7,
+          "isTransition": true,
+          "target_frame": 0,
+          "frameInterval": -0.05,
+          "stop_transitions": {},
+          "turn_transitions": {},
+          "change_transitions": {}
+        },
+        "IDLE_TO_WALK": {
+          "name": "IDLE_TO_WALK",
+          "row": 2,
+          "numRegions": 4,
+          "isTransition": true,
+          "target_frame": 0,
+          "frameInterval": -0.1,
+          "stop_transitions": {},
+          "turn_transitions": {},
+          "change_transitions": {}
+        },
+        "WALK": {
+          "name": "WALK",
+          "row": 3,
+          "numRegions": 8,
+          "isTransition": false,
+          "target_frame": 0,
+          "frameInterval": -0.1,
+          "stop_transitions": {
+            "1": "WALK_TO_IDLE_1",
+            "5": "WALK_TO_IDLE_2"
+          },
+          "turn_transitions": {
+            "1": "WALK_TURN_1",
+            "5": "WALK_TURN_2"
+          },
+          "change_transitions": {
+            "1": "WALK_TO_RUN_1",
+            "5": "WALK_TO_RUN_2"
+          }
+        },
+        "WALK_TO_IDLE_1": {
+          "name": "WALK_TO_IDLE_1",
+          "row": 4,
+          "numRegions": 6,
+          "isTransition": true,
+          "target_frame": 0,
+          "frameInterval": -0.1,
+          "stop_transitions": {},
+          "turn_transitions": {},
+          "change_transitions": {}
+        },
+        "WALK_TO_IDLE_2": {
+          "name": "WALK_TO_IDLE_2",
+          "row": 5,
+          "numRegions": 6,
+          "isTransition": true,
+          "target_frame": 0,
+          "frameInterval": -0.1,
+          "stop_transitions": {},
+          "turn_transitions": {},
+          "change_transitions": {}
+        },
+        "WALK_TURN_1": {
+          "name": "WALK_TURN_1",
+          "row": 6,
+          "numRegions": 6,
+          "isTransition": true,
+          "target_frame": 0,
+          "frameInterval": -0.1,
+          "stop_transitions": {},
+          "turn_transitions": {},
+          "change_transitions": {}
+        },
+        "WALK_TURN_2": {
+          "name": "WALK_TURN_2",
+          "row": 7,
+          "numRegions": 6,
+          "isTransition": true,
+          "target_frame": 4,
+          "frameInterval": -0.1,
+          "stop_transitions": {},
+          "turn_transitions": {},
+          "change_transitions": {}
+        },
+        "WALK_TO_RUN_1": {
+          "name": "WALK_TO_RUN_1",
+          "row": 8,
+          "numRegions": 4,
+          "isTransition": true,
+          "target_frame": 4,
+          "frameInterval": -0.1,
+          "stop_transitions": {},
+          "turn_transitions": {},
+          "change_transitions": {}
+        },
+        "WALK_TO_RUN_2": {
+          "name": "WALK_TO_RUN_2",
+          "row": 9,
+          "numRegions": 4,
+          "isTransition": true,
+          "target_frame": 0,
+          "frameInterval": -0.1,
+          "stop_transitions": {},
+          "turn_transitions": {},
+          "change_transitions": {}
+        }
       }
     },
-    "WALK_TO_IDLE_1": {
-      "name": "WALK_TO_IDLE_1",
-      "row": 2,
-      "numRegions": 6,
-      "isTransition": true,
-      "target_frame": 0,
-      "frameInterval": -0.1,
-      "stop_transitions": {},
-      "turn_transitions": {},
-      "change_transitions": {}
-    },
-    "WALK_TO_IDLE_2": {
-      "name": "WALK_TO_IDLE_2",
-      "row": 3,
-      "numRegions": 6,
-      "isTransition": true,
-      "target_frame": 0,
-      "frameInterval": -0.1,
-      "stop_transitions": {},
-      "turn_transitions": {},
-      "change_transitions": {}
-    },
-    "RUN": {
-      "name": "RUN",
-      "row": 4,
-      "numRegions": 8,
-      "isTransition": false,
-      "target_frame": 0,
-      "frameInterval": -0.1,
-      "stop_transitions": {
-        "5": "RUN_TO_IDLE_2",
-        "1": "RUN_TO_IDLE_1"
-      },
-      "turn_transitions": {
-        "5": "RUN_TURN_2",
-        "1": "RUN_TURN_1"
-      },
-      "change_transitions": {
-        "5": "RUN_TO_WALK_2",
-        "1": "RUN_TO_WALK_1"
+    {
+      "file": "Sprite_2.png",
+      "movements": {
+        "RUN": {
+          "name": "RUN",
+          "row": 0,
+          "numRegions": 8,
+          "isTransition": false,
+          "target_frame": 0,
+          "frameInterval": -0.1,
+          "stop_transitions": {
+            "1": "RUN_TO_IDLE_1",
+            "5": "RUN_TO_IDLE_2"
+          },
+          "turn_transitions": {
+            "1": "RUN_TURN_1",
+            "5": "RUN_TURN_2"
+          },
+          "change_transitions": {
+            "1": "RUN_TO_WALK_1",
+            "5": "RUN_TO_WALK_2"
+          }
+        },
+        "TURN_TO_RUN": {
+          "name": "TURN_TO_RUN",
+          "row": 1,
+          "numRegions": 6,
+          "isTransition": true,
+          "target_frame": 0,
+          "frameInterval": -0.05,
+          "stop_transitions": {},
+          "turn_transitions": {},
+          "change_transitions": {}
+        },
+        "IDLE_TO_RUN": {
+          "name": "IDLE_TO_RUN",
+          "row": 2,
+          "numRegions": 4,
+          "isTransition": true,
+          "target_frame": 0,
+          "frameInterval": -0.1,
+          "stop_transitions": {},
+          "turn_transitions": {},
+          "change_transitions": {}
+        },
+        "RUN_TO_IDLE_1": {
+          "name": "RUN_TO_IDLE_1",
+          "row": 3,
+          "numRegions": 6,
+          "isTransition": true,
+          "target_frame": 0,
+          "frameInterval": -0.1,
+          "stop_transitions": {},
+          "turn_transitions": {},
+          "change_transitions": {}
+        },
+        "RUN_TO_IDLE_2": {
+          "name": "RUN_TO_IDLE_2",
+          "row": 4,
+          "numRegions": 6,
+          "isTransition": true,
+          "target_frame": 0,
+          "frameInterval": -0.1,
+          "stop_transitions": {},
+          "turn_transitions": {},
+          "change_transitions": {}
+        },
+        "RUN_TURN_1": {
+          "name": "RUN_TURN_1",
+          "row": 5,
+          "numRegions": 6,
+          "isTransition": true,
+          "target_frame": 0,
+          "frameInterval": -0.1,
+          "stop_transitions": {},
+          "turn_transitions": {},
+          "change_transitions": {}
+        },
+        "RUN_TURN_2": {
+          "name": "RUN_TURN_2",
+          "row": 6,
+          "numRegions": 6,
+          "isTransition": true,
+          "target_frame": 4,
+          "frameInterval": -0.1,
+          "stop_transitions": {},
+          "turn_transitions": {},
+          "change_transitions": {}
+        },
+        "RUN_TO_WALK_1": {
+          "name": "RUN_TO_WALK_1",
+          "row": 7,
+          "numRegions": 4,
+          "isTransition": true,
+          "target_frame": 0,
+          "frameInterval": -0.1,
+          "stop_transitions": {},
+          "turn_transitions": {},
+          "change_transitions": {}
+        },
+        "RUN_TO_WALK_2": {
+          "name": "RUN_TO_WALK_2",
+          "row": 8,
+          "numRegions": 4,
+          "isTransition": true,
+          "target_frame": 4,
+          "frameInterval": -0.1,
+          "stop_transitions": {},
+          "turn_transitions": {},
+          "change_transitions": {}
+        }
       }
-    },
-    "RUN_TO_IDLE_1": {
-      "name": "RUN_TO_IDLE_1",
-      "row": 5,
-      "numRegions": 6,
-      "isTransition": true,
-      "target_frame": 0,
-      "frameInterval": -0.1,
-      "stop_transitions": {},
-      "turn_transitions": {},
-      "change_transitions": {}
-    },
-    "RUN_TO_IDLE_2": {
-      "name": "RUN_TO_IDLE_2",
-      "row": 6,
-      "numRegions": 6,
-      "isTransition": true,
-      "target_frame": 0,
-      "frameInterval": -0.1,
-      "stop_transitions": {},
-      "turn_transitions": {},
-      "change_transitions": {}
-    },
-    "TURN": {
-      "name": "TURN",
-      "row": 7,
-      "numRegions": 7,
-      "isTransition": true,
-      "target_frame": 0,
-      "frameInterval": -0.1,
-      "stop_transitions": {},
-      "turn_transitions": {},
-      "change_transitions": {}
-    },
-    "WALK_TURN_1": {
-      "name": "WALK_TURN_1",
-      "row": 8,
-      "numRegions": 6,
-      "isTransition": true,
-      "target_frame": 0,
-      "frameInterval": -0.1,
-      "stop_transitions": {},
-      "turn_transitions": {},
-      "change_transitions": {}
-    },
-    "WALK_TURN_2": {
-      "name": "WALK_TURN_2",
-      "row": 9,
-      "numRegions": 6,
-      "isTransition": true,
-      "target_frame": 4,
-      "frameInterval": -0.1,
-      "stop_transitions": {},
-      "turn_transitions": {},
-      "change_transitions": {}
-    },
-    "RUN_TURN_1": {
-      "name": "RUN_TURN_1",
-      "row": 10,
-      "numRegions": 6,
-      "isTransition": true,
-      "target_frame": 0,
-      "frameInterval": -0.1,
-      "stop_transitions": {},
-      "turn_transitions": {},
-      "change_transitions": {}
-    },
-    "RUN_TURN_2": {
-      "name": "RUN_TURN_2",
-      "row": 11,
-      "numRegions": 6,
-      "isTransition": true,
-      "target_frame": 4,
-      "frameInterval": -0.1,
-      "stop_transitions": {},
-      "turn_transitions": {},
-      "change_transitions": {}
-    },
-    "TURN_TO_RUN": {
-      "name": "TURN_TO_RUN",
-      "row": 12,
-      "numRegions": 6,
-      "isTransition": true,
-      "target_frame": 0,
-      "frameInterval": -0.1,
-      "stop_transitions": {},
-      "turn_transitions": {},
-      "change_transitions": {}
-    },
-    "WALK_TO_RUN_1": {
-      "name": "WALK_TO_RUN_1",
-      "row": 13,
-      "numRegions": 4,
-      "isTransition": true,
-      "target_frame": 4,
-      "frameInterval": -0.1,
-      "stop_transitions": {},
-      "turn_transitions": {},
-      "change_transitions": {}
-    },
-    "WALK_TO_RUN_2": {
-      "name": "WALK_TO_RUN_2",
-      "row": 14,
-      "numRegions": 4,
-      "isTransition": true,
-      "target_frame": 0,
-      "frameInterval": -0.1,
-      "stop_transitions": {},
-      "turn_transitions": {},
-      "change_transitions": {}
-    },
-    "RUN_TO_WALK_1": {
-      "name": "RUN_TO_WALK_1",
-      "row": 15,
-      "numRegions": 4,
-      "isTransition": true,
-      "target_frame": 0,
-      "frameInterval": -0.1,
-      "stop_transitions": {},
-      "turn_transitions": {},
-      "change_transitions": {}
-    },
-    "RUN_TO_WALK_2": {
-      "name": "RUN_TO_WALK_2",
-      "row": 16,
-      "numRegions": 4,
-      "isTransition": true,
-      "target_frame": 4,
-      "frameInterval": -0.1,
-      "stop_transitions": {},
-      "turn_transitions": {},
-      "change_transitions": {}
-    },
-    "IDLE_TO_WALK": {
-      "name": "IDLE_TO_WALK",
-      "row": 17,
-      "numRegions": 4,
-      "isTransition": true,
-      "target_frame": 4,
-      "frameInterval": -0.1,
-      "stop_transitions": {},
-      "turn_transitions": {},
-      "change_transitions": {}
-    },
-    "IDLE_TO_RUN": {
-      "name": "IDLE_TO_RUN",
-      "row": 18,
-      "numRegions": 4,
-      "isTransition": true,
-      "target_frame": 1,
-      "frameInterval": -0.1,
-      "stop_transitions": {},
-      "turn_transitions": {},
-      "change_transitions": {}
     }
-  }
+  ]
 }

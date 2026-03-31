@@ -18,8 +18,8 @@ public:
     
     
     // *** DRAWS ***
-    // Dibuja una región específica de la hoja de sprites
-    void draw(float x, float y, int row, int region, bool isFacingRight);
+    // Dibuja una región específica de la hoja de sprites, debe saber que hoja de sprites
+    void draw(float x, float y, int row, int region, bool isFacingRight, const string& sheetName);
     
     // Dibuja los límites de la región
     void drawRegion(float x, float y);
@@ -54,7 +54,7 @@ public:
     
     
 private:
-    ofImage spriteSheet; // Objeto que contiene la imagen de la hoja de sprites
+    std::map<std::string, ofImage> spriteSheets; // Mapa que contiene las imagenes de las hojas de sprites
     static const int REGION_WIDTH = 300; // Ancho de cada región en la hoja de sprites
     static const int REGION_HEIGHT = 300; // Alto de cada región en la hoja de sprites
     static const int SPRITE_OFFSET_X = 0; // Desplazamiento del sprite
