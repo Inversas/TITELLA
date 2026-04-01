@@ -2,74 +2,106 @@
 
 #include "ofxGui.h"
 
+// Necesitamos acceder a Interactor
+#include "CollisionManager.h"
+
+// Forward Delcarations
 class MovementManager;
 class SpriteSheetManager;
 class InputManager;
 class PhysicsManager;
-class CollisionManager;
 
+// ****************************************** CLASE GUI MANAGER ******************************************
 class GUIManager {
 public:
+    // DESTRUCTOR (lleva la virgulilla ~)
+    ~GUIManager();
     void setup(MovementManager& movementManager, SpriteSheetManager& spriteSheetManager, InputManager& inputManager, PhysicsManager& phisicsManager, CollisionManager& collisionManager);
     void update();
     void draw();
+    
 
 private:
-    //*** GUI ***
+    // *** GUI ***
     ofxPanel gui;
     
-    //*** SLIDERS ***
-    ofxFloatSlider scaleFactorGui;
+    // *** GRUPOS DE LA INTERFAZ ***
+    ofxGuiGroup settersGroup;        // Grupo [SETTERS]
+    ofxGuiGroup frameIntervalGroup;  // Grupo [F.I.]
+    ofxGuiGroup interactorsGroup;    // Grupo [INTERACTORS]
+    ofxGuiGroup liveGroup;           // Grupo [LIVE] (Parámetros en tiempo real)
     
-    //*** TIME SLIDERS ***
-    ofxFloatSlider frameIntervalGui; // Slider para Tiempo Global
+    
+    // ==========================================
+    // 1. SETTERS
+    // ==========================================
+    ofxFloatSlider frameIntervalGui;    // Slider para Tiempo Global
+    ofxFloatSlider scaleFactorGui;      // Factor de escala global
+    ofxFloatSlider maxSpeedWalkGui;     // Velocidad máxima caminar      $$$$$$$$$$$$$
+    ofxFloatSlider maxSpeedRunGui;      // Velocidad máxima correr       $$$$$$$$$$$$$
+    ofxFloatSlider hitBoxWGui;          // Ancho de la Hitbox            >>>>>>>>>>>>>
+    ofxFloatSlider hitRayFloorXGui;     // Posición X del rayo de suelo  >>>>>>>>>>>>>
+    
+    
+    // ==========================================
+    // 2. F.I. (Frame Intervals)
+    // ==========================================
     ofxLabel currentMovementFrameIntervalGui;
-    
-    //*** TIME SLIDERS SPECIFIC MOVEMENT ***
-    ofxFloatSlider idleFrameIntervalGui; // Slider para IDLE
-    ofxFloatSlider walkFrameIntervalGui; // Slider para WALK
-    ofxFloatSlider walkToIdle1FrameIntervalGui; // Slider para WalkToIdle1
-    ofxFloatSlider walkToIdle2FrameIntervalGui; // Slider para WalkToIdle2
-    ofxFloatSlider walkToRun1FrameIntervalGui; // Slider para WalkToRun1
-    ofxFloatSlider walkToRun2FrameIntervalGui; // Slider para WalkToRun2
-    ofxFloatSlider runFrameIntervalGui;  // Slider para RUN
-    ofxFloatSlider runToIdle1FrameIntervalGui; // Slider para RunToIdle1
-    ofxFloatSlider runToIdle2FrameIntervalGui; // Slider para RunToIdle2
-    ofxFloatSlider runToWalk1FrameIntervalGui; // Slider para RunToWalk1
-    ofxFloatSlider runToWalk2FrameIntervalGui; // Slider para RunToWalk2
-    ofxFloatSlider turnFrameIntervalGui; // Slider para TURN
-    ofxFloatSlider turnToRunFrameIntervalGui; // Slider para TURN_TO_RUN
-    ofxFloatSlider walkTurn1FrameIntervalGui; // Slider para WalkTurn1
-    ofxFloatSlider walkTurn2FrameIntervalGui; // Slider para WalkTurn2
-    ofxFloatSlider runTurn1FrameIntervalGui; // Slider para RunTurn1
-    ofxFloatSlider runTurn2FrameIntervalGui; // Slider para RunTurn2
-    ofxFloatSlider idleToWalkFrameIntervalGui; // Slider para Idle To Walk
-    ofxFloatSlider idleToRunFrameIntervalGui;; // Slider para Idle To Run
+    ofxFloatSlider idleFrameIntervalGui;          // Slider para IDLE
+    ofxFloatSlider walkFrameIntervalGui;          // Slider para WALK
+    ofxFloatSlider walkToIdle1FrameIntervalGui;   // Slider para WalkToIdle1
+    ofxFloatSlider walkToIdle2FrameIntervalGui;   // Slider para WalkToIdle2
+    ofxFloatSlider walkToRun1FrameIntervalGui;    // Slider para WalkToRun1
+    ofxFloatSlider walkToRun2FrameIntervalGui;    // Slider para WalkToRun2
+    ofxFloatSlider runFrameIntervalGui;           // Slider para RUN
+    ofxFloatSlider runToIdle1FrameIntervalGui;    // Slider para RunToIdle1
+    ofxFloatSlider runToIdle2FrameIntervalGui;    // Slider para RunToIdle2
+    ofxFloatSlider runToWalk1FrameIntervalGui;    // Slider para RunToWalk1
+    ofxFloatSlider runToWalk2FrameIntervalGui;    // Slider para RunToWalk2
+    ofxFloatSlider turnFrameIntervalGui;          // Slider para TURN
+    ofxFloatSlider turnToRunFrameIntervalGui;     // Slider para TURN_TO_RUN
+    ofxFloatSlider walkTurn1FrameIntervalGui;     // Slider para WalkTurn1
+    ofxFloatSlider walkTurn2FrameIntervalGui;     // Slider para WalkTurn2
+    ofxFloatSlider runTurn1FrameIntervalGui;      // Slider para RunTurn1
+    ofxFloatSlider runTurn2FrameIntervalGui;      // Slider para RunTurn2
+    ofxFloatSlider idleToWalkFrameIntervalGui;    // Slider para Idle To Walk
+    ofxFloatSlider idleToRunFrameIntervalGui;;    // Slider para Idle To Run
     
     
-    //*** LABELS ***
-    ofxLabel currentRowGui;
-    ofxLabel currentRegionGui;
-    ofxLabel currentVelocityXGui;       // Label para mostrar la velocidad actual del personaje
-    ofxLabel currentMovementNameGui;   // Label para mostrar el nombre del movimiento actual
-    ofxLabel NextOutRegionGui;         // Label para mostrar la siguiente región de salida
-    ofxLabel currentStateGui;          // Para el estado actual
-    ofxLabel targetStateGui;           // Para el estado objetivo
-
-    ofxLabel controlKeysGui; // Label para mostrar las teclas de control
-    ofxLabel currentIntentionGui; // Label para mostrar la Intención Actual
+    
+    // ==========================================
+    // 3.INTERACTORS
+    // ==========================================
+    // Usamos punteros normales para evitar conflictos con addListener
+    vector<ofxToggle*> dynamicButtons;
+    // *** ACTUALIZAR BOTONES DE INTERACTORS ***
+    void updateInteractorsGroup(ofxGuiGroup &group);
+    // *** AÑADIR BOTON A INTEREACTORS ***
+    void addDynamicButton(string name);
+    // *** ELIMINAR BOTONES DE INTEREACTORS ***
+    void clearDynamicButtons();
+    // *** PONER TODOS LOS INTERACTORS A FALSE ***
+    void resetInteractors();
+    
+    // ==========================================
+    // 4. LIVE (Parámetros de estado actuales)
+    // ==========================================
+    ofVec2f livePanelPosition;
+    void updateLivePanel();
+    void drawLivePanel(ofVec2f position);
     
     
-    //*** PHYSICS SLIDERS ***
-    // NUEVOS: Sliders de velocidad (píxeles/frame)
-    ofxFloatSlider maxSpeedWalkGui;
-    ofxFloatSlider maxSpeedRunGui;
+    string currentRowGui;
+    string currentRegionGui;
+    string currentVelocityXGui;      // Label para mostrar la velocidad actual del personaje
+    string currentMovementNameGui;   // Label para mostrar el nombre del movimiento actual
+    string nextOutRegionGui;         // Label para mostrar la siguiente región de salida
+    string currentStateGui;          // Para el estado actual
+    string targetStateGui;           // Para el estado objetivo
+    string controlKeysGui;           // Label para mostrar las teclas de control
+    string currentIntentionGui;      // Label para mostrar la Intención Actual
     
-
-    // *** COLLISION SLIDERS (FROM SPRITE SHEET MANAGER) ***
-    ofxFloatSlider hitBoxWGui;
-    ofxFloatSlider  hitRayFloorXGui;
-
+    
     // *** REFERENCIAS A GESTORES *** //
     MovementManager* movementManager;       // Añadimos una referencia a MovementManager
     SpriteSheetManager* spriteSheetManager; // Añadimos una referencia a SpriteSheetManager
@@ -77,11 +109,21 @@ private:
     PhysicsManager* physicsManager;         // Añadimos una referencia a P
     CollisionManager* collisionManager;     // Añadimos una referencia a CollisionManagercsManager
     
+
+    // *** CALLBACKS *** //
+
+    // Callbacks for INTERACTOR buttons
+    void onInteractorButtonPressed(bool& value);
     
-    // Callback for the scale factor slider
+    // Callbacks for SETTERS sliders
     void onScaleFactorChanged(float& value);
+    void onMaxSpeedWalkChanged(float& value);
+    void onMaxSpeedRunChanged(float& value);
+    void onHitBoxWChanged(float& value);
+    void onHitRayFloorXChanged(float& value);
     
-    // Callbacks for GUI sliders
+    
+    // Callbacks for FRAME INTERVAL sliders
     void onFrameIntervalChanged(float& value); // Callback para Global
     void onIdleFrameIntervalChanged(float& value); // Callback para IDLE
     void onWalkFrameIntervalChanged(float& value); // Callback para WALK
@@ -102,10 +144,4 @@ private:
     void onRunTurn2FrameIntervalChanged(float& value); // Callback para RunTurn2
     void onIdleToWalkFrameIntervalChanged(float& value); // Callback para Idle To Walk
     void onIdleToRunFrameIntervalChanged(float& value); // Callback para Idle To Run
-    
-    void onMaxSpeedWalkChanged(float& value); 
-    void onMaxSpeedRunChanged(float& value);
-
-    void onHitBoxWChanged(float& value);
-    void onHitRayFloorXChanged(float& value);
 };

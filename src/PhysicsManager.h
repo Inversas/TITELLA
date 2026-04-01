@@ -3,13 +3,13 @@
 
 #include "ofMain.h" // Necesario para ofVec2f y funciones matemáticas básicas
 
-
+// ****************************************** CLASE PHYSICS MANAGER ****************************************** //
 // Clase que gestiona las fisicas
 class PhysicsManager {
     
 public:
     
-    // *** CICLO DE VIDA ***
+    // *** SETUP ***
     // Inicializa los valores por defecto (posición inicial, gravedad, etc.)
     void setup(float startX, float startY);
     
@@ -17,7 +17,7 @@ public:
     void update();
 
 
-    //*** EL LATIDO  ***
+    // *** EL LATIDO  ***
     // Esta función será llamada por MovementManager cada vez que cambie un frame de animación.
     void updateVelocityStep();
 
@@ -26,6 +26,7 @@ public:
     // Calcula cuánto debe cambiar la velocidad en cada frame de la animación actual.
     // targetSpeedX: Velocidad final deseada.
     // frames: Cuántos frames de animación dura el cambio.
+    // delay: si hay un numero de frames iniciales donde no aplicamos velocidad.
     void startVelocityChange(float targetAbsSpeed, int frames, bool lookingRight, int delay = 0);
     void startVelocityTurnChange(int frames);
     
@@ -64,28 +65,28 @@ public:
 private:
     
     // *** VARIABLES DE ESTADO (Dinámica actual) ***
-    ofVec2f position;      // Ubicación actual del títere
-    ofVec2f velocity;      // Rapidez y dirección actual (píxeles/frame)
+    ofVec2f position;         // Ubicación actual del títere
+    ofVec2f velocity;         // Rapidez y dirección actual (píxeles/frame)
     
-    // VALORES BASE
-    ofVec2f baseGravity;   // Gravedad base, sin escalar
+    // *** VALORES BASE ***
+    ofVec2f baseGravity;      // Gravedad base, sin escalar
     float baseMaxSpeedWalk;   // Velocidad base para caminar, sin escalar
     float baseMaxSpeedRun;    // Velocidad base para correr, sin escalar
     
-    // VALORES DE TRABAJO
-    ofVec2f gravity;       // Fuerza de gravedad aplicada (píxeles/frame^2), escalada
-    float maxSpeedWalk;    // Límite de velocidad para caminar, escalada
-    float maxSpeedRun;     // Límite de velocidad para correr, escalada
+    // *** VALORES DE TRABAJO ***
+    ofVec2f gravity;          // Fuerza de gravedad aplicada (píxeles/frame^2), escalada
+    float maxSpeedWalk;       // Límite de velocidad para caminar, escalada
+    float maxSpeedRun;        // Límite de velocidad para correr, escalada
     
     // Escala actual del personaje (1.0 = 100%)
     float currentScale = 1.0f;
     
     // *** CONTROL DE TRANSICIÓN DE VELOCIDAD ***
-    float targetVelocityX;  // A qué velocidad queremos llegar (ej: 200.0 o 0.0)
-    float velocityStep;    // Cuánta velocidad sumamos/restamos en cada tick de animación
-    int framesRemaining;    // Cuántos "pasos" quedan para terminar el cambio de velocidad
+    float targetVelocityX;        // A qué velocidad queremos llegar (ej: 200.0 o 0.0)
+    float velocityStep;           // Cuánta velocidad sumamos/restamos en cada tick de animación
+    int framesRemaining;          // Cuántos "pasos" quedan para terminar el cambio de velocidad
     int delayFramesRemaining = 0; // Cuántos "pasos" quedan para empezar el cambio de velocidad
-    bool isVelocityChanging;   // Flag de seguridad para saber si hay un cambio de velocidad en curso
+    bool isVelocityChanging;      // Flag de seguridad para saber si hay un cambio de velocidad en curso
 
     // *** MÉTODOS INTERNOS ***
     // Actualiza los valores de trabajo segun la escala
@@ -93,5 +94,4 @@ private:
     
     // Redondea a un decimal limpio
     float cleanFloat(float value);
-    
 };

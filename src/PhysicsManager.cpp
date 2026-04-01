@@ -1,6 +1,6 @@
 #include "PhysicsManager.h"
 
-// *** CICLO DE VIDA ***
+// *** SETUP ***
 void PhysicsManager::setup(float startX, float startY) {
     // Posicion Inicial
     position.set(startX, startY);
@@ -34,7 +34,6 @@ void PhysicsManager::update() {
 }
 
 
-
 // *** EL LATIDO ***
 // Aplica el incremento/decremento calculado en cada paso de animación (Frame Data) y gestiona la finalización de la rampa.
 void PhysicsManager::updateVelocityStep() {
@@ -66,7 +65,6 @@ void PhysicsManager::updateVelocityStep() {
         }
     }
 }
-
 
 
 // *** CAMBIOS DE VELOCIDAD ***
@@ -126,14 +124,9 @@ void PhysicsManager::applyVelocity() {
     position.x += velocity.x;
     position.y += velocity.y;
 }
-
 void PhysicsManager::applyGravity() {
     velocity.y += gravity.y;
-    //position.y += gravity.y;
 }
-
-
-
 
 
 
@@ -161,8 +154,6 @@ float PhysicsManager::getCurrentScale() const{
 
 
 // *** SETTERS ***
-
-
 void PhysicsManager::setPositionX(float newX) {
     position.x = newX;
 }

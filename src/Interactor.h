@@ -13,6 +13,7 @@ enum class InteractorType {
     BUTTON
 };
 
+// +++++++++++++ STRUCT +++++++++++++
 // Estructura para definir un interactor (objeto interactivo)
 struct Interactor {
     ofVec2f p1;            // Punto inicial
@@ -20,7 +21,8 @@ struct Interactor {
     InteractorType type;   // Tipo: SURFACE, WALL o BUTTON
     string name;           // Nombre identificador
     float influenceRadius; // Radio de influencia propio, se usa en WALLS, i se pone como el regionW
-    bool hit;          // Estado de contacto
+    bool hit;              // Estado de contacto
+    bool gui;              // Si la GUI pide destacarlo
 
     // Constructor para inicializar un interactor (Estilo Movement)
     Interactor(
@@ -29,6 +31,7 @@ struct Interactor {
         InteractorType type = InteractorType::SURFACE,
         string name = "",
        float influenceRadius = 150.0f, // Valor por defecto,
-       bool hit = false
+       bool hit = false,
+       bool gui = false
     );
 };

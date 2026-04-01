@@ -3,7 +3,7 @@
 
 #include "ofMain.h"
 
-//NECESARIOS AQUI PARA LAS VARIABLES POR VALOR
+// NECESARIOS ASÍ PARA LAS VARIABLES POR VALOR
 #include "SpriteSheetManager.h"
 #include "MovementManager.h"
 #include "PhysicsManager.h"
@@ -24,26 +24,38 @@ public:
     void keyReleased(int key);
     void mousePressed(int x, int y, int button);
     
+    // *** SETS  MENU ***
+    void setToggleDebug(bool value);
+    void setToggleShowInteractors(bool value);
+    void setToggleEditMode(bool value);
+    
 private:
-    
-    
     // *** VARIABLES POR VALOR (El "OBJETO REAL") ***
-    
-    // Gestor de entradas (teclado, ratón, etc.)
+
+    // Gestor de entradas (teclado) £££££££££££££
     InputManager inputManager;
     
-    // Gestor de hojas de sprites
+    // Gestor de hojas de sprites &&&&&&&&&&&&&
     SpriteSheetManager spriteSheetManager;
   
-    // Gestor de físicas
+    // Gestor de físicas $$$$$$$$$$$$$
     PhysicsManager physicsManager;
     
-    // Gestor de colisiones
+    // Gestor de colisiones >>>>>>>>>>>>>
     CollisionManager collisionManager;
     
     // Gestor de movimientos
     MovementManager movementManager;
     
-    // Gestor de GUI
+    // Gestor de GUI ^^^^^^^^^^^^^
     GUIManager guiManager;
+    
+    
+    
+    
+    // *** TOGGLE MENU ***
+    bool debug;
+    bool showInteractors;
+    bool editMode;
+    
 };

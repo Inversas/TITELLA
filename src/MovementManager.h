@@ -7,36 +7,42 @@
 #include "Movimiento.h"
 #include "ofxJSON.h"
 
+// ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
 // Para pasar Tipos InputState
+// "Copia y pega aquí todo el contenido de InputManager.h. Necesito saber exactamente cuánto mide, qué métodos tiene y qué variables guarda".
+// ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
 #include "InputManager.h"
 
-
+// ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
 // MEJOR SI SOLO USAS UN PUNTERO:
+// "Va a existir una clase llamada así. No te preocupes por los detalles ahora, solo resérvame un hueco para un puntero o una referencia".
+// Si cambias algo en la clase el compilador no tiene que volver a compilarla porque realmente no sabe qué hay dentro, solo que es una "clase".
+// Si la Clase A necesita a la B, y la B necesita a la A, y ambas tienen #include, el compilador entra en un bucle infinito.  Usando class rompemos ese bucle.
+// ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
 class SpriteSheetManager;
-//class InputManager;
 class PhysicsManager;
 class CollisionManager;
 
 
-
-
-// Estados lógicos del personaje
+// *** ESTADOS LÓGICOS DEL PERSONAJE ***
 // Estos estados representan lo que el personaje está haciendo lógicamente, independientemente de la animación exacta.
 // La diferencia entre Estado y Movimiento es como la diferencia entre "Querer ir a comprar" y "Caminar hacia la tienda".
 enum class MovementState {
-    IDLE,       // [ | ]
-    WALKING,    // [ ~ ]
-    RUNNING,    // [ ≈ ]
-    TURNING,    // [ ↻ ] Cuando está ejecutando una animación de giro
-    STOPPING    // [ ! ] Cuando está en una transición hacia IDLE
+    IDLE,
+    WALKING,
+    RUNNING,
+    TURNING,    // Cuando está ejecutando una animación de giro
+    STOPPING    // Cuando está en una transición hacia IDLE
 };
 
 
-
-// Clase que gestiona los movimientos en el juego
+// ****************************************** CLASE MOVMENT MANAGER ****************************************** //
+// Clase que gestiona los movimientos del personaje
 class MovementManager {
 
-//"Public" es lo que la clase hace por los demás.
+// ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
+// "Public" es lo que la clase hace por los demás.
+// ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
 public:
     
     // *** CONFIGURACIÓN Y CONEXIÓN ***
@@ -49,20 +55,17 @@ public:
     // Actualiza el estado del MovementManager basado en el tiempo actual.
     void update(float currentTime);
     
-    
-    
-
-    // !!! TRADUCTOR !!!
+    // !!!!!!! TRADUCTOR !!!!!!!
     // Input --> Intención
     void updateIntent();
     
-    // !!! JUEZ !!!
+    // !!!!!!! JUEZ !!!!!!!
     // Switch de estados y llama a playMovement o handleTransition según convenga.
     void updateState(MovementState targetState);
-    
+    // !!!!!!! JUEZ DE SUELO !!!!!!! //
     void updateGroundedState(MovementState targetState);
+    // !!!!!!! JUEZ DE AIRE !!!!!!! //
     void updateAirState(MovementState targetState);
-    
     
     // !!! EJECUTOR !!! //
     // Inicia el movimiento especificado por su nombre, con parámetro opcional para la región inicial. No decide estados
@@ -75,20 +78,18 @@ public:
     // No hace nada más. Se queda esperando a que el "reloj" la avise.
     void handleTransition();
     
-    // *** HANDLE SPECIFIC MOVEMENTS *** //
-    // Funciones específicas para manejar transiciones de movimientos
-    void handleWalkToRun();
-    void handleRunToWalk();
-
     
-    
-    // ------------------- GETTERS - SETTERS -------------------
-    // Nota: Los Getters y Setters que definimos en el .h como "inline"
+    // ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
+    // Nota: Los Getters y Setters se pueden definir en el .h como "inline"
     // (dentro de la llave { }) no necesitan escribirse en el .cpp
     // EJEMPLO:
     // int getCurrentRow() const { return currentRow; }
+    // ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
+
     
-    //*** GETS REGION ***//
+    // ------------------- GETTERS - SETTERS -------------------
+    
+    // *** GETS REGION ***//
     // Obtiene la fila actual del sprite sheet correspondiente al movimiento actual.
     int getCurrentRow() const;
     // Obtiene la región actual (frame) del sprite sheet correspondiente al movimiento actual.
@@ -98,7 +99,7 @@ public:
     // Obtiene el archvio del movimiento actual
     string getCurrentFile() const;
     
-    //*** GETS FRAME INTERVAL ***//
+    // *** GETS FRAME INTERVAL ***//
     // Obtiene el intervalo de fotogramas global
     float getFrameInterval() const;
     // Obtiene el intervalo de frame del movimiento actual, si está definido, de lo contrario utiliza el intervalo global. (en public porque la GUI la usa)
@@ -106,11 +107,11 @@ public:
     // Obtiene el intervalo de fotogramas para un movimiento específico
     float getMovementFrameInterval(const std::string& movementName) const;
     
-    //*** GETS DIRECTION ***//
+    // *** GETS DIRECTION ***//
     // Obtiene la dirección del personaje
     bool getIsFacingRight();
     
-    //*** GETS MOVEMENT ***//
+    // *** GETS MOVEMENT ***//
     // Obtiene el movimiento actual
     // El primer const significa: "El puntero que devuelvo es constante (no puedes modificar lo que apunta)."
     // El último const significa: "Esta función no modifica el estado interno del MovementManager."
@@ -120,11 +121,11 @@ public:
     // Obtiene el mapa de todos los movimientos disponibles
     const std::map<std::string, Movement>& getMovements() const;
     
-    //*** GETS SCALE ***//
+    // *** GETS SCALE *** //
     const float getScaleFactor() const;
 
     
-    //*** GETS STATE ***//
+    // *** GETS STATE *** //
     // Retorna un string con el estado actual del personaje
     std::string getCurrentState() const;
     // Retorna un string con el estado objetivo del personaje
@@ -133,7 +134,7 @@ public:
     bool isWaitingForTransition() const;
     
 
-    //*** SETS FRAME INTERVAL ***//
+    // *** SETS FRAME INTERVAL *** //
     // Actualiza el intervalo de fotogramas del movimiento desde la GUI (NO IMPEMENTADA
     void setFrameIntervalFromGUI();
     // Establece el intervalo de fotogramas global
@@ -141,29 +142,31 @@ public:
     // Establece el intervalo de fotogramas para un movimiento específico
     void setMovementFrameInterval(const std::string& movementName, float interval);
     
-    //*** SETS DIRECTION ***//
+    // *** SETS DIRECTION *** //
     // Invierte la dirección del personaje
     void toggleIsFacingRight();
     
-    //*** SETS SCALE ***//
+    // *** SETS SCALE *** //
     void setScaleFactor(float scaleFactor);
     
-    //*** SETS STATE ***//
+    // *** SETS STATE *** //
 
-    
-//"Private" es cómo la clase se organiza a sí misma para hacer su trabajo.
+// ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
+// "Private" es cómo la clase se organiza a sí misma para hacer su trabajo.
+// ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
+
 private:
     // *** VARIABLES DE ESTADO INTERNO ***
-    int currentRegion = 0; // Región actual en la hoja de sprites
-    int currentRow = 0; // Fila actual en la hoja de sprites
+    int currentRegion = 0;             // Región actual en la hoja de sprites
+    int currentRow = 0;                // Fila actual en la hoja de sprites
     bool waitingForTransition = false; // Indica si se está esperando una transición
-    int targetRegion = -1; // Región objetivo para la transición
-    float lastUpdateTime = 0.0f; // Última vez que se actualizó el movimiento
-    float frameInterval = 0.1f; // Intervalo de fotogramas general
-    bool isFacingRight = true;  //Dirección del personaje
-    float scaleFactor = 1.0f;
+    int targetRegion = -1;             // Región objetivo para la transición
+    float lastUpdateTime = 0.0f;       // Última vez que se actualizó el movimiento
+    float frameInterval = 0.1f;        // Intervalo de fotogramas general
+    bool isFacingRight = true;         // Dirección del personaje
+    float scaleFactor = 1.0f;          // Factor de escala, todos los otros managers copian este
     
-    // VARIABLES DE ESTADO DE PHYSICS
+    // *** VARIABLES DE ESTADO DE PHYSICS ***
     bool isGrounded = false;
     bool isWalledLeft = false;
     bool isWalledRight = false;
@@ -180,6 +183,7 @@ private:
     // Variable para guardar el estado objetivo (inicializado en IDLE)
     MovementState targetState = MovementState::IDLE;
     
+    // *** PUNTEROS A OTROS MANAGERS ***
     // Puntero al gestor de entradas
     InputManager* inputManager = nullptr;
     // Puntero al gestor de físicas
@@ -189,13 +193,6 @@ private:
     // Puntero al gestor de Colisiones
     CollisionManager* collisionManager = nullptr;
     
-    // *** LÓGICA INTERNA (LOS ENGRANAJES) ***
-    // Determina si se debe actualizar la región en función del tiempo transcurrido y el intervalo de frame
-    bool shouldUpdateRegion(float currentTime, float interval) const;
-    // Carga los movimientos desde un archivo JSON
-    void loadMovements(const std::string& filename);
- 
-    
     
     // !!! MOTOR !!! //
     // Es private porque No quieres que desde ofApp.cpp alguien llame por error a movementManager.updateRegion().
@@ -203,26 +200,28 @@ private:
     // Como es privado, sabes que nadie fuera de esa clase depende de esa función.
     // Es el motor, como un cronometro.
     void updateRegion();
+    
+    // *** GESTIÓN DE TRANSICIONES ***
     void triggerTransition();    
-    void finishedTransition();
     void triggerGroundedTransition();
     void triggerAirTransition();
-    
-    
+    void finishedTransition();
+    // ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
     // & (Referencia): Evita que el ordenador cree una "copia" de toda la estructura InputState en la memoria cada vez que llamas a la función.
     // Las referencias (&) siempre apuntan a algo que existe, así que el código queda más limpio y seguro.
-
-    //El const: El const garantiza que no vas a modificar accidentalmente los valores de intent dentro de la función.
-
+    
     // * (Puntero): Los punteros pueden ser nullptr (nulos), lo que te obligaría a poner un if (intent != nullptr) por seguridad.
+
+    // El const: El const garantiza que no vas a modificar accidentalmente los valores de intent dentro de la función.
+    // ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
     void finishedGroundedTransition(const InputState& intent);
     void finishedAirTransition(const InputState& intent);
-   
+
+    
     // $$$$$$$$$$$$$ FISICAS $$$$$$$$$$$$$
     void handleMovementPhysics(const std::string& name);
     
     
-
     // TURN_TO_RUN solo se puede dar desde IDLE, pero el estado es TURNING
     // Para no añadir un estado nuevo, que además entraría en conflicto con RUN_TO_TURN
     // Creamos este flag que solo se evaluará en currentState IDLE con targetState RUN.
@@ -231,13 +230,21 @@ private:
     // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
     // Si esto empieza a darse tendremo que crear el Objeto Peticióni modificar el TRADUCTOR y el JUEZ en consecuencia.
     
-    /*
-     struct MovementRequest {
-         MovementState state;
-         std::string variant = ""; // Aquí el traductor puede decir "TO_RUN"
-     };
-     */
+        /*
+         struct MovementRequest {
+             MovementState state;
+             std::string variant = ""; // Aquí el traductor puede decir "TO_RUN"
+         };
+         */
     // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-
     
+    
+    
+    // *** MÉTODOS INTERNOS ***
+
+    // *** LÓGICA INTERNA (LOS ENGRANAJES) ***
+    // Determina si se debe actualizar la región en función del tiempo transcurrido y el intervalo de frame
+    bool shouldUpdateRegion(float currentTime, float interval) const;
+    // Carga los movimientos desde un archivo JSON
+    void loadMovements(const std::string& filename);
 };

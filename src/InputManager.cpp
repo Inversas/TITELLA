@@ -1,18 +1,20 @@
 #include "InputManager.h"
 
-// Iniciar el Gestor de Entradas
+// *** SETUP ***
 void InputManager::setup() {
     // Limpiamos el conjunto de teclas y el conjunto de direcciones por seguridad al iniciar
     pressedKeys.clear();
     directionStack.clear();
 }
 
+// ##############################################################################################################################
+//                                             EVENTOS DE TECLADO (DESDE OFAPP)
+// ##############################################################################################################################
 
-//*** EVENTOS DE TECLADO (DESDE OFAPP) ***//
+// *** TECLA PRESIONADA ***//
 void InputManager::keyPressed(int key) {
     
-    // 1. Gestión del Vector de Direcciones
-    
+    // GESTIÓN VECTOR DE DIRECCIONES
     //Si se ha pulsado una tecla de dirección la añadimos al vector
     if (key == OF_KEY_LEFT || key == OF_KEY_RIGHT) {
         // Solo añadimos al vector si no estaba ya (evita repeticiones del SO)
@@ -22,17 +24,17 @@ void InputManager::keyPressed(int key) {
         }
     }
 
-    // 2. Se inserta la tecla en el conjunto de teclas presionadas
+    // Se inserta la tecla en el conjunto de teclas presionadas
     pressedKeys.insert(key);
     
-    // 3. Actualizamos la "foto" de intenciones o "cajita" de estados lógicos
+    // Actualizamos la "foto" de intenciones
     updateInputState();
 }
 
-
+// *** TECLA LIBERADA ***//
 void InputManager::keyReleased(int key) {
     
-    // 1. Limpieza del Vector de Direcciones
+    // LIMPIEZA DEL VECTOR DE DIRECCIONES
     // Si se ha liberado una tecla de dirección la eliminamos del vector
     if (key == OF_KEY_LEFT || key == OF_KEY_RIGHT) {
         // Buscamos y eliminamos la tecla específica del vector
@@ -51,15 +53,17 @@ void InputManager::keyReleased(int key) {
         }
     }
     
-    // 2. Se elimina la tecla del conjunto al liberarla
+    // Se elimina la tecla del conjunto al liberarla
     pressedKeys.erase(key);
     
-    // 3. Actualizamos la "foto" de intenciones o la "cajita" de estados lógicos
+    // Actualizamos la "foto" de intenciones o la "cajita" de estados lógicos
     updateInputState();
 }
 
-
-//*** LÓGICA DE TRADUCCIÓN DE ENTRADA ***//
+// ##############################################################################################################################
+//                                                TRADUCCIÓN DE ENTRADA
+// ##############################################################################################################################
+// *** LÓGICA DE TRADUCCIÓN DE ENTRADA *** //
 void InputManager::updateInputState() {
     
     // 1. RESETEO: Ponemos todo a false antes de evaluar
@@ -92,13 +96,13 @@ void InputManager::updateInputState() {
 
 // ------------------- GETTERS - SETTERS -------------------
 
-//*** GET DEL ESTADO DE ENTRADA ACTUAL (WANT) DESDE EL EXTERIOR ***//
+// *** GET DEL ESTADO DE ENTRADA ACTUAL (WANT) DESDE EL EXTERIOR *** //
 InputState InputManager::getInputState() const {
     // Retornamos la estructura con los booleanos para que el MovementManager los lea
     return currentInputState;
 }
 
-//*** GETS EXCLUSIVOS PARA GUI ***
+// ^^^^^^^^^^^^^  GETS GUI  ^^^^^^^^^^^^^
 // Retorna un string con las teclas presionadas en formato:  "LEFT + RIGHT + 1"
 std::string InputManager::getPressedKeysAsString() const {
     

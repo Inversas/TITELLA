@@ -11,8 +11,9 @@
 #include "ofMain.h" // Necesario para ofVec2f y funciones matemáticas básicas, también para KEYS
 
 
-//*** ESTRUCTURA DE ESTADO DE ENTRADA (WANT / INTENCION) ***//
-// Contiene la "foto" de las intenciones del jugador en un momento dado.
+
+// +++++++++++++ STRUCT +++++++++++++
+// Estructura para guardar intenciones del jugador en cada momento ("foto")
 struct InputState {
     bool wantsLeft = false;         // El jugador quiere ir a la izquierda
     bool wantsRight = false;        // El jugador quiere ir a la derecha
@@ -21,7 +22,8 @@ struct InputState {
 };
 
 
-//*** CLASE INPUT MANAGER ***//
+
+// ****************************************** CLASE INPUT MANAGER ****************************************** //
 // Clase que gestiona la entrada del usuario (por ejemplo, el teclado)
 class InputManager {
     
@@ -41,11 +43,11 @@ public:
     
     // ------------------- GETTERS - SETTERS -------------------
 
-    //*** GET ESTADO DE ENTRADA ACTUAL (WANT) ***
+    // *** GET ESTADO DE ENTRADA ACTUAL (WANT) ***
     // Devuelve el estado de entrada actual (WANT) de las intenciones (lo consultará el MovementManager)
     InputState getInputState() const;
         
-    //*** GETS EXCLUSIVOS PARA GUI ***
+    // *** GETS EXCLUSIVOS PARA GUI ***
     //Consultar teclas presionadas
     std::string getPressedKeysAsString() const;
     //Consultar Intenciones (WANT)

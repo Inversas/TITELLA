@@ -1,9 +1,9 @@
 #include "CollisionManager.h"
 
-// ??????
-// Aquí sí incluimos el manager del sprite para poder usar sus funciones
-#include "SpriteSheetManager.h"
+// Lo comento porque podríamos eliminarlo
+// #include "SpriteSheetManager.h"
 
+// *** SETUP ***
 void CollisionManager::setup(float regionW, float regionH) {
     
     // *** HITBOX BASE, valores sin escalar ***
@@ -17,6 +17,11 @@ void CollisionManager::setup(float regionW, float regionH) {
     
     // Debemos dar valor a las hitbox de trabajo con la escala inicial
     updateScaledHitbox();
+    
+    
+    // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
+    // HACER UNA FUNCION DE SETUP PARA INTERACTORS?
+    // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
     
     // *** INTERACTORS ***
     // 1. Definimos el suelo (desde la esquina inferior izquierda a la derecha)
@@ -64,10 +69,10 @@ void CollisionManager::setup(float regionW, float regionH) {
     ));*/
 }
 
-
 void CollisionManager::update() {
     // Aquí irá la lógica de comprobación más adelante
 }
+
 void CollisionManager::draw() {
     drawInteractors();
 }
@@ -78,17 +83,33 @@ void CollisionManager::drawInteractors() {
     for (auto &inter : interactors) {
         
         if (inter.type == InteractorType::SURFACE) {
-            ofSetColor(180, 120, 255); // Lila
+            if(inter.gui){
+                ofSetColor(255, 255, 100); // Amarillo brillante
+            }
+            else {
+                ofSetColor(180, 120, 255); // Lila
+            }
         }
         else if (inter.type == InteractorType::WALL) {
-            ofSetColor(255, 0, 0);     // Rojo
+            if(inter.gui){
+                ofSetColor(255, 255, 100); // Amarillo brillante
+            }
+            else {
+                ofSetColor(255, 0, 0);     // Rojo
+            }
         }
         else if (inter.type == InteractorType::BUTTON) {
-            ofSetColor(100, 200, 255); // Celeste
+            if(inter.gui){
+                ofSetColor(255, 255, 100); // Amarillo brillante
+            }
+            else {
+                ofSetColor(100, 200, 255); // Celeste
+            }
         }
-        // Dibujamos la línea que une los dos puntos
+        // DRAW la línea que une los dos puntos
         ofDrawLine(inter.p1.x, inter.p1.y, inter.p2.x, inter.p2.y);
         
+        // ************************ DEBUG2 (Podría ser una opción dentro de debug activado, ahora interactors con higlights o nada) ************************
         if (inter.hit) {
             if (inter.type == InteractorType::WALL) {
                 drawWallHighlight(inter);
@@ -98,13 +119,15 @@ void CollisionManager::drawInteractors() {
             }
         }
     }
-
-    // Dibujamos los nombres moviendo el texto según la pared
-    ofSetColor(255); // Texto en blanco
+    
+    // ************************ DEBUG2 (Podría ser una opción dentro de debug activado, ahora interactors con higlights o nada) ************************
+    // DRAW los nombres moviendo el texto según la pared
+    // Texto en blanco
+    ofSetColor(255);
     for (auto &inter : interactors) {
-        
         float textX = inter.p1.x;
-        float textY = inter.p1.y + 20; // Bajamos un poco el texto para que no pise el borde superior
+        // Bajamos un poco el texto para que no pise el borde superior
+        float textY = inter.p1.y + 20;
 
         if (inter.name == "actLimitR") {
             // Si es la pared derecha, movemos el texto a la izquierda de la línea
@@ -118,11 +141,10 @@ void CollisionManager::drawInteractors() {
 
         ofDrawBitmapString(inter.name, textX, textY);
     }
-    
-    
 }
 
-// DETECCIÓN DE COLISIONES A FUTURO
+// *** DETECCIÓN DE COLISIONES A FUTURO ***
+// Retorna el paquete de colisiones detectadas
 CollisionResult CollisionManager::checkCollisions(ofVec2f currentPos, ofVec2f velocity, float gravity, bool isFacingRight) {
     
     // ==========================================
@@ -212,12 +234,12 @@ CollisionResult CollisionManager::checkCollisions(ofVec2f currentPos, ofVec2f ve
     
     // Guardamos una copia
     lastResult = result;
-    
+    // Aunque lohemos guardado, devolvemos el resultado
     return result;
-    
 }
     
-// !!!!!!!!!!!!!!! COLLISION SCALED !!!!!!!!!!!!!!!
+
+// *** ACTUALIZA VALORES DE TRABAJO SEGUN ESCALA ***
 void CollisionManager::updateScaledHitbox() {
     currentHitbox.regionW = baseHitbox.regionW * currentScale;
     currentHitbox.regionH = baseHitbox.regionH * currentScale;
@@ -227,7 +249,7 @@ void CollisionManager::updateScaledHitbox() {
 }
 
 
-// CALCULA SENSORES FUTUROS
+// *** CACULA SENSORES FUTUROS ***
 //Traduce las coordenadas locales del personaje al mundo real.
 SensorState CollisionManager::calculateSensors(ofVec2f pos, ofVec2f vel, float grav, bool isFacingRight) {
     
@@ -287,7 +309,7 @@ SensorState CollisionManager::calculateSensors(ofVec2f pos, ofVec2f vel, float g
 // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 
 
-// CHECK SURFACE COLLISION
+// *** CHECK SURFACE COLLISION ***
 // Verifica si el rayo vertical del personaje toca una superficie.
 bool CollisionManager::checkFloorCollision(Interactor& inter, const SensorState& s) {
     
@@ -318,7 +340,7 @@ bool CollisionManager::checkFloorCollision(Interactor& inter, const SensorState&
 // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 
 
-// CHECK WALL COLLISION
+// *** CHECK WALL COLLISION ***
 // Verifica si el sensor lateral ha invadido el espacio de una pared.
 // Detecta si una pared bloquea el avance hacia la DERECHA
 bool CollisionManager::checkWallRightCollision(Interactor& inter, const SensorState& s) {
@@ -329,7 +351,6 @@ bool CollisionManager::checkWallRightCollision(Interactor& inter, const SensorSt
     // Si mi X actual YA está al otro lado (más allá) = colisión
     return s.wallCurrent >= wallX;
 }
-
 // Detecta si una pared bloquea el avance hacia la IZQUIERDA
 bool CollisionManager::checkWallLeftCollision(Interactor& inter, const SensorState& s) {
     
@@ -341,8 +362,7 @@ bool CollisionManager::checkWallLeftCollision(Interactor& inter, const SensorSta
 }
 
 
-// CollisionManager.cpp
-
+// *** DRAWS DEBUG ***
 void CollisionManager::drawWallHighlight(const Interactor& inter) {
     // 1. Estilo: Azul transparente
     ofFill();
@@ -374,32 +394,39 @@ void CollisionManager::drawFloorHighlight(const Interactor& inter) {
 }
 
 // ------------------- GETTERS - SETTERS -------------------
+const vector<Interactor>& CollisionManager::getInteractors() const {
+    return interactors;
+}
+CollisionResult CollisionManager::getLastResult() const {
+    return lastResult;
+}
+
 HitboxData CollisionManager::getHitbox() const {
     return currentHitbox;
 }
-
 HitboxData CollisionManager::getBaseHitbox() const {
     return baseHitbox;
 }
-
 void CollisionManager::setHitboxWidth(float w) {
     baseHitbox.width = w;
     // Debemos recalcular la hitbox de trabajo
     updateScaledHitbox();
 }
-
 void CollisionManager::setHitRayXFloor(float x) {
     baseHitbox.floorRayX = x;
     // Debemos recalcular la hitbox de trabajo
     updateScaledHitbox();
 }
 
-const vector<Interactor>& CollisionManager::getInteractors() const {
-    return interactors;
-}
-
-CollisionResult CollisionManager::getLastResult() const {
-    return lastResult;
+// Actualiza el parametro "gui" de Interactor, segun su nombre.
+void CollisionManager::setInteractorGUI(string name, bool state){
+    // Recorremos los interactors acutales
+    for (auto &inter : interactors) {
+        //Al encontrarlo, actualizamos el parametro "gui"
+        if(inter.name == name){
+            inter.gui = state;
+        }
+    }
 }
 
 // Modifica el valor de escala

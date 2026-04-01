@@ -7,5 +7,6 @@ Interactor::Interactor(
             InteractorType type,
             string name,
             float influenceRadius,
-            bool hit
-            ) : p1(p1), p2(p2), type(type), name(name), influenceRadius(influenceRadius), hit(hit){}
+            bool hit,
+            bool gui
+            ) : p1(p1), p2(p2), type(type), name(name), influenceRadius(influenceRadius), hit(hit), gui(gui){}
