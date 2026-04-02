@@ -925,6 +925,16 @@ void MovementManager::handleTransition() {
             closestRegion = region;
         }
     }
+    
+    // !!!! VERSIÓN OF 0.10 !!!!
+    /*for (auto const& pair : *transitionMap) {
+        auto const& region = pair.first;
+        auto const& name = pair.second;
+        
+        if (region > currentRegion && (closestRegion == -1 || region < closestRegion)) {
+            closestRegion = region;
+        }
+    }*/
 
     // Si no se encontró una región mayor que la actual, usamos la primera del mapa
     if (closestRegion == -1) {

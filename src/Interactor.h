@@ -30,7 +30,7 @@ struct Interactor {
         ofVec2f p2 = ofVec2f(0,0),
         InteractorType type = InteractorType::SURFACE,
         string name = "",
-       float influenceRadius = 150.0f, // Valor por defecto,
+       float influenceRadius = 300.0f, // Valor por defecto,
        bool hit = false,
        bool gui = false
     );

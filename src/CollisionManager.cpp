@@ -452,6 +452,45 @@ void CollisionManager::loadInteractorsJSON(const std::string& filename) {
     }
     ofLogNotice("CollisionManager") << "Interactors cargados: " << interactors.size();
 }
+
+// !!!! VERSIÓN OF 0.10 !!!!
+/*void CollisionManager::loadInteractorsJSON(const std::string& filename) {
+ ofxJSONElement json;
+ 
+ // Usamos .open() como en MovementManager para mayor consistencia
+ if (!json.open(filename)) {
+     ofLogError("CollisionManager") << "No se pudo encontrar o abrir " << filename;
+     return;
+ }
+ 
+ interactors.clear(); // Limpiamos los actuales
+ 
+ // Si el JSON es un array, iteramos con un índice
+ for (int i = 0; i < json.size(); i++) {
+     const auto& jInter = json[i];
+     
+     Interactor inter;
+     // Usamos asString(), asInt(), etc., para evitar errores de tipo
+     inter.name = jInter["name"].asString();
+     inter.type = (InteractorType)jInter["type"].asInt();
+     
+     // Acceso a puntos anidados
+     inter.p1.set(jInter["p1"]["x"].asFloat(), jInter["p1"]["y"].asFloat());
+     inter.p2.set(jInter["p2"]["x"].asFloat(), jInter["p2"]["y"].asFloat());
+     
+     // Si influenceRadius puede no existir, podrías usar .get("influenceRadius", 0.0f).asFloat()
+     inter.influenceRadius = jInter["influenceRadius"].asFloat();
+     
+     inter.hit = false;
+     inter.gui = false;
+     
+     interactors.push_back(inter);
+ }
+ 
+ ofLogNotice("CollisionManager") << "Interactors cargados: " << interactors.size();
+}*/
+
+
 // *** GUARDADO ***
 void CollisionManager::saveInteractorsJSON(const std::string& filename) const {
     ofJson json = ofJson::array();

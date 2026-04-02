@@ -112,26 +112,54 @@ void EditorManager::handleMousePressed(int x, int y, int button) {
 
         // Evitamos crear interactores sin longitud
         if (p1.distance(p2) > 5) {
-            string newName = generateUniqueName(InteractorType::SURFACE);
             
-            // Creamos el objeto (Por defecto SURFACE, luego podrías elegir tipo)
-            // Aquí debería ver si es horizontal es SURFACE si es VERTICAL es WALL
-            Interactor newInter(p1, p2, InteractorType::SURFACE, newName);
+            // 1. DETERMINAR TIPO SEGÚN ORIENTACIÓN
+            // Calculamos la diferencia absoluta en cada eje
+            float diffX = abs(p2.x - p1.x);
+            float diffY = abs(p2.y - p1.y);
+            
+            InteractorType type;
+            float radius = 300.0f; // Valor por defecto para superficies
+            
+            if (diffX >= diffY) {
+                // Es predominantemente horizontal -> SUELO
+                type = InteractorType::SURFACE;
+            } else {
+                // Es predominantemente vertical -> PARED
+                type = InteractorType::WALL;
+                // Para las paredes, usamos el ancho de región como radio de influencia
+                // (puedes ajustarlo si prefieres otro valor)
+                radius = 300.0f;
+            }
+
+ 
+            // 2. GENERAR NOMBRE COHERENTE
+            // Ahora pasamos el 'type' real para que el nombre sea SURFACE_X o WALL_X
+            string newName = generateUniqueName(type);
+            
+            // Creamos el objeto
+            
+
+            // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
+            // ELegir tipo BUTTON con shift
+            // Tema rampas
+            // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+            Interactor newInter(p1, p2, type, newName);
             
             // Lo añadimos al CollisionManager
-            // NOTA: Asegúrate de añadir el método addInteractor en CollisionManager
             collisionManager->addInteractor(newInter);
             
             // Marcamos que la GUI debe refrescarse para mostrar el nuevo botón
             bNeedsGuiUpdate = true;
             
-            ofLogNotice("EditorManager") << "Creado nuevo interactor: " << newName;
+            ofLogNotice("EditorManager") << "Creado nuevo " << (type == InteractorType::SURFACE ? "SURFACE" : "WALL") << ": " << newName;
         }
 
         // Volvemos al estado inicial para permitir crear otro seguido
         currentState = EDITOR_WAITING_P1;
     }
 }
+
 
 void EditorManager::handleKeyPressed(int key) {
     if (!bEnabled) return;
