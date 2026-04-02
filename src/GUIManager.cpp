@@ -5,14 +5,16 @@
 #include "InputManager.h"
 #include "PhysicsManager.h"
 #include "CollisionManager.h"
+#include "EditorManager.h"
 
-void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spriteSheetManager, InputManager& inputManager, PhysicsManager& physicsManager, CollisionManager& collisionManager) {
+void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spriteSheetManager, InputManager& inputManager, PhysicsManager& physicsManager, CollisionManager& collisionManager, EditorManager& editorManager) {
     
     this->movementManager = &movementManager;        // Guardamos la referencia a MovementManager
     this->spriteSheetManager = &spriteSheetManager;  // Guardamos la referencia a SpriteSheetManager
     this->inputManager = &inputManager;              // Guardamos la referencia a InputManager
     this->physicsManager = &physicsManager;          // Guardamos la referencia a PhysicsManager
     this->collisionManager = &collisionManager;      // Guardamos la referencia a CollisionManager
+    this->editorManager = &editorManager;            // Guardamos la referencia a EditorManager
     
     // Inicializar GUI
     gui.setup("Settings");
@@ -84,7 +86,7 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     // ==============================================================================================================================
     interactorsGroup.setup("INTERACTORS DETECT");
     // Creamos tantos botones como Interactors existen
-    updateInteractorsGroup(interactorsGroup);
+    updateInteractorsGroup();
     // Añadimos el grupo a la GUI
     gui.add(&interactorsGroup);
     
@@ -215,33 +217,64 @@ void GUIManager::draw() {
     drawLivePanel(livePanelPosition);
 }
 
+void GUIManager::drawEdit() {
+    interactorsGroup.draw();
+}
+
 
 // ==============================================================================================================================
 // FUNCIONES GRUPO: [INTERACTORS]
 // ==============================================================================================================================
 // *** ACTUALIZAR BOTONES DE INTERACTORS ***
-void GUIManager::updateInteractorsGroup(ofxGuiGroup &group) {
+void GUIManager::updateInteractorsGroup() {
     // 1. LIMPIEZA: Borramos los botones antiguos de la memoria y del grupo
     for (auto btn : dynamicButtons) {
-        delete btn; // Liberamos la RAM
+        if (btn != nullptr) {
+            delete btn; // Liberamos la memoria de cada botón antiguo
+        }
     }
     dynamicButtons.clear();
-    group.clear(); // Limpiamos visualmente el grupo
+    interactorsGroup.clear(); // Limpiamos visualmente el grupo
     
     // 2. RE-CONFIGURAR: El grupo necesita un setup para resetear su cabecera
-    group.setup("INTERACTORS DETECT");
-
+    interactorsGroup.setup("INTERACTORS DETECT");
+    // Añadimos un rastreador de índice
+    int indiceBoton = -1;
     // 3. ITERAR Y CREAR: Recorremos los interactores del CollisionManager
     for (const auto & inter : collisionManager->getInteractors()) {
-        addDynamicButton(inter.name);
+        indiceBoton++;
+        addDynamicButton(inter.name, indiceBoton);
     }
     
     // 4. ACTUALIZAR: Forzamos a la GUI a recalcular posiciones
     //group.sizeChanged();
+    
+    if(interactorsGroup.isMinimized()){
+        resetInteractors();
+    }
 }
 
+void GUIManager::setMaximizeInteractors(){
+    interactorsGroup.maximize();
+}
+void GUIManager::setMinimizeInteractors(){
+    interactorsGroup.minimize();
+}
+
+// *** CARGA SETTINGS ESPECIFICO ***
+void GUIManager::loadSettingsFromFile(const std::string& path) {
+    gui.loadFromFile(path);
+    ofLogNotice("GUIManager") << "Configuración cargada desde: " << path;
+}
+// *** GUARDA SETTINGS ESPECIFICO ***
+void GUIManager::saveSettingsToFile(const string& path) {
+    gui.saveToFile(path);
+    ofLogNotice("GUIManager") << "Settings exportados a: " << path;
+}
+
+
 // *** AÑADIR BOTON A INTEREACTORS ***
-void GUIManager::addDynamicButton(string name) {
+void GUIManager::addDynamicButton(string name, int indiceBoton) {
     // Creamos el botón en el "heap" (memoria dinámica)
     ofxToggle* btn = new ofxToggle();
     
@@ -250,6 +283,11 @@ void GUIManager::addDynamicButton(string name) {
     
     // REGISTRAMOS EL EVENTO
     btn->addListener(this, &GUIManager::onInteractorButtonPressed);
+    
+    // Color Rojo para los que se pueden eliminar
+    if(editorManager && editorManager->getEnabled() && indiceBoton >= 3){
+        btn->setBackgroundColor(ofColor(200, 0, 0, 180));
+    }
     
     // Añadimos el boton al grupo
     interactorsGroup.add(btn);
@@ -430,8 +468,10 @@ void GUIManager::onInteractorButtonPressed(bool& value) {
     
     // Buscamos qué botón ha disparado el evento (comparando por dirección de memoria)
     ofxToggle* botonAccionado = nullptr;
-    
+    // Añadimos un rastreador de índice
+    int indiceBoton = -1;
     for (auto btn : dynamicButtons) {
+        indiceBoton++;
         if (&btn->getParameter().cast<bool>().get() == &value) {
             botonAccionado = btn;
             break;
@@ -440,30 +480,53 @@ void GUIManager::onInteractorButtonPressed(bool& value) {
 
     // Si no encontramos el botón por lo que sea, salimos
     if (!botonAccionado) return;
-
-    // Si el botón se ha ENCENDIDO (value == true)
-    if (value) {
-        cout << "\n>>> SELECCIONADO: " << botonAccionado->getName() << endl;
+    
+    if (editorManager && editorManager->getEnabled()) {
+        // Solo actuar si el toggle se ENCIENDE (clic del usuario)
+        if (!value) return;
         
-        // Activamos visualizacion de interactor
-        collisionManager->setInteractorGUI(botonAccionado->getName(), true);
-
-        // APAGAMOS los demás (Lógica Radio Button)
-        for (auto btn : dynamicButtons) {
-            if (btn != botonAccionado) {
-                // Importante: .set(false) enviará otro evento de callback,
-                // pero como value será false, entrará en el bloque de abajo y limpiará los GUI
-                btn->getParameter().cast<bool>().set(false);
+        if (indiceBoton < 3) {
+            ofLogWarning("GUIManager") << "Intento de borrar interactor protegido: " << botonAccionado->getName();
+            // Opcional: forzamos que el toggle se apague si se quedó encendido por error
+            return;
+        }
+        
+        // --- MODO EDICIÓN: EL BOTÓN BORRA ---
+        ofLogNotice("GUIManager") << "Modo Edicion: Borrando " << botonAccionado->getName();
+        editorManager->deleteInteractor(botonAccionado->getName());
+        
+        // NOTA: No hace falta refrescar la GUI aquí manualmente,
+        // porque EditorManager::deleteInteractor pone bNeedsGuiUpdate a true
+        // y tu ofApp ya se encarga de regenerar los botones.
+        
+    }
+    else {
+        // Si el botón se ha ENCENDIDO (value == true)
+        if (value) {
+            cout << "\n>>> SELECCIONADO: " << botonAccionado->getName() << endl;
+            
+            // Activamos visualizacion de interactor
+            collisionManager->setInteractorGUI(botonAccionado->getName(), true);
+            
+            // APAGAMOS los demás (Lógica Radio Button)
+            for (auto btn : dynamicButtons) {
+                if (btn != botonAccionado) {
+                    // Importante: .set(false) enviará otro evento de callback,
+                    // pero como value será false, entrará en el bloque de abajo y limpiará los GUI
+                    btn->getParameter().cast<bool>().set(false);
+                }
             }
         }
-    }
-    // 3. Si el botón se ha APAGADO (value == false)
-    else {
-        // cout << ">>> DESELECCIONADO: " << botonAccionado->getName() << endl;
-        // Desactivamos visualizacion de interactor
-        collisionManager->setInteractorGUI(botonAccionado->getName(), false);
+        // 3. Si el botón se ha APAGADO (value == false)
+        else {
+            // cout << ">>> DESELECCIONADO: " << botonAccionado->getName() << endl;
+            // Desactivamos visualizacion de interactor
+            collisionManager->setInteractorGUI(botonAccionado->getName(), false);
+        }
     }
 }
+
+
 
 // ==============================================================================================================================
 // LISTENNERS GRUPO: [SETTERS]

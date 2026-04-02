@@ -55,7 +55,8 @@ public:
     
     // *** SETUP ***
     // Inicializa los límites, el suelo y el HitboxData
-    void setup(float regionW, float regionH);
+    void setup(float regionW, float regionH, std::string filename);
+    void applyMandatorySettings(float regionW, float regionH);
     
     void update();
 
@@ -69,6 +70,19 @@ public:
     
     // *** DETECCIÓN DE COLISIONES A FUTURO ***
     CollisionResult checkCollisions(ofVec2f currentPos, ofVec2f velocity, float gravity, bool isFacingRight);
+    
+    // *** MÉTODOS DE EDICIÓN ***
+    // Añade un nuevo interactor a la colección
+    void addInteractor(const Interactor& inter);
+    // Elimina un interactor buscando por su nombre único
+    void removeInteractor(string name);
+    
+    // *** JSON INTERACTORS ***
+    // Carga
+    void loadInteractorsJSON(const std::string& filename);
+    // Guardado
+    void saveInteractorsJSON(const std::string& filename) const;
+    
     
     // ------------------- GETTERS - SETTERS -------------------
     const vector<Interactor>& getInteractors() const;
@@ -84,7 +98,7 @@ public:
     
     // Modifica el valor de escala
     void setCurrentScale(float scale);
-    
+
 private:
     
     // Lista donde guardamos todos los suelos, paredes y botones

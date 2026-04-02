@@ -17,6 +17,7 @@
 		5236881C2F0EC64B0081284F /* GUIManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 523688122F0EC64A0081284F /* GUIManager.cpp */; };
 		5236881D2F0EC64B0081284F /* Movimiento.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 523688142F0EC64A0081284F /* Movimiento.cpp */; };
 		5236881E2F0EC64B0081284F /* SpriteSheetManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 523688162F0EC64B0081284F /* SpriteSheetManager.cpp */; };
+		5259EF562F7E567700CD94BA /* EditorManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5259EF542F7E567700CD94BA /* EditorManager.cpp */; };
 		526778342F3CABC500602434 /* Interactor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 526778322F3CABC500602434 /* Interactor.cpp */; };
 		"6417D9C0-BF5E-487C-AA24-D01A70CBF499" /* ofxColorPicker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = "D5ADAA56-1A7C-40EA-A4DF-CF5A40F4BC9A" /* ofxColorPicker.cpp */; };
 		"66C1B6AA-B694-4482-A14B-791B926BC294" /* ofxSliderGroup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = "1C06B888-6E4B-4F8B-9CD3-C8EFDE71804F" /* ofxSliderGroup.cpp */; };
@@ -82,6 +83,8 @@
 		523688152F0EC64B0081284F /* InputManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InputManager.h; sourceTree = "<group>"; };
 		523688162F0EC64B0081284F /* SpriteSheetManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpriteSheetManager.cpp; sourceTree = "<group>"; };
 		523688192F0EC64B0081284F /* GUIManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GUIManager.h; sourceTree = "<group>"; };
+		5259EF542F7E567700CD94BA /* EditorManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EditorManager.cpp; sourceTree = "<group>"; };
+		5259EF552F7E567700CD94BA /* EditorManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditorManager.h; sourceTree = "<group>"; };
 		526778322F3CABC500602434 /* Interactor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Interactor.cpp; sourceTree = "<group>"; };
 		526778332F3CABC500602434 /* Interactor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Interactor.h; sourceTree = "<group>"; };
 		"5D63D7C2-D2CD-4C09-8B4D-2EDEDFC3660D" /* ofxGuiGroup.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = ofxGuiGroup.cpp; path = ../../../addons/ofxGui/src/ofxGuiGroup.cpp; sourceTree = SOURCE_ROOT; };
@@ -242,25 +245,27 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				526778322F3CABC500602434 /* Interactor.cpp */,
-				526778332F3CABC500602434 /* Interactor.h */,
-				52088C612F34E60200E19091 /* CollisionManager.cpp */,
-				52088C602F34E60100E19091 /* CollisionManager.h */,
-				52088C622F34E60200E19091 /* PhysicsManager.cpp */,
-				52088C632F34E60200E19091 /* PhysicsManager.h */,
-				523688122F0EC64A0081284F /* GUIManager.cpp */,
-				523688192F0EC64B0081284F /* GUIManager.h */,
-				523688102F0EC64A0081284F /* InputManager.cpp */,
-				523688152F0EC64B0081284F /* InputManager.h */,
-				5236880F2F0EC64A0081284F /* MovementManager.cpp */,
-				523688132F0EC64A0081284F /* MovementManager.h */,
-				523688142F0EC64A0081284F /* Movimiento.cpp */,
-				5236880E2F0EC64A0081284F /* Movimiento.h */,
-				523688162F0EC64B0081284F /* SpriteSheetManager.cpp */,
-				523688112F0EC64A0081284F /* SpriteSheetManager.h */,
 				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
 				E4B69E1E0A3A1BDC003C02F2 /* ofApp.cpp */,
 				E4B69E1F0A3A1BDC003C02F2 /* ofApp.h */,
+				523688122F0EC64A0081284F /* GUIManager.cpp */,
+				523688192F0EC64B0081284F /* GUIManager.h */,
+				523688162F0EC64B0081284F /* SpriteSheetManager.cpp */,
+				523688112F0EC64A0081284F /* SpriteSheetManager.h */,
+				5236880F2F0EC64A0081284F /* MovementManager.cpp */,
+				523688132F0EC64A0081284F /* MovementManager.h */,
+				52088C622F34E60200E19091 /* PhysicsManager.cpp */,
+				52088C632F34E60200E19091 /* PhysicsManager.h */,
+				52088C612F34E60200E19091 /* CollisionManager.cpp */,
+				52088C602F34E60100E19091 /* CollisionManager.h */,
+				523688102F0EC64A0081284F /* InputManager.cpp */,
+				523688152F0EC64B0081284F /* InputManager.h */,
+				5259EF542F7E567700CD94BA /* EditorManager.cpp */,
+				5259EF552F7E567700CD94BA /* EditorManager.h */,
+				526778322F3CABC500602434 /* Interactor.cpp */,
+				526778332F3CABC500602434 /* Interactor.h */,
+				523688142F0EC64A0081284F /* Movimiento.cpp */,
+				5236880E2F0EC64A0081284F /* Movimiento.h */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;
@@ -373,6 +378,7 @@
 				"F33F8341-0C0D-4AA9-81BE-487CBCAB33EE" /* ofxButton.cpp in Sources */,
 				"6417D9C0-BF5E-487C-AA24-D01A70CBF499" /* ofxColorPicker.cpp in Sources */,
 				"BE421A85-FE62-4538-AB3B-4D7E64E2D4D3" /* ofxGuiGroup.cpp in Sources */,
+				5259EF562F7E567700CD94BA /* EditorManager.cpp in Sources */,
 				52088C642F34E60200E19091 /* CollisionManager.cpp in Sources */,
 				5236881C2F0EC64B0081284F /* GUIManager.cpp in Sources */,
 				"BEBCBEE7-6E5D-4630-A822-E3B1F342DD57" /* ofxInputField.cpp in Sources */,

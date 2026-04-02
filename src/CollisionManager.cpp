@@ -4,7 +4,7 @@
 // #include "SpriteSheetManager.h"
 
 // *** SETUP ***
-void CollisionManager::setup(float regionW, float regionH) {
+void CollisionManager::setup(float regionW, float regionH, std::string filename) {
     
     // *** HITBOX BASE, valores sin escalar ***
     baseHitbox.width = regionW + 87;  // Mayor que la region, para no traspasar si la frenada tiene que llegar a un PS lejano
@@ -18,12 +18,9 @@ void CollisionManager::setup(float regionW, float regionH) {
     // Debemos dar valor a las hitbox de trabajo con la escala inicial
     updateScaledHitbox();
     
-    
-    // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
-    // HACER UNA FUNCION DE SETUP PARA INTERACTORS?
-    // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-    
+
     // *** INTERACTORS ***
+    /*
     // 1. Definimos el suelo (desde la esquina inferior izquierda a la derecha)
     interactors.push_back(Interactor(
         ofVec2f(0, 800),            // Punto inicial (0, alto)
@@ -50,6 +47,12 @@ void CollisionManager::setup(float regionW, float regionH) {
         "actLimitR",
         regionW
     ));
+    */
+    loadInteractorsJSON(filename);
+    // AJUSTE VALORES LIMITES BASE
+    applyMandatorySettings(regionW, regionH);
+    
+
     /*
     // PRUEBA PARED INTERMEDIA
     interactors.push_back(Interactor(
@@ -67,6 +70,14 @@ void CollisionManager::setup(float regionW, float regionH) {
         InteractorType::SURFACE,              // Es un SUELO
         "prova_surf"
     ));*/
+}
+
+void CollisionManager::applyMandatorySettings(float regionW, float regionH) {
+    for (auto & inter : interactors) {
+        if (inter.name == "FLOOR_BASE") inter.p2.x = ofGetWidth();
+        if (inter.name == "LIMIT_LEFT") { inter.p2.y = ofGetHeight(); inter.influenceRadius = 300; } // Ejemplo
+        if (inter.name == "LIMIT_RIGHT") { inter.p2.y = ofGetHeight(); inter.influenceRadius = 300; }
+    }
 }
 
 void CollisionManager::update() {
@@ -238,6 +249,27 @@ CollisionResult CollisionManager::checkCollisions(ofVec2f currentPos, ofVec2f ve
     return result;
 }
     
+// *** MÉTODOS DE EDICIÓN ***
+// Añade un nuevo interactor a la colección
+void CollisionManager::addInteractor(const Interactor& inter) {
+    interactors.push_back(inter);
+    ofLogNotice("CollisionManager") << "Nuevo interactor añadido: " << inter.name;
+}
+
+void CollisionManager::removeInteractor(string name) {
+    // Buscamos el elemento cuyo nombre coincida
+    auto it = std::remove_if(interactors.begin(), interactors.end(), [&](const Interactor& inter) {
+        return inter.name == name;
+    });
+
+    // Si lo encontramos, lo borramos del vector
+    if (it != interactors.end()) {
+        interactors.erase(it, interactors.end());
+        ofLogNotice("CollisionManager") << "Interactor eliminado: " << name;
+    } else {
+        ofLogWarning("CollisionManager") << "No se pudo eliminar: " << name << " (no encontrado)";
+    }
+}
 
 // *** ACTUALIZA VALORES DE TRABAJO SEGUN ESCALA ***
 void CollisionManager::updateScaledHitbox() {
@@ -391,6 +423,53 @@ void CollisionManager::drawFloorHighlight(const Interactor& inter) {
     float h = 10.0f; // Los 10 píxeles de grosor que pediste
     
     ofDrawRectangle(x, y, w, h);
+}
+
+
+// *** JSON INTERACTORS ***
+// *** CARGA ***
+void CollisionManager::loadInteractorsJSON(const std::string& filename) {
+    ofFile file(filename);
+    if (!file.exists()) {
+        ofLogError("CollisionManager") << "No se pudo encontrar " << filename;
+        return;
+    }
+
+    ofJson json = ofLoadJson(filename);
+    interactors.clear(); // Limpiamos los actuales
+
+    for (auto & jInter : json) {
+        Interactor inter;
+        inter.name = jInter["name"];
+        inter.type = (InteractorType)jInter["type"];
+        inter.p1.set(jInter["p1"]["x"], jInter["p1"]["y"]);
+        inter.p2.set(jInter["p2"]["x"], jInter["p2"]["y"]);
+        inter.influenceRadius = jInter["influenceRadius"];
+        inter.hit = false;
+        inter.gui = false;
+        
+        interactors.push_back(inter);
+    }
+    ofLogNotice("CollisionManager") << "Interactors cargados: " << interactors.size();
+}
+// *** GUARDADO ***
+void CollisionManager::saveInteractorsJSON(const std::string& filename) const {
+    ofJson json = ofJson::array();
+
+    for (const auto & inter : interactors) {
+        ofJson jInter;
+        jInter["name"] = inter.name;
+        jInter["type"] = (int)inter.type;
+        jInter["p1"] = { {"x", inter.p1.x}, {"y", inter.p1.y} };
+        jInter["p2"] = { {"x", inter.p2.x}, {"y", inter.p2.y} };
+        jInter["influenceRadius"] = inter.influenceRadius;
+        
+        json.push_back(jInter);
+    }
+
+    if (ofSaveJson(filename, json)) {
+        ofLogNotice("CollisionManager") << "Archivo guardado con éxito: " << filename;
+    }
 }
 
 // ------------------- GETTERS - SETTERS -------------------

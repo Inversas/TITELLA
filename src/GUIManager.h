@@ -5,20 +5,42 @@
 // Necesitamos acceder a Interactor
 #include "CollisionManager.h"
 
+
 // Forward Delcarations
 class MovementManager;
 class SpriteSheetManager;
 class InputManager;
 class PhysicsManager;
+class EditorManager;
+
+// ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
+// El iconito de guardado de la GUI reescribe el archivo settings.xml de la carpeta data
+// Ese archivo se carga por defecto al ejectuar el programa
+// El iconito de cargar (flechas circulares) carga settings.xml
+// ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
+
+
 
 // ****************************************** CLASE GUI MANAGER ******************************************
 class GUIManager {
 public:
     // DESTRUCTOR (lleva la virgulilla ~)
     ~GUIManager();
-    void setup(MovementManager& movementManager, SpriteSheetManager& spriteSheetManager, InputManager& inputManager, PhysicsManager& phisicsManager, CollisionManager& collisionManager);
+    void setup(MovementManager& movementManager, SpriteSheetManager& spriteSheetManager, InputManager& inputManager, PhysicsManager& phisicsManager, CollisionManager& collisionManager, EditorManager& editorManager);
     void update();
     void draw();
+    void drawEdit();
+
+    // *** ACTUALIZAR BOTONES DE INTERACTORS ***
+    void updateInteractorsGroup();
+
+    void setMaximizeInteractors();
+    void setMinimizeInteractors();
+    
+    // *** CARGA SETTINGS ESPECIFICO ***
+    void loadSettingsFromFile(const std::string& path);
+    // *** GUARDA SETTINGS ESPECIFICO ***
+    void saveSettingsToFile(const string& path);
     
 
 private:
@@ -74,10 +96,9 @@ private:
     // ==========================================
     // Usamos punteros normales para evitar conflictos con addListener
     vector<ofxToggle*> dynamicButtons;
-    // *** ACTUALIZAR BOTONES DE INTERACTORS ***
-    void updateInteractorsGroup(ofxGuiGroup &group);
+
     // *** AÑADIR BOTON A INTEREACTORS ***
-    void addDynamicButton(string name);
+    void addDynamicButton(string name, int indiceBoton);
     // *** ELIMINAR BOTONES DE INTEREACTORS ***
     void clearDynamicButtons();
     // *** PONER TODOS LOS INTERACTORS A FALSE ***
@@ -108,6 +129,7 @@ private:
     InputManager* inputManager;             // Añadimos una referencia a InputManager
     PhysicsManager* physicsManager;         // Añadimos una referencia a P
     CollisionManager* collisionManager;     // Añadimos una referencia a CollisionManagercsManager
+    EditorManager* editorManager;           // Añadimos una referencia a EditorManager
     
 
     // *** CALLBACKS *** //

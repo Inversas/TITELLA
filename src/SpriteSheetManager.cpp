@@ -9,10 +9,20 @@ void SpriteSheetManager::setCollisionManager(CollisionManager* collision) {
 // *** CARGA DE IMAGENES DE SPRITE ***
 // Carga la hoja de sprites dado su nombre, usado al cargar el JSON en MovementManager
 bool SpriteSheetManager::loadSpriteSheet(const std::string& filename) {
-    // Comprobamos si ya está cargada
-    if (spriteSheets.find(filename) != spriteSheets.end()) {
-        return true; // Ya existe, no hace falta cargarla de nuevo
+    // VERSIÓN DEBUG
+    string filename_debug = "";
+    if (filename.length() > 4) {
+        // Tomamos todo menos los últimos 4 caracteres (".png")
+        filename_debug = filename.substr(0, filename.length() - 4);
+        // añadimos debug y la extension
+        filename_debug = filename_debug + "_debug.png";
     }
+    
+    // Comprobamos si ya están cargadas
+    if (spriteSheets.find(filename) != spriteSheets.end() && spriteSheets.find(filename_debug) != spriteSheets.end()) {
+        return true; // Ya existen, no hace falta cargarlas de nuevo
+    }
+    
 
     // Si no existe, intentamos cargarla
     ofImage newSheet;
@@ -20,10 +30,15 @@ bool SpriteSheetManager::loadSpriteSheet(const std::string& filename) {
         // La guardamos en el mapa usando el nombre como llave
         spriteSheets[filename] = newSheet;
         ofLogNotice("SpriteSheetManager") << "Cargada nueva hoja: " << filename;
+        if (newSheet.load(filename_debug)) {
+            // La guardamos en el mapa usando el nombre como llave
+            spriteSheets[filename_debug] = newSheet;
+            ofLogNotice("SpriteSheetManager") << "Cargada nueva hoja: " << filename_debug;
+        }
         return true;
     }
 
-    ofLogError("SpriteSheetManager") << "Error al cargar el archivo: " << filename;
+    ofLogError("SpriteSheetManager") << "Error al cargar el archivo: " << filename  << " o " << filename_debug;
     return false;
 }
 
@@ -31,8 +46,21 @@ bool SpriteSheetManager::loadSpriteSheet(const std::string& filename) {
 // Dibuja una región específica de la hoja de sprites
 void SpriteSheetManager::draw(float x, float y, int row, int region, bool isFacingRight, const string& sheetName, bool debug) {
     
-    // Identificamos y recuperamos el archivo imagen del movimiento actual
-    ofImage& spriteSheet = spriteSheets[sheetName];
+    // ************************ DEBUG ************************
+    // Cambiamos el sheetNamesegun su versión debug
+    string spriteSheetName = sheetName;
+    if(debug){
+        if (sheetName.length() > 4) {
+            // Tomamos todo menos los últimos 4 caracteres (".png")
+            string base = sheetName.substr(0, sheetName.length() - 4);
+            // Retornamos la base + el sufijo + la extensión
+            spriteSheetName = base + "_debug.png";
+        }
+    }
+    
+    // ARCHIVO IMAGEN A USAR
+    ofImage& spriteSheet = spriteSheets[spriteSheetName];
+
     
     // ************************ DEBUG ************************
     if (debug) {

@@ -10,6 +10,7 @@
 #include "CollisionManager.h"
 #include "GUIManager.h"
 #include "InputManager.h"
+#include "EditorManager.h"
 
 
 // Clase principal que gestiona la aplicación
@@ -50,6 +51,8 @@ private:
     // Gestor de GUI ^^^^^^^^^^^^^
     GUIManager guiManager;
     
+    // Gestor de Modo Edición
+    EditorManager editorManager;
     
     
     
