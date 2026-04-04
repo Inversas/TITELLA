@@ -7,9 +7,6 @@
 
 using namespace std;
 
-// Lo comento porque podríamos eliminarlo
-// class SpriteSheetManager;
-
 // +++++++++++++ STRUCT +++++++++++++
 // HITBOX DATA
 struct HitboxData {
@@ -56,6 +53,8 @@ public:
     // *** SETUP ***
     // Inicializa los límites, el suelo y el HitboxData
     void setup(float regionW, float regionH, std::string filename);
+    // *** AJUSTE VALORES LIMITES BASE (FLOOR_BASE, LIMIT_LEFT, LIMIT_RIGHT) ***
+    // Algunos valores dependen de la ventana o la el tamaño de region
     void applyMandatorySettings(float regionW, float regionH);
     
     void update();

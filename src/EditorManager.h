@@ -41,10 +41,10 @@ public:
     // Elimina un interactor y refresca la GUI
     void deleteInteractor(string name);
     
-    // Calcula el punto con imán (Snap) hacia otros interactores
+    // *** PUNTO DE IMAN ***
     ofVec2f getSnappedPoint(ofVec2f rawPos);
     
-    // Aplica la restricción de ejes (Horizontal / Vertical)
+    // *** RESTRICCION HORIZOTNAL / VERTICAL ***
     ofVec2f applyAxialRestriction(ofVec2f start, ofVec2f end);
     
 
@@ -56,12 +56,9 @@ public:
     EditorState getState() const;
     bool hasPendingChanges() const;
 
-    
     // *** SETTERS ***
     void setEnabled(bool value);
     void setChangesProcessed();
-
-    
 
 private:
     
@@ -71,10 +68,12 @@ private:
     CollisionManager* collisionManager;
     GUIManager* guiManager;
 
-    // Estado interno
-    bool bEnabled;
+    // Encendido / Apagado del editor
+    bool editMode;
+    // Waiting P1 o P2
     EditorState currentState;
-    bool bNeedsGuiUpdate; // Flag para avisar a ofApp que debe refrescar la GUI
+    // Flag para avisar a ofApp que debe refrescar la GUI
+    bool bNeedsGuiUpdate;
 
     // Puntos de geometría
     ofVec2f p1;              // Punto de origen fijado
@@ -89,5 +88,4 @@ private:
     // *** MÉTODOS INTERNOS ***
     // Helper para generar nombres únicos de interactores (ej: "Wall_1", "Wall_2")
     string generateUniqueName(InteractorType type);
-
 };

@@ -77,6 +77,7 @@ void ofApp::draw() {
     
     // >>>>>>>>>>>> COLISIONES >>>>>>>>>>>>
     if(showInteractors){
+        // ************************ DEBUG ************************
         collisionManager.draw();
     }
     
@@ -110,83 +111,97 @@ void ofApp::draw() {
 
 
 void ofApp::keyPressed(int key) {
+    // [ TECLA CMD ] - Presionada
     bool modifier = ofGetKeyPressed(OF_KEY_COMMAND);
     
-    // Si es una "D"
+    // [ TECLA D ] - [ DEBUG MODE ]
     if (key == 100) {
         setToggleDebug(!debug);
         setToggleEditMode(false);
         guiManager.setMinimizeInteractors();
+        guiManager.setNameInteractorsGroup("INERACTORS DETECT");
     }
-    // Si es una "I"
-    if (key == 105) {
-        setToggleShowInteractors(!showInteractors);
-    }
-    // Si es una "E"
+    // [ TECLA E ] - [ EDIT MODE ]
     if (key == 101) {
         setToggleEditMode(!editMode);
         setToggleDebug(false);
         guiManager.setMaximizeInteractors();
-
+        guiManager.setNameInteractorsGroup("INERACTORS EDIT");
+    }
+    // [ TECLA I ] - [ SHOW INTERACTORS ]
+    if (key == 105) {
+        setToggleShowInteractors(!showInteractors);
     }
     
+    // [ CMD + L ] - [ LOAD ]
     if (modifier && (key == 'l' || key == 'L')) {
+        // [ LOAD SETTINGS ]
         if (debug){
             // CARGAMOS SETTINGS
             ofFileDialogResult loadFileResult = ofSystemLoadDialog("Seleccionar archivo de Settings (.xml)", false);
-                        
+            // Si se carga correctamente
             if (loadFileResult.bSuccess) {
+                // Cargamos archivo seleccionado
                 guiManager.loadSettingsFromFile(loadFileResult.getPath());
+                
+                ofLogNotice("App") << "GUI settings cargados correctamente.";
             }
-
         }
+        // [ LOAD INTERACTORS ]
         else if (editMode){
             // CARGAMOS INTERACTORS
             ofFileDialogResult loadFileResult = ofSystemLoadDialog("Seleccionar archivo de Interactors (.json)", false);
-            
+            // Si se carga correctamente
             if (loadFileResult.bSuccess) {
-                // Cargamos los datos en el manager de colisiones
+                // Cargamos archivo seleccionado
                 collisionManager.loadInteractorsJSON(loadFileResult.getPath());
+                // AJUSTE VALORES LIMITES BASE
                 collisionManager.applyMandatorySettings(spriteSheetManager.getRegionWidth(), spriteSheetManager.getRegionHeight());
-                
                 // Refrescamos la lista de botones en la GUI
                 guiManager.updateInteractorsGroup();
                 
-                ofLogNotice("App") << "Nivel de interactores cargado correctamente.";
+                ofLogNotice("App") << "Interactoress cargados correctamente.";
             }
         }
     }
     
-    // Detectamos si 's' o 'S' está presionada junto con la tecla de sistema (Command)
+    // [ CMD + S ] - [ SAVE ]
     if (modifier && (key == 's' || key == 'S')) {
+        // [ SAVE SETTINGS ]
         if (debug){
-            // GUARDAMOS SETTINGS
+            // GUARDAR COMO SETTINGS
             // Abrimos el diálogo para que el usuario elija nombre y carpeta
             ofFileDialogResult saveResult = ofSystemSaveDialog("settings.xml", "Exportar ajustes de la GUI (.xml)");
-            
+            // Si se carga correctamente
             if (saveResult.bSuccess) {
+                // Guardamos archivo seleccionado
                 guiManager.saveSettingsToFile(saveResult.getPath());
+                
                 ofLogNotice("App") << "Configuración guardada en: " << saveResult.getPath();
             }
-
         }
+        // [ SAVE INTERACTORS ]
         else if (editMode){
-            // GUARDAMOS INTERACTORS
+            // SOBREESCRIBIMOS ARCHIVO BASE INTERACTORS
             collisionManager.saveInteractorsJSON("interactors.json");
+            
             ofLogNotice("App") << "Guardado manual solicitado por el usuario.";
         }
     }
     
+    // [ BACKSPACE ] - [ CLEAR INTERACTOR CREATION ]
     if (editMode) {
         // GESTIONAR BACKSPACE PARA CANCELAR CREACIÓN
         editorManager.handleKeyPressed(key);
     }
     
+    // £££££££££££££ INPUT £££££££££££££
     // Maneja la pulsación de una tecla
     inputManager.keyPressed(key);
 }
 
 void ofApp::keyReleased(int key) {
+    // £££££££££££££ INPUT £££££££££££££
     // Maneja la liberación de una tecla
     inputManager.keyReleased(key);
 }

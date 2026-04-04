@@ -2,6 +2,7 @@
 
 #include "ofMain.h"
 
+// FORWARD DECLARATIONS
 class CollisionManager;
 struct HitboxData;
 
@@ -10,11 +11,12 @@ struct HitboxData;
 class SpriteSheetManager {
     
 public:
+    
     // Usamos * (Puntero) "puede o no" tener un Manager de colisiones, queremos poder asignarlo después del setup. (Tipo puntero)
     // Usarías & (Referencia) si fuera absolutamente imposible que el Sprite existiera sin el CollisionManager. (Dirección de)
     void setCollisionManager(CollisionManager* collision);
     
-    // Carga la hoja de sprites desde un archivo, usado al cargar el JSON en MovementManager
+    // Carga la hoja de sprites desde un archivo, esta función se llama en MovementManager al cargar el JSON de movimientos
     bool loadSpriteSheet(const std::string& filename);
     
     

@@ -95,3 +95,4 @@ private:
     // Redondea a un decimal limpio
     float cleanFloat(float value);
 };
+

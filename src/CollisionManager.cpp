@@ -1,15 +1,12 @@
 #include "CollisionManager.h"
 
-// Lo comento porque podríamos eliminarlo
-// #include "SpriteSheetManager.h"
-
 // *** SETUP ***
 void CollisionManager::setup(float regionW, float regionH, std::string filename) {
     
     // *** HITBOX BASE, valores sin escalar ***
-    baseHitbox.width = regionW + 87;  // Mayor que la region, para no traspasar si la frenada tiene que llegar a un PS lejano
-    baseHitbox.height = regionH;      // 300px
-    baseHitbox.floorRayX = regionW/2;         // Posición horizontal del rayo de detección del suelo (ajustable por GUI)
+    baseHitbox.width = regionW + 87;      // Mayor que la region, para no traspasar si la frenada tiene que llegar a un PS lejano
+    baseHitbox.height = regionH;          // 300px
+    baseHitbox.floorRayX = regionW/2;     // Posición horizontal del rayo de detección del suelo (ajustable por GUI)
     baseHitbox.regionW = regionW;         // Guardamos el ancho de la región para usarlo en los cálculos de colisión
     baseHitbox.regionH = regionH;         // Guardamos la altura de la región para usarlo en los cálculos de colisión
     
@@ -18,70 +15,22 @@ void CollisionManager::setup(float regionW, float regionH, std::string filename)
     // Debemos dar valor a las hitbox de trabajo con la escala inicial
     updateScaledHitbox();
     
-
-    // *** INTERACTORS ***
-    /*
-    // 1. Definimos el suelo (desde la esquina inferior izquierda a la derecha)
-    interactors.push_back(Interactor(
-        ofVec2f(0, 800),            // Punto inicial (0, alto)
-        ofVec2f(ofGetWidth(), 800), // Punto final (ancho, alto)
-        InteractorType::SURFACE,              // Es un SUELO
-        "actGround"
-    ));
-
-    // 2. Definimos el límite izquierdo (pared vertical en x = 0)
-    interactors.push_back(Interactor(
-        ofVec2f(0, 0),             // Punto inicial (arriba)
-        ofVec2f(0, ofGetHeight()), // Punto final (abajo)
-        InteractorType::WALL,      // Es una PARED
-        "actLimitL",
-        regionW
-
-    ));
-
-    // 3. Definimos el límite derecho (pared vertical en x = ancho)
-    interactors.push_back(Interactor(
-        ofVec2f(1200, 0),             // Punto inicial (arriba)
-        ofVec2f(1200, ofGetHeight()), // Punto final (abajo)
-        InteractorType::WALL,                 // Es una PARED
-        "actLimitR",
-        regionW
-    ));
-    */
+    // *** JSON INTERACTORS - LOAD ***
     loadInteractorsJSON(filename);
     // AJUSTE VALORES LIMITES BASE
     applyMandatorySettings(regionW, regionH);
-    
-
-    /*
-    // PRUEBA PARED INTERMEDIA
-    interactors.push_back(Interactor(
-    ofVec2f(700, 500),             // Punto inicial (arriba)
-    ofVec2f(700, 800), // Punto final (abajo)
-    InteractorType::WALL,                 // Es una PARED
-    "prova_wall",
-    regionW
-     ));
-
-    // PRUEBA SUELO INTERMEDIO
-    interactors.push_back(Interactor(
-        ofVec2f(300, 500),            // Punto inicial (0, alto)
-        ofVec2f(700, 500), // Punto final (ancho, alto)
-        InteractorType::SURFACE,              // Es un SUELO
-        "prova_surf"
-    ));*/
 }
 
 void CollisionManager::applyMandatorySettings(float regionW, float regionH) {
     for (auto & inter : interactors) {
         if (inter.name == "FLOOR_BASE") inter.p2.x = ofGetWidth();
-        if (inter.name == "LIMIT_LEFT") { inter.p2.y = ofGetHeight(); inter.influenceRadius = 300; } // Ejemplo
+        if (inter.name == "LIMIT_LEFT") { inter.p2.y = ofGetHeight(); inter.influenceRadius = 300; }
         if (inter.name == "LIMIT_RIGHT") { inter.p2.y = ofGetHeight(); inter.influenceRadius = 300; }
     }
 }
 
 void CollisionManager::update() {
-    // Aquí irá la lógica de comprobación más adelante
+    // ?????
 }
 
 void CollisionManager::draw() {
@@ -89,7 +38,6 @@ void CollisionManager::draw() {
 }
 
 void CollisionManager::drawInteractors() {
-    
     // Recorremos todos los interactores
     for (auto &inter : interactors) {
         
@@ -131,6 +79,11 @@ void CollisionManager::drawInteractors() {
         }
     }
     
+    // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
+    // DEBUG HIGHLIGHT
+    // SEPARAR TEXTO DE WALLS EN OTRA FUNCION?
+    // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+    
     // ************************ DEBUG2 (Podría ser una opción dentro de debug activado, ahora interactors con higlights o nada) ************************
     // DRAW los nombres moviendo el texto según la pared
     // Texto en blanco
@@ -139,17 +92,19 @@ void CollisionManager::drawInteractors() {
         float textX = inter.p1.x;
         // Bajamos un poco el texto para que no pise el borde superior
         float textY = inter.p1.y + 20;
-
-        if (inter.name == "actLimitR") {
-            // Si es la pared derecha, movemos el texto a la izquierda de la línea
+        
+        // Si es el Limite Base Derecho
+        if (inter.name == "LIMIT_RIGHT") {
+            // Movemos el texto a la IZQUIERDA de la línea
             // Restamos unos 80 píxeles (aprox. lo que ocupa la palabra)
             textX = inter.p1.x - 85;
         }
+        // Todas las demás, a la DERACHA
         else {
             // Para el suelo y la pared izquierda, lo movemos un poco a la derecha
             textX = inter.p1.x + 10;
         }
-
+        // DIBUJAR TEXTO
         ofDrawBitmapString(inter.name, textX, textY);
     }
 }
@@ -245,26 +200,33 @@ CollisionResult CollisionManager::checkCollisions(ofVec2f currentPos, ofVec2f ve
     
     // Guardamos una copia
     lastResult = result;
-    // Aunque lohemos guardado, devolvemos el resultado
+    // Aunque lo hemos guardado, devolvemos el resultado
     return result;
 }
     
 // *** MÉTODOS DE EDICIÓN ***
 // Añade un nuevo interactor a la colección
 void CollisionManager::addInteractor(const Interactor& inter) {
+    // Añadimos el interactor que llega al vector de interactores
     interactors.push_back(inter);
     ofLogNotice("CollisionManager") << "Nuevo interactor añadido: " << inter.name;
 }
-
+// Elimina interactor de la colección, por nombre
 void CollisionManager::removeInteractor(string name) {
-    // Buscamos el elemento cuyo nombre coincida
+    // std::remove_if recorre el vector y "mueve" los elementos que NO queremos borrar al principio
+    // Los que SI coinciden con el nombre, los deja al final en un estado "inválido"
+    // 'it' es un iterador que marca dónde empiezan esos elementos que queremos descartar
     auto it = std::remove_if(interactors.begin(), interactors.end(), [&](const Interactor& inter) {
+        // Esta es la condición (lambda): si el nombre coincide, "márcalo" para quitarlo.
         return inter.name == name;
     });
 
-    // Si lo encontramos, lo borramos del vector
+    // Si 'it' no llegó al final (.end()), significa que encontró al menos un elemento que coincide
     if (it != interactors.end()) {
+        // .erase corta físicamente el vector desde la posición 'it' hasta el final.
+        // Aquí es donde el vector realmente reduce su tamaño (size).
         interactors.erase(it, interactors.end());
+        
         ofLogNotice("CollisionManager") << "Interactor eliminado: " << name;
     } else {
         ofLogWarning("CollisionManager") << "No se pudo eliminar: " << name << " (no encontrado)";
@@ -279,7 +241,6 @@ void CollisionManager::updateScaledHitbox() {
     currentHitbox.height  = baseHitbox.height * currentScale;
     currentHitbox.floorRayX = baseHitbox.floorRayX * currentScale;
 }
-
 
 // *** CACULA SENSORES FUTUROS ***
 //Traduce las coordenadas locales del personaje al mundo real.
@@ -361,17 +322,6 @@ bool CollisionManager::checkFloorCollision(Interactor& inter, const SensorState&
     return false;
 }
 
-// |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
-// Actualmente la pared es un "láser infinito" en Y.
-// Para muros finitos, habrá que comprobar si el rango vertical del personaje
-// (usando su altura de Hitbox) se solapa con el segmento Y de la pared (p1.y a p2.y).
-
-//Paredes: Tu idea de usar el "alto del HitWall" es la clave.
-//Básicamente, será comparar si los pies del personaje están por debajo del "techo" del muro y su cabeza por encima de la "base" del muro.
-
-// ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-
-
 // *** CHECK WALL COLLISION ***
 // Verifica si el sensor lateral ha invadido el espacio de una pared.
 // Detecta si una pared bloquea el avance hacia la DERECHA
@@ -429,17 +379,27 @@ void CollisionManager::drawFloorHighlight(const Interactor& inter) {
 // *** JSON INTERACTORS ***
 // *** CARGA ***
 void CollisionManager::loadInteractorsJSON(const std::string& filename) {
+    
+    // Intentamos abrir el archivo
     ofFile file(filename);
+    
+   // Si no existe, salimos
     if (!file.exists()) {
         ofLogError("CollisionManager") << "No se pudo encontrar " << filename;
         return;
     }
-
+    
+    // Leemos el contenido del archivo y lo volcamos en la variable 'json'
     ofJson json = ofLoadJson(filename);
-    interactors.clear(); // Limpiamos los actuales
+    // Limpiamos los actuales
+    interactors.clear();
 
+    // Recorremos los interactores del JSON
     for (auto & jInter : json) {
+        // Objeto temporal vacío
         Interactor inter;
+        
+        // Asignamos las valores a las claves
         inter.name = jInter["name"];
         inter.type = (InteractorType)jInter["type"];
         inter.p1.set(jInter["p1"]["x"], jInter["p1"]["y"]);
@@ -448,8 +408,10 @@ void CollisionManager::loadInteractorsJSON(const std::string& filename) {
         inter.hit = false;
         inter.gui = false;
         
+        // Añadimos este objeto individual dentro de la lista de interactores
         interactors.push_back(inter);
     }
+    
     ofLogNotice("CollisionManager") << "Interactors cargados: " << interactors.size();
 }
 
@@ -490,12 +452,14 @@ void CollisionManager::loadInteractorsJSON(const std::string& filename) {
  ofLogNotice("CollisionManager") << "Interactors cargados: " << interactors.size();
 }*/
 
-
 // *** GUARDADO ***
 void CollisionManager::saveInteractorsJSON(const std::string& filename) const {
+    // Preparamos una lista (array) de JSON vacía
     ofJson json = ofJson::array();
 
+    // Recorremos los interactores existentes
     for (const auto & inter : interactors) {
+        // Objeto JSON temporal (jInter) y asignamos las claves y valores
         ofJson jInter;
         jInter["name"] = inter.name;
         jInter["type"] = (int)inter.type;
@@ -503,9 +467,11 @@ void CollisionManager::saveInteractorsJSON(const std::string& filename) const {
         jInter["p2"] = { {"x", inter.p2.x}, {"y", inter.p2.y} };
         jInter["influenceRadius"] = inter.influenceRadius;
         
+        // Añadimos este objeto individual dentro de la lista principal JSON.
         json.push_back(jInter);
     }
 
+    // ofSaveJson toma toda esa estructura y la escribe físicamente en el archivo
     if (ofSaveJson(filename, json)) {
         ofLogNotice("CollisionManager") << "Archivo guardado con éxito: " << filename;
     }
@@ -540,7 +506,7 @@ void CollisionManager::setHitRayXFloor(float x) {
 void CollisionManager::setInteractorGUI(string name, bool state){
     // Recorremos los interactors acutales
     for (auto &inter : interactors) {
-        //Al encontrarlo, actualizamos el parametro "gui"
+        // Al encontrarlo, actualizamos el parametro "gui"
         if(inter.name == name){
             inter.gui = state;
         }

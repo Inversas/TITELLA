@@ -176,8 +176,3 @@ std::string InputManager::getIntentsAsString() const {
         
     return result;
 }
-
-
-
-
-

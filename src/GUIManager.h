@@ -26,6 +26,7 @@ class GUIManager {
 public:
     // DESTRUCTOR (lleva la virgulilla ~)
     ~GUIManager();
+    
     void setup(MovementManager& movementManager, SpriteSheetManager& spriteSheetManager, InputManager& inputManager, PhysicsManager& phisicsManager, CollisionManager& collisionManager, EditorManager& editorManager);
     void update();
     void draw();
@@ -33,7 +34,7 @@ public:
 
     // *** ACTUALIZAR BOTONES DE INTERACTORS ***
     void updateInteractorsGroup();
-
+    void setNameInteractorsGroup(const string& groupName);
     void setMaximizeInteractors();
     void setMinimizeInteractors();
     
@@ -102,7 +103,7 @@ private:
     // *** ELIMINAR BOTONES DE INTEREACTORS ***
     void clearDynamicButtons();
     // *** PONER TODOS LOS INTERACTORS A FALSE ***
-    void resetInteractors();
+    void resetInteractorsButtons();
     
     // ==========================================
     // 4. LIVE (Parámetros de estado actuales)

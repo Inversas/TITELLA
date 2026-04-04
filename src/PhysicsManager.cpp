@@ -212,4 +212,3 @@ float PhysicsManager::cleanFloat(float value) {
     
     return value; // Si no hay "ruido", devolvemos el original
 }
-

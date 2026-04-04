@@ -68,3 +68,4 @@ private:
     // Traduce las teclas físicas y la pila a intenciones (InputState)
     void updateInputState();
 };
+
