@@ -3,7 +3,18 @@
 
 #include "ofMain.h" // Necesario para ofVec2f y funciones matemáticas básicas
 
+// !!! MOTIVO NO forward declarations !!!
+// Necesitamos 'CollisionManager.h' porque usamos el enum 'InteractorType' en los métodos públicos.
+// Los enums requieren conocer su definición completa.
+// Al no haber una dependencia circular (la GUI no incluye al Editor en su .h), no es vital el Forward Declaration
+// Ahora mismo podríamos no ponerlo porque vive en GUIManager.h, pero lo hacemos por la Regla de la "Autosuficiencia"
+// Un archivo .h debe ser capaz de explicar por sí mismo qué necesita para funcionar, sin depender de la "caridad" de otros archivos.
+// Si en el futuro GUIManager ya no tiene CollisionManager, esto aquí nos garantiza que no se rompa.
 #include "CollisionManager.h"
+
+// Incluimos 'GUIManager.h' porque el EditorManager actúa como puente directo con la interfaz
+// y no existe riesgo de dependencia circular.
+// Además, GUIManager ya trae consigo las definiciones de colisiones que usamos.
 #include "GUIManager.h"
 
 // Definimos los estados posibles de la edición
@@ -17,9 +28,11 @@ enum EditorState {
 class EditorManager {
     
 public:
-    // CONSTRUCTOR
+    // !!! MOTIVO CONSTR / DESTR !!!
+    // Usamos Punteros Simples
+    // *** CONSTRUCTOR ***
     EditorManager();
-    // DESTRUCTOR
+    // *** DESTRUCTOR ***
     ~EditorManager();
     
     // *** SETUP ***

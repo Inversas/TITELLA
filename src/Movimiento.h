@@ -22,7 +22,7 @@ struct Movement {
     float frameInterval;                  // Tiempo entre frames en segundos de este movimiento
     int target_frame;                     // Frame donde debe empezar el siguiente movimiento
     
-    // Constructor para inicializar un movimiento
+    // *** CONSTRUCTOR ***
     Movement(
              string name = "",            // Nombre del movimiento
              string spriteSheetName = "", // Nombre del archivo de la imagen SpriteSheet
@@ -32,4 +32,7 @@ struct Movement {
              float frameInterval = -0.1f,
              int target_frame = 0
              );
+    
+    // *** DESTRUCTOR ***
+    // En estos structs solo ensuciarían el código sin aportar beneficio real, ya que no usas new.
 };

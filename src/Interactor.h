@@ -24,7 +24,7 @@ struct Interactor {
     bool hit;              // Estado de contacto
     bool gui;              // Si la GUI pide destacarlo
 
-    // Constructor para inicializar un interactor (Estilo Movement)
+    // CONSTRUCTOR
     Interactor(
         ofVec2f p1 = ofVec2f(0,0),
         ofVec2f p2 = ofVec2f(0,0),
@@ -34,4 +34,7 @@ struct Interactor {
        bool hit = false,
        bool gui = false
     );
+    
+    // *** DESTRUCTOR ***
+    // En estos structs solo ensuciarían el código sin aportar beneficio real, ya que no usas new.
 };

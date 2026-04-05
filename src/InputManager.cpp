@@ -1,5 +1,34 @@
 #include "InputManager.h"
 
+// *** CONSTRUCTOR ***
+InputManager::InputManager() {
+    // Aunque std::set y std::vector nacen vacíos, los limpiamos explícitamente
+    pressedKeys.clear();
+    directionStack.clear();
+    
+    // Ponemos a cero la "foto" de intenciones
+    currentInputState.wantsLeft = false;
+    currentInputState.wantsRight = false;
+    currentInputState.wantsRun = false;
+    currentInputState.hasAnyDirection = false;
+
+    ofLogNotice("InputManager") << "Constructor: Estado de entrada inicializado.";
+}
+
+// *** DESTRUCTOR ***
+InputManager::~InputManager() {
+    // Al destruirse InputManager,
+    // pressedKeys y directionStack liberarán su memoria automáticamente.
+    
+    // Aun así, vaciamos los contenedores manualmente para asegurar que
+    // no quede ningún evento residual durante el proceso de apagado.
+    pressedKeys.clear();
+    directionStack.clear();
+
+    ofLogNotice("InputManager") << "Destructor: Teclas y pila de direcciones liberadas.";
+}
+
+
 // *** SETUP ***
 void InputManager::setup() {
     // Limpiamos el conjunto de teclas y el conjunto de direcciones por seguridad al iniciar

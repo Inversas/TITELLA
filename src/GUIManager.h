@@ -6,12 +6,14 @@
 #include "CollisionManager.h"
 
 
-// Forward Delcarations
+// !!! MOTIVO FORWARD DECLARATIONS !!!
+// Solo usamos punteros a los Managers
 class MovementManager;
 class SpriteSheetManager;
 class InputManager;
 class PhysicsManager;
 class EditorManager;
+
 
 // ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
 // El iconito de guardado de la GUI reescribe el archivo settings.xml de la carpeta data
@@ -20,11 +22,14 @@ class EditorManager;
 // ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
 
 
-
 // ****************************************** CLASE GUI MANAGER ******************************************
 class GUIManager {
 public:
-    // DESTRUCTOR (lleva la virgulilla ~)
+    // !!! MOTIVO CONSTR / DESTR !!!
+    // Usamos muchos Punteros y uso de memoria dinámica.
+    // *** CONSTRUCTOR ***
+    GUIManager();
+    // *** DESTRUCTOR ***
     ~GUIManager();
     
     void setup(MovementManager& movementManager, SpriteSheetManager& spriteSheetManager, InputManager& inputManager, PhysicsManager& phisicsManager, CollisionManager& collisionManager, EditorManager& editorManager);

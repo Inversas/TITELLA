@@ -7,6 +7,39 @@
 #include "CollisionManager.h"
 #include "EditorManager.h"
 
+// *** CONSTRUCTOR ***
+GUIManager::GUIManager()
+    : movementManager(nullptr),
+      spriteSheetManager(nullptr),
+      inputManager(nullptr),
+      physicsManager(nullptr),
+      collisionManager(nullptr),
+      editorManager(nullptr)
+{
+    // Aquí podrías inicializar variables primitivas si fuera necesario
+    // Por ahora, todos los gestores nacen apuntando a "nada" por seguridad
+}
+
+// *** DESTRUCTOR ***
+GUIManager::~GUIManager() {
+    // 1. Limpiamos la parte visual de la GUI (ofxGui)
+    interactorsGroup.clear();
+    
+    // 2. LIBERACIÓN DE MEMORIA DINÁMICA
+    // Recorremos el vector de botones creados con 'new'
+    for (auto btn : dynamicButtons) {
+        if (btn != nullptr) {
+            delete btn; // Borramos el objeto del Heap
+        }
+    }
+    
+    // 3. Limpiamos el vector de punteros para que no queden direcciones inválidas
+    dynamicButtons.clear();
+    
+    ofLogNotice("GUIManager") << "Memoria de botones dinámicos liberada y punteros reseteados.";
+}
+
+
 void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spriteSheetManager, InputManager& inputManager, PhysicsManager& physicsManager, CollisionManager& collisionManager, EditorManager& editorManager) {
     
     // *** REFERENCIAS A GESTORES *** //
@@ -228,9 +261,6 @@ void GUIManager::drawEdit() {
 // *** ACTUALIZAR BOTONES DE INTERACTORS ***
 void GUIManager::updateInteractorsGroup() {
     
-    // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
-    // INFORMACION IMPORTANTE PARA REVISAR la gestión de memoria
-    // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
     // ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
     // Es un vector de punteros (vector<ofxToggle*>).
     // En C++, cuando creas algo con la palabra new (como hacemos al crear los botones),
@@ -549,7 +579,7 @@ void GUIManager::drawLivePanel(ofVec2f position) {
     ofDrawBitmapString(velText, offsetRectangle, yOffset);
     
     // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
-    // AADIR GROUNDED / WALLED
+    // AÑADIR GROUNDED / WALLED
     // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 
     ofPopMatrix();
@@ -754,20 +784,3 @@ void GUIManager::onIdleToRunFrameIntervalChanged(float& value) {
 #pragma endregion
 
 
-// DESTRUCTOR
-GUIManager::~GUIManager() {
-    // 1. Limpiamos la parte visual de la GUI
-    interactorsGroup.clear();
-    
-    // 2. Liberamos la memoria de cada botón que creamos con 'new'
-    for (auto btn : dynamicButtons) {
-        if (btn != nullptr) {
-            delete btn;
-        }
-    }
-    
-    // 3. Vaciamos el vector por seguridad
-    dynamicButtons.clear();
-    
-    ofLogNotice("GUIManager") << "Memoria de botones dinámicos liberada correctamente.";
-}

@@ -2,6 +2,43 @@
 // !!!! VERSIÓN OF 0.10 !!!!
 // #include "ofxJSON.h"
 
+
+
+// *** CONSTRUCTOR ***
+CollisionManager::CollisionManager()
+    : currentScale(1.0f) // Inicializamos la escala por defecto
+{
+    // Inicializamos las estructuras de datos con valores seguros (0 o vacíos)
+    baseHitbox = {0, 0, 0, 0, 0};
+    currentHitbox = {0, 0, 0, 0, 0};
+    
+    // El CollisionResult tiene punteros internos (wall, floor),
+    // los aseguramos a nullptr para que no apunten a basura.
+    lastResult.wall = nullptr;
+    lastResult.floor = nullptr;
+    lastResult.isWalledLeft = false;
+    lastResult.isWalledRight = false;
+    lastResult.isGrounded = false;
+
+    ofLogNotice("CollisionManager") << "Constructor: Hitboxes y Resultados inicializados a cero.";
+}
+
+// *** DESTRUCTOR ***
+CollisionManager::~CollisionManager() {
+    // 1. Limpiamos los punteros del último resultado de colisión.
+    // OJO: No usamos 'delete' porque esos punteros apuntan a elementos
+    // que están DENTRO del vector 'interactors'.
+    lastResult.wall = nullptr;
+    lastResult.floor = nullptr;
+
+    // 2. Vaciamos el vector de interactores explícitamente.
+    // Aunque el vector lo hace solo al morir, hacerlo aquí ayuda a
+    // depurar y asegura que la memoria se libere ordenadamente.
+    interactors.clear();
+
+    ofLogNotice("CollisionManager") << "Destructor: Vector de interactores liberado.";
+}
+
 // *** SETUP ***
 void CollisionManager::setup(float regionW, float regionH, std::string filename) {
     

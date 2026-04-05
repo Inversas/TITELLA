@@ -8,6 +8,13 @@
 class PhysicsManager {
     
 public:
+    // !!! MOTIVO CONSTR / DESTR !!!
+    // Por RELIGIÓN. No es necesario. Solo usa valores primitivos y no usa Memoria
+    // Pero sin él, las variables float o bool contienen "basura" de la RAM (valores aleatorios), así evitamos esto
+    // *** CONSTRUCTOR ***
+    PhysicsManager();
+    // *** DESTRUCTOR ***
+    ~PhysicsManager();
     
     // *** SETUP ***
     // Inicializa los valores por defecto (posición inicial, gravedad, etc.)

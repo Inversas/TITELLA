@@ -2,7 +2,13 @@
 
 #include "ofMain.h"
 
-// FORWARD DECLARATIONS
+// !!! MOTIVO FORWARD DECLARATIONS !!!
+// Un puntero siempre mide lo mismo (4 u 8 bytes),
+// sin importar lo que haya dentro de la clase.
+// Por tanto, al compilador le basta con saber que esa clase
+// Además Evitamos el Bucle:
+// Si CollisionManager incluye a SpriteSheetManager y viceversa, el programa no compilaría.
+//La Forward Declaration rompe ese círculo.
 class CollisionManager;
 struct HitboxData;
 
@@ -11,6 +17,16 @@ struct HitboxData;
 class SpriteSheetManager {
     
 public:
+    // !!! MOTIVO CONSTR / DESTR !!!
+    // Sobretodo por el uso de Punteros Simples (referencias).
+    // También por std::map libera la memoria de la RAM automáticamente al cerrarse el programa,
+    // pero las imágenes en juegos a veces dejan "residuos" en la VRAM (memoria de video).
+    // Al forzar el clear() en el destructor, te aseguras.
+    // *** CONSTRUCTOR ***
+    SpriteSheetManager();
+    // *** DESTRUCTOR ***
+    ~SpriteSheetManager();
+    
     
     // Usamos * (Puntero) "puede o no" tener un Manager de colisiones, queremos poder asignarlo después del setup. (Tipo puntero)
     // Usarías & (Referencia) si fuera absolutamente imposible que el Sprite existiera sin el CollisionManager. (Dirección de)

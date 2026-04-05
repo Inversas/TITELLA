@@ -7,14 +7,16 @@
 #include "Movimiento.h"
 #include "ofxJSON.h"
 
+// !!! MOTIVO NO forward declarations !!!
 // ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
 // Para pasar Tipos InputState
 // "Copia y pega aquí todo el contenido de InputManager.h. Necesito saber exactamente cuánto mide, qué métodos tiene y qué variables guarda".
 // ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
 #include "InputManager.h"
 
+// !!! MOTIVO FORWARD DECLARATIONS !!!
 // ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
-// MEJOR SI SOLO USAS UN PUNTERO:
+// FORWARD DECLARATION, MEJOR SI SOLO USAS UN PUNTERO:
 // "Va a existir una clase llamada así. No te preocupes por los detalles ahora, solo resérvame un hueco para un puntero o una referencia".
 // Si cambias algo en la clase el compilador no tiene que volver a compilarla porque realmente no sabe qué hay dentro, solo que es una "clase".
 // Si la Clase A necesita a la B, y la B necesita a la A, y ambas tienen #include, el compilador entra en un bucle infinito.  Usando class rompemos ese bucle.
@@ -35,6 +37,10 @@ enum class MovementState {
     STOPPING    // Cuando está en una transición hacia IDLE
 };
 
+// ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
+// La única diferencia real entre un STRUCT y una CLASS es que en el struct todo es public por defecto.
+// Por lo demás, son hermanos gemelos: ambos pueden tener métodos, constructores y destructores.
+// ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
 
 // ****************************************** CLASE MOVMENT MANAGER ****************************************** //
 // Clase que gestiona los movimientos del personaje
@@ -44,6 +50,26 @@ class MovementManager {
 // "Public" es lo que la clase hace por los demás.
 // ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
 public:
+    
+    // ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
+    // INFO CONSTRUCTORES / DESTRUCTORES
+    // Si hay new: "Crítico para liberar memoria dinámica manual y evitar leaks."
+    // Si hay punteros externos (*): "Asegura la desconexión de dependencias externas y evita punteros colgantes."
+    // Si solo hay variables simples: "Garantiza un estado inicial 'limpio' y evita que el programa lea basura de la RAM."
+    // ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
+    
+    // !!! MOTIVO CONSTR / DESTR !!!
+    // Usamos 4 Punteros Inteligentes (std::unique_ptr), El unique_ptr es como un empleado que se despide y limpia su mesa solo.
+    // Usamos Punteros Simples (referencias) que debemos limpiar (poner a nullptr) para evitar errores.
+    // Los punteros normales (*) son como post-its con direcciones: si no los quitas (nullptr),
+    // alguien podría intentar ir a esa dirección cuando la casa ya ha sido demolida.
+    // Por eso usamos el Constructor para dar seguridad y el Destructor para limpiar.
+    // Memoria dinámica es cuando usamos "new" o "delete".
+    // *** CONSTRUCTOR ***
+    MovementManager();
+    // *** DESTRUCTOR *** (lleva la virgulilla ~)
+    ~MovementManager();
+    
     
     // *** CONFIGURACIÓN Y CONEXIÓN ***
     // Inicializa el gestor de movimientos desde un archivo JSON, asociando un gestor de hojas de sprites y un gestor de entradas
@@ -228,7 +254,7 @@ private:
     bool flag_turn_to_run = false;
     
     // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
-    // Si esto empieza a darse tendremo que crear el Objeto Peticióni modificar el TRADUCTOR y el JUEZ en consecuencia.
+    // Si esto empieza a darse tendremos que crear el Objeto Petición i modificar el TRADUCTOR y el JUEZ en consecuencia.
     
         /*
          struct MovementRequest {

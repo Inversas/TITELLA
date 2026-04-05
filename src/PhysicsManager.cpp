@@ -1,5 +1,40 @@
 #include "PhysicsManager.h"
 
+// *** CONSTRUCTOR ***
+PhysicsManager::PhysicsManager()
+    : currentScale(1.0f),
+      targetVelocityX(0.0f),
+      velocityStep(0.0f),
+      framesRemaining(0),
+      delayFramesRemaining(0),
+      isVelocityChanging(false)
+{
+    // Inicializamos los vectores a cero
+    position.set(0, 0);
+    velocity.set(0, 0);
+    baseGravity.set(0, 0);
+    gravity.set(0, 0);
+    
+    // Inicializamos velocidades base
+    baseMaxSpeedWalk = 0.0f;
+    baseMaxSpeedRun = 0.0f;
+    maxSpeedWalk = 0.0f;
+    maxSpeedRun = 0.0f;
+
+    // Nota: Aunque setup() les dará los valores reales (7.0, 18.0, etc.),
+    // el constructor garantiza que si alguien intenta leer la velocidad
+    // antes de tiempo, recibirá un 0 y no un número aleatorio gigante.
+}
+
+// *** DESTRUCTOR ***
+PhysicsManager::~PhysicsManager() {
+    // En esta clase no hay memoria dinámica (new) ni punteros externos.
+    // La limpieza es automática para los objetos ofVec2f y floats.
+    
+    //ofLogNotice("PhysicsManager") << "Destructor ejecutado: Recursos liberados.";
+}
+
+
 // *** SETUP ***
 void PhysicsManager::setup(float startX, float startY) {
     // Posicion Inicial

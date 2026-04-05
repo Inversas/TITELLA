@@ -18,6 +18,51 @@
 // ==========================================
 
 
+// *** CONSTRUCTOR ***
+MovementManager::MovementManager()
+    : inputManager(nullptr),
+      physicsManager(nullptr),
+      spriteSheetManager(nullptr),
+      collisionManager(nullptr),
+      currentState(MovementState::IDLE),
+      targetState(MovementState::IDLE),
+      currentMovementName("IDLE"),
+      waitingForTransition(false),
+      isGrounded(true),
+      flag_turn_to_run(false)
+{
+    // ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
+    // El constructor inicializa los estados básicos y asegura que los
+    // punteros externos empiecen en un estado seguro (nullptr).
+    // ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
+}
+
+// *** DESTRUCTOR ***
+MovementManager::~MovementManager() {
+    // ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
+    // NOTA DE MEMORIA:
+    // 0. En elsetup, se recibenlos managers por referencia y guardamos su dirección (this->inputManager = &input).
+    // Al ser "prestados", el destructor nunca debe borrarlos (no debemos hacerles 'delete',
+    // solo olvidarlos (ponerlos a nullptr). No debemos hacerles 'delete', solo limpiamos por seguridad.
+    
+    // 1. 'currentMovement' es un std::unique_ptr, por lo que C++ lo borrará
+    //    automáticamente de la memoria al destruir esta clase. No hace falta 'delete'.
+    
+    // 2. Smart Pointers (std::unique_ptr): Al usar std::make_unique<Movement> en el setup, te ahorras el delete.
+    // Es la forma moderna y segura de C++ para evitar fugas de memoria (Memory Leaks).
+    // ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
+
+    
+    inputManager = nullptr;
+    physicsManager = nullptr;
+    spriteSheetManager = nullptr;
+    collisionManager = nullptr;
+
+    ofLogNotice("MovementManager") << "Destructor ejecutado: Punteros externos limpiados.";
+}
+
+
+
 // *** CONFIGURACIÓN Y CONEXIÓN ***
 // Inicializa el MovementManager cargando los movimientos desde un archivo JSON y configurando el movimiento actual a "IDLE".
 void MovementManager::setup(const std::string& filename, SpriteSheetManager& spriteSheetManager, InputManager& input, PhysicsManager& physics, CollisionManager& collision) {
@@ -77,7 +122,6 @@ void MovementManager::updateIntent() {
 
     
     // 3. TRADUCCIÓN DE INTENCIÓN A ESTADO
-
     
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     //               TO TURNING
@@ -439,6 +483,7 @@ void MovementManager::triggerGroundedTransition(){
         // ##########################################
         // Si Estabamos esperando transicion y el currentState era RUNNING: solo puede ser WALK_TO_RUN (por ejemplo para frenar se ha puesto STOPPING)
         // Si Estabamos esperando transicion y el currentState era WALKING: solo puede ser RUN_TO_WALK
+        // Si el un case no tiene nada (en este caso RUNNING) "comparte" el código con el siguiente case que sí lo tenga (en esta caso WALKING)
         case MovementState::RUNNING:
         case MovementState::WALKING:
             // ==========================================

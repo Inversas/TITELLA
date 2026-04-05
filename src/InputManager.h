@@ -28,6 +28,13 @@ struct InputState {
 class InputManager {
     
 public:
+    // !!! MOTIVO CONSTR / DESTR !!!
+    // Por RELIGIÓN. No es necesario. Solo usa std::set y std::vector, que gestionan su memoria y no usa Memoria Dinámica.
+    // Pero sin él, las variables float o bool contienen "basura" de la RAM (valores aleatorios), así evitamos esto
+    // *** CONSTRUCTOR ***
+    InputManager();
+    // *** DESTRUCTOR ***
+    ~InputManager();
     
     // Inicia el Gestor de Entradas
     void setup();

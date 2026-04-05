@@ -3,6 +3,11 @@
 
 #include "ofMain.h"
 
+// !!! MOTIVO NO forward declarations !!!
+// Como estamos usando un std::vector<Interactor>, no podemos hacer FORWARD DECLARATION.
+// Cuando el compilador necesita saber exactamente cuántos bytes mide un Interactor
+// para poder reservar el espacio de memoria necesario en el vector.
+// Sin el #include, el compilador solo sabría que el nombre existe, pero no cuánto mide.
 #include "Interactor.h"
 
 using namespace std;
@@ -49,7 +54,17 @@ struct CollisionResult {
 class CollisionManager {
 
 public:
-    
+    // !!! MOTIVO CONSTR / DESTR !!!
+    // Ussamos CollisionResult que guarda punteros (Interactor* wall).
+    // El destructor asegura que los punteros de resultados (lastResult) se limpien para evitar accesos a memoria ya liberada por el vector.
+    // No es crítico, usamos un vector std::vector<Interactor>, que gestiona su propia memoria
+    // (cuando el vector muere, todos los Interactor mueren con él automáticamente).
+    // Memoria dinámica no explícita.
+    // *** CONSTRUCTOR ***
+    CollisionManager();
+    // *** DESTRUCTOR ***
+    ~CollisionManager();
+
     // *** SETUP ***
     // Inicializa los límites, el suelo y el HitboxData
     void setup(float regionW, float regionH, std::string filename);

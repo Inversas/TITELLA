@@ -1,6 +1,33 @@
 #include "SpriteSheetManager.h"
 #include "CollisionManager.h"
 
+// *** CONSTRUCTOR ***
+SpriteSheetManager::SpriteSheetManager()
+    : collisionManager(nullptr),
+      currentScale(1.0f)
+{
+    // Limpiamos el mapa de texturas por seguridad al arrancar
+    spriteSheets.clear();
+    
+    ofLogNotice("SpriteSheetManager") << "Constructor: Gestor de sprites listo.";
+}
+
+// *** DESTRUCTOR ***
+SpriteSheetManager::~SpriteSheetManager() {
+    // 1. Limpiamos el mapa de imágenes.
+    // Al llamar a clear(), el mapa llama al destructor de cada 'ofImage',
+    // lo que libera la memoria de la textura en la tarjeta gráfica (GPU).
+    spriteSheets.clear();
+    
+    // 2. Limpiamos el puntero al CollisionManager.
+    // Como es una referencia "prestada" (no la creamos con new),
+    // NO hacemos delete, solo lo ponemos a nullptr.
+    collisionManager = nullptr;
+
+    ofLogNotice("SpriteSheetManager") << "Destructor: Memoria de texturas (GPU) liberada.";
+}
+
+
 // *** SERÍA COMO EL SETUP ***
 void SpriteSheetManager::setCollisionManager(CollisionManager* collision) {
     this->collisionManager = collision;
