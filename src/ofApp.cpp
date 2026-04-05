@@ -78,7 +78,7 @@ void ofApp::draw() {
     // >>>>>>>>>>>> COLISIONES >>>>>>>>>>>>
     if(showInteractors){
         // ************************ DEBUG ************************
-        collisionManager.draw();
+        collisionManager.drawInteractors(debug, editMode);
     }
     
     // &&&&&&&&&&&&& SPRITE SHEET &&&&&&&&&&&&&

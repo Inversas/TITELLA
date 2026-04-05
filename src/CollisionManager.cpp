@@ -1,4 +1,6 @@
 #include "CollisionManager.h"
+// !!!! VERSIÓN OF 0.10 !!!!
+// #include "ofxJSON.h"
 
 // *** SETUP ***
 void CollisionManager::setup(float regionW, float regionH, std::string filename) {
@@ -34,10 +36,10 @@ void CollisionManager::update() {
 }
 
 void CollisionManager::draw() {
-    drawInteractors();
+    // ?????
 }
 
-void CollisionManager::drawInteractors() {
+void CollisionManager::drawInteractors(const bool& debug, const bool& editMode) {
     // Recorremos todos los interactores
     for (auto &inter : interactors) {
         
@@ -68,44 +70,24 @@ void CollisionManager::drawInteractors() {
         // DRAW la línea que une los dos puntos
         ofDrawLine(inter.p1.x, inter.p1.y, inter.p2.x, inter.p2.y);
         
-        // ************************ DEBUG2 (Podría ser una opción dentro de debug activado, ahora interactors con higlights o nada) ************************
-        if (inter.hit) {
-            if (inter.type == InteractorType::WALL) {
-                drawWallHighlight(inter);
-            }
-            else if (inter.type == InteractorType::SURFACE) {
-                drawFloorHighlight(inter);
+        // ************************ DEBUG ************************
+        if(debug || editMode){
+            // HIGHLIGHTS HITTED
+            if (inter.hit) {
+                if (inter.type == InteractorType::WALL) {
+                    drawWallHighlight(inter);
+                }
+                else if (inter.type == InteractorType::SURFACE) {
+                    drawFloorHighlight(inter);
+                }
             }
         }
     }
     
-    // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
-    // DEBUG HIGHLIGHT
-    // SEPARAR TEXTO DE WALLS EN OTRA FUNCION?
-    // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-    
-    // ************************ DEBUG2 (Podría ser una opción dentro de debug activado, ahora interactors con higlights o nada) ************************
-    // DRAW los nombres moviendo el texto según la pared
-    // Texto en blanco
-    ofSetColor(255);
-    for (auto &inter : interactors) {
-        float textX = inter.p1.x;
-        // Bajamos un poco el texto para que no pise el borde superior
-        float textY = inter.p1.y + 20;
-        
-        // Si es el Limite Base Derecho
-        if (inter.name == "LIMIT_RIGHT") {
-            // Movemos el texto a la IZQUIERDA de la línea
-            // Restamos unos 80 píxeles (aprox. lo que ocupa la palabra)
-            textX = inter.p1.x - 85;
-        }
-        // Todas las demás, a la DERACHA
-        else {
-            // Para el suelo y la pared izquierda, lo movemos un poco a la derecha
-            textX = inter.p1.x + 10;
-        }
-        // DIBUJAR TEXTO
-        ofDrawBitmapString(inter.name, textX, textY);
+    // ************************ DEBUG ************************
+     // DRAW los nombres moviendo el texto según la pared
+    if(debug || editMode){
+        drawInteractorsLabels();
     }
 }
 
@@ -375,9 +357,43 @@ void CollisionManager::drawFloorHighlight(const Interactor& inter) {
     ofDrawRectangle(x, y, w, h);
 }
 
+// Dibujo textos interactors
+void CollisionManager::drawInteractorsLabels(){
+    // Texto en blanco
+    ofSetColor(255);
+    for (auto &inter : interactors) {
+        float textX = inter.p1.x;
+        // Bajamos un poco el texto para que no pise el borde superior
+        float textY = inter.p1.y + 20;
+        
+        // Tipo Surface centra el texto
+        if (inter.type == InteractorType::SURFACE) {
+            textX = (inter.p1.x + inter.p2.x) / 2;
+        }
+        // Otros TIPOS
+        else {
+            // Si es el Limite Base Derecho
+            if (inter.name == "LIMIT_RIGHT") {
+                // Movemos el texto a la IZQUIERDA de la línea
+                // Restamos unos 80 píxeles (aprox. lo que ocupa la palabra)
+                textX = inter.p1.x - 85;
+            }
+            // Todas las demás, a la DERACHA
+            else {
+                // Para el suelo y la pared izquierda, lo movemos un poco a la derecha
+                textX = inter.p1.x + 10;
+            }
+        }
+                // DIBUJAR TEXTO
+        ofDrawBitmapString(inter.name, textX, textY);
+    }
+
+}
+
 
 // *** JSON INTERACTORS ***
 // *** CARGA ***
+// !!!! VERSIÓN OF 0.12 !!!!
 void CollisionManager::loadInteractorsJSON(const std::string& filename) {
     
     // Intentamos abrir el archivo

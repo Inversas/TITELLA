@@ -62,9 +62,9 @@ public:
     // *** DRAW ***
     void draw();
     
-    // **************** DEBUG (en realidad tiene su propio booleano) ******************
+    // **************** DEBUG ******************
     // Dibujará las líneas
-    void drawInteractors();
+    void drawInteractors(const bool& debug, const bool& editMode);
     
     
     // *** DETECCIÓN DE COLISIONES A FUTURO ***
@@ -131,4 +131,7 @@ private:
     void drawWallHighlight(const Interactor& inter);
     // Recibe la referencia al interactor para saber su ancho y posición
     void drawFloorHighlight(const Interactor& inter);
+    
+    // Dibujo textos interactors
+    void drawInteractorsLabels();
 };

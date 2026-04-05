@@ -920,6 +920,7 @@ void MovementManager::handleTransition() {
     
     
     // *** ENCUENTRA LA REGIÓN DE TRANSICIÓN MÁS CERCANA ***//
+    // !!!! VERSIÓN OF 0.12 !!!!
     // Iteramos por el transitionMap
     for (auto const& [region, name] : *transitionMap) {
         if (region > currentRegion && (closestRegion == -1 || region < closestRegion)) {
