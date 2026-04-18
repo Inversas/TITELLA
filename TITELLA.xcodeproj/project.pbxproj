@@ -14,6 +14,8 @@
 		"16B72ACE-1DAD-4B8A-8D45-2A161472110B" /* ofxSlider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = "347E0A80-F055-44B5-8458-9E3ADA16E188" /* ofxSlider.cpp */; };
 		"253820FC-0AA5-40B5-B54B-F334B92AC8E7" /* MovementManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = "9D1CFFCE-C0CA-4B3A-86B6-FD582E1D3FBD" /* MovementManager.cpp */; };
 		"259ADF19-54FB-4AE1-9C01-0B7C5791275A" /* CollisionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = "179FEAA4-C74A-4CD9-8C2E-53602094E3A2" /* CollisionManager.cpp */; };
+		526EEB622F9395B100BE5FE0 /* MovementUtilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 526EEB602F9395B100BE5FE0 /* MovementUtilities.cpp */; };
+		526EEB632F9395B100BE5FE0 /* MovementCrono.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 526EEB612F9395B100BE5FE0 /* MovementCrono.cpp */; };
 		"53EFA08F-6712-4C84-960C-44C22C0CBC34" /* ofxToggle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = "CB8D9499-59E6-4496-8170-D3C6C4F0E827" /* ofxToggle.cpp */; };
 		"6214E33C-E2AF-4866-BB65-8103DB24D6AA" /* Movimiento.cpp in Sources */ = {isa = PBXBuildFile; fileRef = "05C474A9-F09E-4984-BF2A-E30D4239C8DE" /* Movimiento.cpp */; };
 		"7F07F046-83F3-4777-A52E-E38908352A00" /* GUIManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = "B7437EC6-9D12-4B45-9F21-43875917C19E" /* GUIManager.cpp */; };
@@ -69,6 +71,10 @@
 		"366EB6FD-870B-48D6-AD08-D5AD1D847614" /* ofxSliderGroup.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = ofxSliderGroup.h; path = ../../../addons/ofxGui/src/ofxSliderGroup.h; sourceTree = SOURCE_ROOT; };
 		"4056A8A4-A0E2-491D-BD0B-29B110CCEDDC" /* ofxJSON.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = ofxJSON.h; path = "../../../addons/ofxJSON-master/src/ofxJSON.h"; sourceTree = SOURCE_ROOT; };
 		"47707F12-9710-4038-B48D-81488CF31417" /* ofxButton.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = ofxButton.h; path = ../../../addons/ofxGui/src/ofxButton.h; sourceTree = SOURCE_ROOT; };
+		526EEB5E2F9395B100BE5FE0 /* MovementUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MovementUtilities.h; sourceTree = "<group>"; };
+		526EEB5F2F9395B100BE5FE0 /* MovementCrono.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MovementCrono.h; sourceTree = "<group>"; };
+		526EEB602F9395B100BE5FE0 /* MovementUtilities.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MovementUtilities.cpp; sourceTree = "<group>"; };
+		526EEB612F9395B100BE5FE0 /* MovementCrono.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MovementCrono.cpp; sourceTree = "<group>"; };
 		"5345D972-EBAD-483D-8BCD-23065534689E" /* ofxToggle.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = ofxToggle.h; path = ../../../addons/ofxGui/src/ofxToggle.h; sourceTree = SOURCE_ROOT; };
 		"541DF2AE-E735-45EC-805E-47EAFE36EBBF" /* ofxColorPicker.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = ofxColorPicker.cpp; path = ../../../addons/ofxGui/src/ofxColorPicker.cpp; sourceTree = SOURCE_ROOT; };
 		"5D1D7140-FF5F-4579-91E7-9A09880C205B" /* json-forwards.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = "json-forwards.h"; path = "../../../addons/ofxJSON-master/libs/jsoncpp/include/json/json-forwards.h"; sourceTree = SOURCE_ROOT; };
@@ -261,6 +267,10 @@
 				"BF40F280-323F-4862-AAA9-325C7FD70015" /* GUIManager.h */,
 				"9D1CFFCE-C0CA-4B3A-86B6-FD582E1D3FBD" /* MovementManager.cpp */,
 				"995E5885-D476-4E1A-8756-D1E6040384C3" /* MovementManager.h */,
+				526EEB612F9395B100BE5FE0 /* MovementCrono.cpp */,
+				526EEB5F2F9395B100BE5FE0 /* MovementCrono.h */,
+				526EEB602F9395B100BE5FE0 /* MovementUtilities.cpp */,
+				526EEB5E2F9395B100BE5FE0 /* MovementUtilities.h */,
 				"2F1DBE58-05D7-4898-9F2D-A9129C6AD29B" /* SpriteSheetManager.cpp */,
 				"A2E588E2-70C7-4A65-A98B-45241BE31B15" /* SpriteSheetManager.h */,
 				"179FEAA4-C74A-4CD9-8C2E-53602094E3A2" /* CollisionManager.cpp */,
@@ -380,9 +390,11 @@
 				"253820FC-0AA5-40B5-B54B-F334B92AC8E7" /* MovementManager.cpp in Sources */,
 				"6214E33C-E2AF-4866-BB65-8103DB24D6AA" /* Movimiento.cpp in Sources */,
 				"02D02A4E-CE11-498A-BADE-83DB048A222C" /* PhysicsManager.cpp in Sources */,
+				526EEB632F9395B100BE5FE0 /* MovementCrono.cpp in Sources */,
 				"84EAE7C5-B563-4395-9092-B9956B9874A5" /* SpriteSheetManager.cpp in Sources */,
 				"0B2A294A-EB7F-4E23-AD64-D3AE447E377F" /* ofxBaseGui.cpp in Sources */,
 				"969FE505-FD01-4406-9027-F7918DF9C531" /* ofxButton.cpp in Sources */,
+				526EEB622F9395B100BE5FE0 /* MovementUtilities.cpp in Sources */,
 				"95BBB238-71B4-42DF-A447-F5886791DA60" /* ofxColorPicker.cpp in Sources */,
 				"03FC8DF3-5417-4E2B-892A-8BF40EFACED1" /* ofxGuiGroup.cpp in Sources */,
 				"D03CA404-828B-4B7E-97ED-D69FEB94990F" /* ofxInputField.cpp in Sources */,

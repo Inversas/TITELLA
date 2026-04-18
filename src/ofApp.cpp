@@ -43,14 +43,11 @@ void ofApp::setup() {
 // *** UPDATE ***
 void ofApp::update() {
     
-    // Obtiene el tiempo transcurrido en segundos desde que se ha ejectuado la aplicación
-    float currentTime = ofGetElapsedTimef();
-    
     // $$$$$$$$$$$$$ FISICAS $$$$$$$$$$$$$
     physicsManager.update();
 
-    // GESTOR DE MOVIMIENTOS (revisa también las colisiones)
-    movementManager.update(currentTime);
+    // GESTOR DE MOVIMIENTOS (revisa también las colisiones y aplica físicas)
+    movementManager.update();
     
     
     // ************************ DEBUG ************************
@@ -74,6 +71,8 @@ void ofApp::update() {
 
 // *** DRAW ***
 void ofApp::draw() {
+    
+     ofBackground(100);
     
     // >>>>>>>>>>>> COLISIONES >>>>>>>>>>>>
     if(showInteractors){
@@ -104,6 +103,9 @@ void ofApp::draw() {
         editorManager.draw();
         guiManager.drawEdit();
     }
+    
+   
+
 }
 
 

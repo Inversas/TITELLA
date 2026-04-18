@@ -8,6 +8,21 @@
 
 using namespace std;
 
+// +++++++++++++ ENUM +++++++++++++
+// Categoría semántica de una transición: describe de dónde "viene" el movimiento.
+// Los movimientos base (IDLE, WALK, RUN) usan NONE.
+enum class TransitionOrigin {
+    NONE,          // Movimientos base: no son transición
+    TO_IDLE,       // Frenadas: WALK_TO_IDLE_x, RUN_TO_IDLE_x
+    TO_WALK,       // Entradas a WALK: IDLE_TO_WALK, RUN_TO_WALK_x
+    TO_RUN,        // Entradas a RUN: IDLE_TO_RUN, WALK_TO_RUN_x
+    WALK_TURN,     // Giros desde WALK: WALK_TURN_1, WALK_TURN_2
+    RUN_TURN,      // Giros desde RUN: RUN_TURN_1, RUN_TURN_2
+    IDLE_TO_TURN,  // Giro simple desde IDLE
+    TURN_TO_RUN    // Giro desde IDLE con intención de correr
+};
+ 
+
 // +++++++++++++ STRUCT +++++++++++++
 // Estructura para definir un movimiento
 struct Movement {
@@ -18,9 +33,12 @@ struct Movement {
     map<int, string> stop_transitions;    // Mapa Puntos de Salida con el nombre de la transicion Objetivo
     map<int, string> turn_transitions;    // Mapa Puntos de Salida con el nombre de la transicion Objetivo
     map<int, string> change_transitions;  // Mapa Puntos de Salida con el nombre de la transicion Objetivo
+    map<int, string> jump_transitions;    // Mapa Puntos de Salida con el nombre de la transicion Objetivo
     bool isTransition;                    // Si este movimiento es una transición
     float frameInterval;                  // Tiempo entre frames en segundos de este movimiento
     int target_frame;                     // Frame donde debe empezar el siguiente movimiento
+    TransitionOrigin originType;          // Categoría semántica: de dónde viene esta transición
+
     
     // *** CONSTRUCTOR ***
     Movement(
@@ -30,7 +48,8 @@ struct Movement {
              int numRegions = 1,          // Número de fotogramas
              bool isTransition = false,   // Si es transición
              float frameInterval = -0.1f,
-             int target_frame = 0
+             int target_frame = 0,
+             TransitionOrigin originType = TransitionOrigin::NONE
              );
     
     // *** DESTRUCTOR ***

@@ -99,6 +99,7 @@ void InputManager::updateInputState() {
     currentInputState.wantsLeft = false;
     currentInputState.wantsRight = false;
     currentInputState.wantsRun = false;
+    currentInputState.wantsJump = false;
     currentInputState.hasAnyDirection = false;
 
     // 2. EVALUACIÓN DE DIRECCIÓN: La última tecla en el vector tiene la prioridad
@@ -116,8 +117,14 @@ void InputManager::updateInputState() {
     }
     
     // 3. TRADUCCIÓN: Mapeamos teclas físicas a intenciones lógicas
+    // TECLA '1'
     if (pressedKeys.count(49)) {
         currentInputState.wantsRun = true;
+    }
+    
+    // TECLA 'SPACE'
+    if (pressedKeys.count(32)) {
+        currentInputState.wantsJump = true;
     }
 }
 
@@ -156,12 +163,26 @@ std::string InputManager::getPressedKeysAsString() const {
             result += "-->";
         }
     }
+
     
-    // 2. Si la tecla "1" (RUN) está presionada, añadirla al final
+    // ==========================================
+    // TECLA 1
+    // ==========================================
+    // Si la tecla "1" (RUN) está presionada, añadirla al final
     if (pressedKeys. count(49)) {  // 49 es el código ASCII de '1'
         if (!result. empty()) result += " + ";
         result += "1";
     }
+    
+    // ==========================================
+    // TECLA SPACE
+    // ==========================================
+    // Si la tecla " " (JUMP) está presionada, añadirla al final
+    if (pressedKeys. count(32)) {  // 32 es el código ASCII de ' ' (SPACE)
+        if (!result. empty()) result += " + ";
+        result += "SPACE";
+    }
+
     
     // 3. Si no hay teclas válidas pero SÍ hay presionadas, mostrar "No Pressed Valid"
     if (result.empty()) {
@@ -196,6 +217,11 @@ std::string InputManager::getIntentsAsString() const {
             if (!result.empty()) result += " + ";
             result += "WANTS RIGHT";
         }
+    }
+    
+    if (currentInputState.wantsJump) {
+        if (!result.empty()) result += " + ";
+        result += "WANTS JUMP";
     }
 
     // Si no hay intenciones activas, retornar "NO WANTS"

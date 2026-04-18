@@ -22,7 +22,7 @@
 	<SETTERS>
 		<F_I__Global>0.1</F_I__Global>
 		<Scale_Factor>1</Scale_Factor>
-		<Max_Speed_Walk>11</Max_Speed_Walk>
+		<Max_Speed_Walk>10.2551</Max_Speed_Walk>
 		<Max_Speed_Run>18</Max_Speed_Run>
 		<HitBox_W>387</HitBox_W>
 		<HitRayFloor_X>150</HitRayFloor_X>
@@ -52,5 +52,7 @@
 		<FLOOR_BASE>0</FLOOR_BASE>
 		<LIMIT_LEFT>0</LIMIT_LEFT>
 		<LIMIT_RIGHT>0</LIMIT_RIGHT>
+		<SURFACE_3>0</SURFACE_3>
+		<WALL_4>0</WALL_4>
 	</INTERACTORS_DETECT>
 </Settings>

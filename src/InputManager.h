@@ -18,6 +18,7 @@ struct InputState {
     bool wantsLeft = false;         // El jugador quiere ir a la izquierda
     bool wantsRight = false;        // El jugador quiere ir a la derecha
     bool wantsRun = false;          // El jugador quiere correr
+    bool wantsJump = false;         // El jugador quiere saltar
     bool hasAnyDirection = false;   // Indica si hay alguna dirección activa (útil para STAND)
 };
 

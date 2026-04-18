@@ -122,8 +122,8 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     runFrameIntervalGui = movementManager.getMovementFrameInterval("RUN");
     runToIdle1FrameIntervalGui = movementManager.getMovementFrameInterval("RUN_TO_IDLE_1");
     runToIdle2FrameIntervalGui = movementManager.getMovementFrameInterval("RUN_TO_IDLE_2");
-    walkToRun1FrameIntervalGui = movementManager.getMovementFrameInterval("WALK_TO_RUN_1");
-    walkToRun2FrameIntervalGui = movementManager.getMovementFrameInterval("WALK_TO_RUN_2");
+    runToWalk1FrameIntervalGui = movementManager.getMovementFrameInterval("RUN_TO_WALK_1");
+    runToWalk2FrameIntervalGui = movementManager.getMovementFrameInterval("RUN_TO_WALK_2");
     turnFrameIntervalGui = movementManager.getMovementFrameInterval("TURN");
     turnToRunFrameIntervalGui = movementManager.getMovementFrameInterval("TURN_TO_RUN");
     walkTurn1FrameIntervalGui = movementManager.getMovementFrameInterval("WALK_TURN_1");
@@ -215,9 +215,7 @@ void GUIManager::update() {
     // ==============================================================================================================================
     // UPDATE GRUPO: [SETTERS]
     // ==============================================================================================================================
-    // Actualiza en el FrameInterval del gestor de movimientos los valores de la GUI
-    movementManager->setFrameIntervalFromGUI();
-    
+    // Todo son sliders, por tanto los actualizan los listenners
     
     // ==============================================================================================================================
     // UPDATE GRUPO: [F.I.]
@@ -233,12 +231,10 @@ void GUIManager::update() {
         resetInteractorsButtons();
     }
     
-    
     // ==============================================================================================================================
     // UPDATE LIVE PANEL
     // ==============================================================================================================================
     updateLivePanel();
-    
 }
 
 
