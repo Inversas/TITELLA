@@ -18,8 +18,8 @@ enum class TransitionOrigin {
     TO_RUN,        // Entradas a RUN: IDLE_TO_RUN, WALK_TO_RUN_x
     WALK_TURN,     // Giros desde WALK: WALK_TURN_1, WALK_TURN_2
     RUN_TURN,      // Giros desde RUN: RUN_TURN_1, RUN_TURN_2
-    IDLE_TO_TURN,  // Giro simple desde IDLE
-    TURN_TO_RUN    // Giro desde IDLE con intención de correr
+    IDLE_TURN_TO_IDLE,  // Giro simple desde IDLE
+    IDLE_TURN_TO_RUN    // Giro desde IDLE con intención de correr
 };
  
 

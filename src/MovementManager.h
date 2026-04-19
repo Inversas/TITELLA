@@ -230,6 +230,8 @@ private:
     std::string currentMovementName;
     
     // *** ENUMS ***
+    // Variable para guardar el estado anterior a la espera de una transición (inicializado en IDLE).
+    MovementState previousState = MovementState::IDLE;
     // Variable para guardar el estado actual (inicializado en IDLE).
     MovementState currentState = MovementState::IDLE;
     // Variable para guardar el estado objetivo (inicializado en IDLE)
@@ -282,6 +284,8 @@ private:
     void updateGroundedState(MovementState targetState);
     // !!!!!!! JUEZ DE AIRE !!!!!!! //
     void updateAirState(MovementState targetState);
+    // ARREPENTIMIENTOS Y REDIRECCIONES
+    bool handleWaitingInterrupt();
     
     // ==========================================
     //      HANDELERS DE ESTADOS

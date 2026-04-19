@@ -27,6 +27,7 @@ MovementManager::MovementManager()
       collisionManager(nullptr),
       currentState(MovementState::IDLE),
       targetState(MovementState::IDLE),
+      previousState(MovementState::IDLE),
       currentMovementName("IDLE"),
       waitingForTransition(false),
       isGrounded(true),
@@ -136,11 +137,10 @@ void MovementManager::updateIntent() {
     
     // TRADUCCIÓN DE INTENCIÓN A COMANDO
     translateIntent();
-    
+
     // TRADUCCIÓN DE COMANDO A ESTADO
     switch (currentCommand) {
         case MovementCommand::GO_TURN:
-            
             // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
             //               TO TURNING
             // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -179,7 +179,7 @@ void MovementManager::updateIntent() {
 // Intención --> Comando
 void MovementManager::translateIntent(){
     
-    // Reseteamos el flag TURN_TO_RUN
+    // Reseteamos el flag IDLE_TURN_TO_RUN
     flag_turn_to_run = false;
     
     // RECUPERAR "deseos" del jugador desde el InputManager
@@ -202,7 +202,7 @@ void MovementManager::translateIntent(){
     // Caso: Quiere ir a la derecha pero está mirando a la izquierda
     if ( (intent.wantsRight && !isFacingRight) || (intent.wantsLeft && isFacingRight) ) {
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        //           flag TURN TO RUN
+        //           flag IDLE_TURN_TO_RUN
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         // Si el giro desde IDLE se da con 1 presionado
         if (intent.wantsRun) {
@@ -308,53 +308,14 @@ void MovementManager::updateGroundedState(MovementState targetState) {
     
     // Si estamos esperando llegar a un Punto de Salida
     if(waitingForTransition){
-        
-        // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        //         ARREP. --> WALK TO RUN
-        // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        if ( currentState == MovementState::RUNNING && targetState == MovementState::WALKING) {
-            // Desactivamos la espera de transición
-            waitingForTransition = false;
-            // REPONEMOS ESTADO
-            currentState = MovementState::WALKING;
-            return;
-        }
-        
-        // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        //         ARREP. --> RUN TO WALK
-        // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        if ( currentState == MovementState::WALKING && targetState == MovementState::RUNNING) {
-            // Desactivamos la espera de transición
-            waitingForTransition = false;
-            // REPONEMOS ESTADO
-            currentState = MovementState::RUNNING;
-            return;
-        }
-        
-        // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        //         ARREP. --> STOPPING TO TURNING
-        // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        // Si estamos esperando o ejecutando una transición comprometida, COMPROVAMOS ARREPENTIMIENTOS EN LAS ESPERAS DE TRANSICION
-        if (currentState == MovementState::TURNING || currentState == MovementState::STOPPING) {
-            
-            // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-            // Se ha marcado STOPPING por un insante de teclas nulas, pero mientras esperamos se pide TURNING
-            // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-            if (currentState == MovementState::STOPPING && targetState == MovementState::TURNING){
-                // ACTUALIZAMOS ESTADO primero por ser TRANSICION
-                currentState = MovementState::TURNING;
-                // BUSCAR PUNTO DE SALIDA y ACTIVAR ESPERA (lo ejecutará updateFrame())
-                handleTransition(); // buscará el WALK_TURN correcto según puntos de salida cercanos
-            }
-            
-            // Cualquier otro caso de bloqueo,
-            return;
-        }
-        
-        // Solo ha entrado por Waiting For Transition
+        // Gestionamos arrepentimientos y redirecciones
+        // Aunque haya actuado, ya ha hecho la gestión
+        handleWaitingInterrupt();
+        // Ha entrado por Waiting For Transition
         return;
     }
 
+    previousState = currentState;
 
     // MÁQUINA DE ESTADOS (Lógica de Transición)
     switch (currentState) {
@@ -385,6 +346,47 @@ void MovementManager::updateAirState(MovementState targetState) {
 
 }
 
+// ==========================================
+//     ARREPENTIMIENTOS y REDIRECCIONES
+// ==========================================
+bool MovementManager::handleWaitingInterrupt() {
+    
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    //         ARREPENTIMIENTO
+    // El jugador quiere volver al estado del que venía.
+    // Cancelamos la espera y restauramos previousState.
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    if (targetState == previousState) {
+        waitingForTransition = false;
+        currentState = previousState;
+        return true;
+    }
+    
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    //         REDIRECCIÓN: STOPPING → TURNING
+    // Estaba esperando PS para frenar, pero ahora quiere girar.
+    // No cancelamos la espera, la reconfiguramos con turn_transitions.
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    if (currentState == MovementState::STOPPING && targetState == MovementState::TURNING) {
+        currentState = MovementState::TURNING;
+        handleTransition(); // Reconfigura buscando PS en turn_transitions
+        return true;
+    }
+    
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    //         REDIRECCIÓN: TURNING → STOPPING
+    // Estaba esperando PS para girar, pero ahora quiere frenar.
+    // No cancelamos la espera, la reconfiguramos con stop_transitions.
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    if (currentState == MovementState::TURNING && targetState == MovementState::IDLE) {
+        currentState = MovementState::STOPPING;
+        handleTransition(); // Reconfigura buscando PS en stop_transitions
+        return true;
+    }
+    
+    // Ningún caso aplicable: bloqueamos hasta llegar al PS
+    return false;
+}
 
 // ==========================================
 //      DISPARAR TRANSICIONES
@@ -398,7 +400,9 @@ void MovementManager::triggerTransition() {
 }
 // !!!!!!! TRANSICIONES DE SUELO !!!!!!! //
 void MovementManager::triggerGroundedTransition(){
-    
+
+    previousState = currentState;
+
     switch (currentState) {
             // ##########################################
             //              IDLE TRANS
@@ -457,26 +461,26 @@ void MovementManager::handleIdleState(MovementState target, MovementMoment momen
             if (targetState == MovementState::TURNING) {
                 
                 // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
-                //                  TURN
+                //             IDLE TURN TO IDLE
                 // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
                 // Si no quiere correr desde IDLE
                 if(!flag_turn_to_run){
                     // ofLogNotice("MovementManager") << "!!! ESTA IDLE, VAMOS A GIRAR DESDE: " << currentMovementName << "!!!";
                     // EJECUTAMOS GIRO (COMPROMETIDO)
-                    playMovement("TURN");
+                    playMovement("IDLE_TURN_TO_IDLE");
                     // ACTUALIZAMOS ESTADO
                     currentState = MovementState::TURNING;
                 }
                 
                 // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
-                //              TURN TO RUN
+                //             IDLE TURN TO RUN
                 // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
                 // Si quiere correr desde IDLE
                 else {
                     // ofLogNotice("MovementManager") << "!!! ESTA IDLE, VAMOS A GIRAR DESDE: " << currentMovementName << "!!!";
                     
                     // EJECUTAMOS GIRO (COMPROMETIDO)
-                    playMovement("TURN_TO_RUN");
+                    playMovement("IDLE_TURN_TO_RUN");
                     // ACTUALIZAMOS ESTADO
                     currentState = MovementState::TURNING;
                 }
@@ -736,16 +740,6 @@ void MovementManager::handleStoppingState(MovementState targetState, MovementMom
 //                                               TRANSICION COMPLETADA
 // ##############################################################################################################################
 void MovementManager::finishedTransition() {
-    /*
-    // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
-    //              ANY "TURN"
-    // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
-    // Era un giro, cambiamos la dirección lógica
-    if (currentMovementName.find("TURN") != std::string::npos) {
-        // ofLogNotice("MovementManager")  << "!!! ERA UN GIRO : !!!";
-        toggleIsFacingRight(); // Cambia la dirección lógica
-    }*/
-    
     
      // Recuperamos el origen de la transicion.
      TransitionOrigin origin = currentMovement->originType;
@@ -754,8 +748,8 @@ void MovementManager::finishedTransition() {
      // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
      //              ANY "TURN"
      // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
-     if (origin == TransitionOrigin::IDLE_TO_TURN ||
-         origin == TransitionOrigin::TURN_TO_RUN  ||
+     if (origin == TransitionOrigin::IDLE_TURN_TO_IDLE ||
+         origin == TransitionOrigin::IDLE_TURN_TO_RUN  ||
          origin == TransitionOrigin::WALK_TURN    ||
          origin == TransitionOrigin::RUN_TURN) {
          toggleIsFacingRight();
@@ -779,13 +773,16 @@ void MovementManager::finishedGroundedTransition() {
     
     TransitionOrigin origin = currentMovement->originType;
     
+    // Guardamos el estado actual antes de cambiarlo
+    previousState = currentState;
+
     switch (origin) {
 
             // ######################################################
             //   IDLE_TO_TURN: el giro simple desde IDLE terminó
             //   → volvemos a IDLE, luego el sistema decide
             // ######################################################
-            case TransitionOrigin::IDLE_TO_TURN:
+            case TransitionOrigin::IDLE_TURN_TO_IDLE:
                 playMovement("IDLE");
                 currentState = MovementState::IDLE;
                 break;
@@ -794,7 +791,7 @@ void MovementManager::finishedGroundedTransition() {
             //   TURN_TO_RUN: el giro con intención de correr terminó
             //   → arrancamos RUN directamente, luego el sistema decide
             // ######################################################
-            case TransitionOrigin::TURN_TO_RUN:
+            case TransitionOrigin::IDLE_TURN_TO_RUN:
                 playMovement("RUN", currentMovement->target_frame);
                 currentState = MovementState::RUNNING;
                 break;
@@ -965,17 +962,19 @@ void MovementManager::handleMovementPhysics(const std::string& name) {
     // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
     //                  TURN
     // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
-    if (name.find("TURN_") != std::string::npos) {
-        // ofLogNotice("MovementManager") << "-> Detectado GIRO en Movimiento";
-        
+    // ofLogNotice("MovementManager") << "-> Detectado GIRO en Movimiento";
+    if(name == "IDLE_TURN_TO_IDLE") {
+        // ofLogNotice("MovementManager") << "-> Detectado GIRO PARADO ";
+    }
+    else if (name.find("TURN_") != std::string::npos) {
+
         // TURN_TO_RUN , sus primeros frames no mueven el personaje, usamos un delay
-        if(name == "TURN_TO_RUN"){
-            // ofLogNotice("MovementManager") << "-> Detectado TURN_TO_RUN ";
+        if(name == "IDLE_TURN_TO_RUN") {
+            // ofLogNotice("MovementManager") << "-> Detectado IDLE_TURN_TO_RUN ";
             
             // isFacingRight ya está cambiado pero esta animación en concreto debe interpretar que aun no lo está
             // al terminar y pasarle el testigo a otra animación ya estará bien.
             physicsManager->startVelocityChange(physicsManager->getMaxSpeedWalk(), frames, !isFacingRight, 3);
-            
         }
         // Para los demás usa los frames del movimiento
        else{
@@ -988,7 +987,7 @@ void MovementManager::handleMovementPhysics(const std::string& name) {
     // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
     //                 TO_IDLE
     // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
-    if (name.find("TO_IDLE") != std::string::npos) {
+    else if (name.find("TO_IDLE") != std::string::npos) {
         // ofLogNotice("MovementManager") << "-> Detectado FRENADO (TO_IDLE)";
         
         // RUN TO IDLE debe terminar antes, es una frenada más brusca

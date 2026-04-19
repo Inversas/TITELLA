@@ -15,8 +15,8 @@
           "turn_transitions": {},
           "change_transitions": {}
         },
-        "TURN": {
-          "name": "TURN",
+        "IDLE_TURN_TO_IDLE": {
+          "name": "IDLE_TURN_TO_IDLE",
           "row": 1,
           "numRegions": 7,
           "isTransition": true,
@@ -158,8 +158,8 @@
             "5": "RUN_TO_WALK_2"
           }
         },
-        "TURN_TO_RUN": {
-          "name": "TURN_TO_RUN",
+        "IDLE_TURN_TO_RUN": {
+          "name": "IDLE_TURN_TO_RUN",
           "row": 1,
           "numRegions": 6,
           "isTransition": true,
