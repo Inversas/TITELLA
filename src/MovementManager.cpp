@@ -439,6 +439,133 @@ void MovementManager::triggerAirTransition() {
 }
 
 
+// ##############################################################################################################################
+//                                               TRANSICION COMPLETADA
+// ##############################################################################################################################
+void MovementManager::finishedTransition() {
+    
+     // Recuperamos el origen de la transicion.
+     TransitionOrigin origin = currentMovement->originType;
+
+     
+     // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+     //              ANY "TURN"
+     // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+     if (origin == TransitionOrigin::IDLE_TURN_TO_IDLE ||
+         origin == TransitionOrigin::IDLE_TURN_TO_RUN  ||
+         origin == TransitionOrigin::WALK_TURN    ||
+         origin == TransitionOrigin::RUN_TURN) {
+         toggleIsFacingRight();
+     }
+
+
+    // FINISHED TRANSITIONS
+    if (isGrounded) {
+        finishedGroundedTransition();
+    } else {
+        finishedAirTransition();
+    }
+    
+    updateIntent();
+}
+
+// ##############################################################################################################################
+//                                            TRANSICION COMPLETADA SUELO
+// ##############################################################################################################################
+void MovementManager::finishedGroundedTransition() {
+    
+    TransitionOrigin origin = currentMovement->originType;
+    
+    // Guardamos el estado actual antes de cambiarlo
+    previousState = currentState;
+
+    switch (origin) {
+
+            // ######################################################
+            //   IDLE_TO_TURN: el giro simple desde IDLE terminó
+            //   → volvemos a IDLE, luego el sistema decide
+            // ######################################################
+            case TransitionOrigin::IDLE_TURN_TO_IDLE:
+                currentState = MovementState::IDLE;
+                playMovement("IDLE");
+                break;
+
+            // ######################################################
+            //   TURN_TO_RUN: el giro con intención de correr terminó
+            //   → arrancamos RUN directamente, luego el sistema decide
+            // ######################################################
+            case TransitionOrigin::IDLE_TURN_TO_RUN:
+                currentState = MovementState::RUNNING;
+                playMovement("RUN", currentMovement->target_frame);
+                break;
+
+            // ######################################################
+            //   TO_WALK: agrupa IDLE_TO_WALK y RUN_TO_WALK
+            //   → arrancamos WALK, luego el sistema decide
+            // ######################################################
+            case TransitionOrigin::TO_WALK:
+                currentState = MovementState::WALKING;
+                playMovement("WALK", currentMovement->target_frame);
+                break;
+
+            // ######################################################
+            //   TO_RUN: agrupa IDLE_TO_RUN y WALK_TO_RUN
+            //   → arrancamos RUN, luego el sistema decide
+            // ######################################################
+            case TransitionOrigin::TO_RUN:
+                currentState = MovementState::RUNNING;
+                playMovement("RUN", currentMovement->target_frame);
+                break;
+
+            // ######################################################
+            //   WALK_TURN: el giro desde WALK terminó
+            //   → volvemos a WALK, luego el sistema decide
+            //   (si quiere correr o girar de nuevo, lo verá en el siguiente tick)
+            // ######################################################
+            case TransitionOrigin::WALK_TURN:
+                currentState = MovementState::WALKING;
+                playMovement("WALK", currentMovement->target_frame);
+                break;
+
+            // ######################################################
+            //   RUN_TURN: el giro desde RUN terminó
+            //   → volvemos a RUN, luego el sistema decide
+            //   (si quiere caminar o girar de nuevo, lo verá en el siguiente tick)
+            // ######################################################
+            case TransitionOrigin::RUN_TURN:
+                currentState = MovementState::RUNNING;
+                playMovement("RUN", currentMovement->target_frame);
+                break;
+
+            // ######################################################
+            //   TO_IDLE: agrupa WALK_TO_IDLE y RUN_TO_IDLE (las frenadas)
+            //   → llegamos a IDLE, luego el sistema decide
+            // ######################################################
+            case TransitionOrigin::TO_IDLE:
+                currentState = MovementState::IDLE;
+                playMovement("IDLE");
+                break;
+
+            // ######################################################
+            //   NONE u origen desconocido: seguridad, vamos a IDLE
+            // ######################################################
+            default:
+                currentState = MovementState::IDLE;
+                playMovement("IDLE");
+                break;
+        }
+}
+
+// ##############################################################################################################################
+//                                            TRANSICION COMPLETADA AIRE
+// ##############################################################################################################################
+void MovementManager::finishedAirTransition(){
+    ofLogNotice("MovementManager") << "FINAL TRANSICION AIRE";
+}
+
+
+
+
 // ==========================================
 //      HANDELERS DE ESTADOS
 // ==========================================
@@ -466,10 +593,11 @@ void MovementManager::handleIdleState(MovementState target, MovementMoment momen
                 // Si no quiere correr desde IDLE
                 if(!flag_turn_to_run){
                     // ofLogNotice("MovementManager") << "!!! ESTA IDLE, VAMOS A GIRAR DESDE: " << currentMovementName << "!!!";
-                    // EJECUTAMOS GIRO (COMPROMETIDO)
-                    playMovement("IDLE_TURN_TO_IDLE");
                     // ACTUALIZAMOS ESTADO
                     currentState = MovementState::TURNING;
+                    // EJECUTAMOS GIRO (COMPROMETIDO)
+                    playMovement("IDLE_TURN_TO_IDLE");
+
                 }
                 
                 // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
@@ -478,11 +606,11 @@ void MovementManager::handleIdleState(MovementState target, MovementMoment momen
                 // Si quiere correr desde IDLE
                 else {
                     // ofLogNotice("MovementManager") << "!!! ESTA IDLE, VAMOS A GIRAR DESDE: " << currentMovementName << "!!!";
-                    
-                    // EJECUTAMOS GIRO (COMPROMETIDO)
-                    playMovement("IDLE_TURN_TO_RUN");
                     // ACTUALIZAMOS ESTADO
                     currentState = MovementState::TURNING;
+                    // EJECUTAMOS GIRO (COMPROMETIDO)
+                    playMovement("IDLE_TURN_TO_RUN");
+          
                 }
             }
             
@@ -494,10 +622,11 @@ void MovementManager::handleIdleState(MovementState target, MovementMoment momen
                 //                  WALK
                 // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
                 //ofLogNotice("MovementManager") << "!!! ESTA IDLE, VAMOS A EMPEZAR A CAMINAR DESDE: " << currentMovementName << "!!!";
-                // EJECUTAMOS TRANSICION A FELXIBLE
-                playMovement("IDLE_TO_WALK");
                 // ACTUALIZAMOS ESTADO
                 currentState = MovementState::WALKING;
+                // EJECUTAMOS TRANSICION A FELXIBLE
+                playMovement("IDLE_TO_WALK");
+             
             }
             
             // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -508,10 +637,11 @@ void MovementManager::handleIdleState(MovementState target, MovementMoment momen
                 //                  RUN
                 // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
                 //ofLogNotice("MovementManager") << "!!! ESTA IDLE, VAMOS A EMPEZAR A CORRER DESDE: " << currentMovementName << "!!!";
-                // EJECUTAMOS TRANSICION A FELXIBLE
-                playMovement("IDLE_TO_RUN");
                 // ACTUALIZAMOS ESTADO
                 currentState = MovementState::RUNNING;
+                // EJECUTAMOS TRANSICION A FELXIBLE
+                playMovement("IDLE_TO_RUN");
+
             }
         break;
         
@@ -585,12 +715,13 @@ void MovementManager::handleWalkingState(MovementState target, MovementMoment mo
             // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
             //              WALK TO RUN
             // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
-            // EJECUTAMOS
-            playMovement(currentMovement->change_transitions[targetRegion]);
             // ACTUALIZAMOS ESTADO
             if (currentMovementName == "WALK_TO_RUN") {
                 currentState = MovementState::RUNNING; // Lo marcamos como RUNNING (aunque ya se ha marcado en updateState, por ser transición)
             }
+            // EJECUTAMOS
+            playMovement(currentMovement->change_transitions[targetRegion]);
+
         break;
     }
     
@@ -663,13 +794,14 @@ void MovementManager::handleRunningState(MovementState targetState, MovementMome
             // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
             //             RUN TO WALK
             // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
-            // EJECUTAMOS
-            playMovement(currentMovement->change_transitions[targetRegion]);
-            
             // ACTUALIZAMOS ESTADO
             if (currentMovementName == "RUN_TO_WALK") {
                 currentState = MovementState::WALKING; // Lo marcamos como WALKING (aunque ya se ha marcado en updateState, por ser transición)
             }
+            // EJECUTAMOS
+            playMovement(currentMovement->change_transitions[targetRegion]);
+            
+    
             break;
     }
     
@@ -701,10 +833,11 @@ void MovementManager::handleTurningState(MovementState targetState, MovementMome
         //                           TRIGGER TRANSITION
         // ========================================================================
         case MovementMoment::TRIGGER:
-            // EJECUTAMOS
-            playMovement(currentMovement->turn_transitions[targetRegion]);
             // ACTUALIZAMOS ESTADO
             currentState = MovementState::TURNING;
+            // EJECUTAMOS
+            playMovement(currentMovement->turn_transitions[targetRegion]);
+
         break;
     }
 }
@@ -726,141 +859,18 @@ void MovementManager::handleStoppingState(MovementState targetState, MovementMom
         //                           TRIGGER TRANSITION
         // ========================================================================
         case MovementMoment::TRIGGER:
-            // EJECUTAMOS
-            playMovement(currentMovement->stop_transitions[targetRegion]);
             // ACTUALIZAMOS ESTADO
             currentState = MovementState::STOPPING;
+            // EJECUTAMOS
+            playMovement(currentMovement->stop_transitions[targetRegion]);
+  
         break;
     }
 }
 
 
 
-// ##############################################################################################################################
-//                                               TRANSICION COMPLETADA
-// ##############################################################################################################################
-void MovementManager::finishedTransition() {
-    
-     // Recuperamos el origen de la transicion.
-     TransitionOrigin origin = currentMovement->originType;
 
-     
-     // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
-     //              ANY "TURN"
-     // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
-     if (origin == TransitionOrigin::IDLE_TURN_TO_IDLE ||
-         origin == TransitionOrigin::IDLE_TURN_TO_RUN  ||
-         origin == TransitionOrigin::WALK_TURN    ||
-         origin == TransitionOrigin::RUN_TURN) {
-         toggleIsFacingRight();
-     }
-
-
-    // FINISHED TRANSITIONS
-    if (isGrounded) {
-        finishedGroundedTransition();
-    } else {
-        finishedAirTransition();
-    }
-    
-    updateIntent();
-}
-
-// ##############################################################################################################################
-//                                            TRANSICION COMPLETADA SUELO
-// ##############################################################################################################################
-void MovementManager::finishedGroundedTransition() {
-    
-    TransitionOrigin origin = currentMovement->originType;
-    
-    // Guardamos el estado actual antes de cambiarlo
-    previousState = currentState;
-
-    switch (origin) {
-
-            // ######################################################
-            //   IDLE_TO_TURN: el giro simple desde IDLE terminó
-            //   → volvemos a IDLE, luego el sistema decide
-            // ######################################################
-            case TransitionOrigin::IDLE_TURN_TO_IDLE:
-                playMovement("IDLE");
-                currentState = MovementState::IDLE;
-                break;
-
-            // ######################################################
-            //   TURN_TO_RUN: el giro con intención de correr terminó
-            //   → arrancamos RUN directamente, luego el sistema decide
-            // ######################################################
-            case TransitionOrigin::IDLE_TURN_TO_RUN:
-                playMovement("RUN", currentMovement->target_frame);
-                currentState = MovementState::RUNNING;
-                break;
-
-            // ######################################################
-            //   TO_WALK: agrupa IDLE_TO_WALK y RUN_TO_WALK
-            //   → arrancamos WALK, luego el sistema decide
-            // ######################################################
-            case TransitionOrigin::TO_WALK:
-                playMovement("WALK", currentMovement->target_frame);
-                currentState = MovementState::WALKING;
-                break;
-
-            // ######################################################
-            //   TO_RUN: agrupa IDLE_TO_RUN y WALK_TO_RUN
-            //   → arrancamos RUN, luego el sistema decide
-            // ######################################################
-            case TransitionOrigin::TO_RUN:
-                playMovement("RUN", currentMovement->target_frame);
-                currentState = MovementState::RUNNING;
-                break;
-
-            // ######################################################
-            //   WALK_TURN: el giro desde WALK terminó
-            //   → volvemos a WALK, luego el sistema decide
-            //   (si quiere correr o girar de nuevo, lo verá en el siguiente tick)
-            // ######################################################
-            case TransitionOrigin::WALK_TURN:
-                playMovement("WALK", currentMovement->target_frame);
-                currentState = MovementState::WALKING;
-                break;
-
-            // ######################################################
-            //   RUN_TURN: el giro desde RUN terminó
-            //   → volvemos a RUN, luego el sistema decide
-            //   (si quiere caminar o girar de nuevo, lo verá en el siguiente tick)
-            // ######################################################
-            case TransitionOrigin::RUN_TURN:
-                playMovement("RUN", currentMovement->target_frame);
-                currentState = MovementState::RUNNING;
-                break;
-
-            // ######################################################
-            //   TO_IDLE: agrupa WALK_TO_IDLE y RUN_TO_IDLE (las frenadas)
-            //   → llegamos a IDLE, luego el sistema decide
-            // ######################################################
-            case TransitionOrigin::TO_IDLE:
-                playMovement("IDLE");
-                currentState = MovementState::IDLE;
-                break;
-
-            // ######################################################
-            //   NONE u origen desconocido: seguridad, vamos a IDLE
-            // ######################################################
-            default:
-                playMovement("IDLE");
-                currentState = MovementState::IDLE;
-                break;
-        }
-}
-
-
-
-// ##############################################################################################################################
-//                                            TRANSICION COMPLETADA AIRE
-// ##############################################################################################################################
-void MovementManager::finishedAirTransition(){
-    ofLogNotice("MovementManager") << "FINAL TRANSICION AIRE";
-}
 
 
 // ==========================================
@@ -948,116 +958,143 @@ void MovementManager::updateFrame() {
 // $$$$$$$$$$$$$ FISICAS $$$$$$$$$$$$$
 // ==========================================
 void MovementManager::handleMovementPhysics(const std::string& name) {
+    // Si currentMovement no existe, o no está inicializado, abortamos
+    if (!currentMovement) return;
+
     // Si el nombre del movimiento no existe en nuestro mapa, abortamos
     if (movementUtilities.getAllMovements().find(name) == movementUtilities.getAllMovements().end()) return;
     
     // Obtenemos el número de frames (regiones) que dura esta animación
     int frames = movementUtilities.getMovement(name).numRegions;
-
-    // ofLogNotice("MovementManager") << "Analizando: " << name;
-
-// ##############################################################################################################################
-//                                           TRANSICIONES (PRIORIDAD MÁXIMA)
-// ##############################################################################################################################
-    // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
-    //                  TURN
-    // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
-    // ofLogNotice("MovementManager") << "-> Detectado GIRO en Movimiento";
-    if(name == "IDLE_TURN_TO_IDLE") {
-        // ofLogNotice("MovementManager") << "-> Detectado GIRO PARADO ";
-    }
-    else if (name.find("TURN_") != std::string::npos) {
-
-        // TURN_TO_RUN , sus primeros frames no mueven el personaje, usamos un delay
-        if(name == "IDLE_TURN_TO_RUN") {
-            // ofLogNotice("MovementManager") << "-> Detectado IDLE_TURN_TO_RUN ";
-            
-            // isFacingRight ya está cambiado pero esta animación en concreto debe interpretar que aun no lo está
-            // al terminar y pasarle el testigo a otra animación ya estará bien.
-            physicsManager->startVelocityChange(physicsManager->getMaxSpeedWalk(), frames, !isFacingRight, 3);
-        }
-        // Para los demás usa los frames del movimiento
-       else{
-            // Inicia la rampa en 'V' para invertir la velocidad en el tiempo de giro
-            physicsManager->startVelocityTurnChange(frames);
-        }
-        return;
-    }
     
-    // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
-    //                 TO_IDLE
-    // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
-    else if (name.find("TO_IDLE") != std::string::npos) {
-        // ofLogNotice("MovementManager") << "-> Detectado FRENADO (TO_IDLE)";
+    
+    // ofLogNotice("MovementManager") << "Analizando: " << name;
+    switch (currentState) {
+            
+        // ==========================================
+        //     ESTADO IDLE: sin física activa
+        // ==========================================
+        case MovementState::IDLE:
+            // IDLE no aplica físicas, existe por consistencia de código
+            // ofLogNotice("MovementManager") << "Disparado Movimiento BASE IDLE ";
+
+        break;
+        // ==========================================
+        //               STOPPING
+        // ==========================================
+        case MovementState::STOPPING:
+            // ofLogNotice("MovementManager") << "-> Detectado FRENADO (TO_IDLE)";
+            
+            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+            //           RUN TO IDLE 1 i 2
+            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+            // RUN TO IDLE debe terminar antes, es una frenada más brusca
+            if (name.find("RUN_TO_IDLE") != std::string::npos) {
+                // Crea una rampa hacia velocidad 0 usando los frames menos 1 de la animación de frenado
+                physicsManager->startVelocityChange(0, frames-1, isFacingRight);
+            }
+            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+            //           WALK TO IDLE 1 i 2 (todos los que no son RUN_TO_IDLE
+            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+            else {
+                // Crea una rampa hacia velocidad 0 usando los frames de la animación de frenado
+                physicsManager->startVelocityChange(0, frames, isFacingRight);
+            }
+        break;
+    
+        // ==========================================
+        //   TURNING: cualquier movimiento de giro
+        // ==========================================
+        case MovementState::TURNING:
+            
+            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+            //           IDLE TURN TO IDLE
+            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+             if (name == "IDLE_TURN_TO_IDLE") {
+                 // Giro en parado: no hay velocidad que invertir
+                 // ofLogNotice("MovementManager") << "-> Detectado GIRO PARADO ";
+             }
+            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+            //           IDLE TURN TO RUN
+            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+             else if (name == "IDLE_TURN_TO_RUN") {
+                 // ofLogNotice("MovementManager") << "-> Detectado IDLE_TURN_TO_RUN ";
+
+                 // isFacingRight ya está cambiado pero esta animación en concreto debe interpretar que aun no lo está
+                 // al terminar y pasarle el testigo a otra animación ya estará bien.
+                 physicsManager->startVelocityChange( physicsManager->getMaxSpeedWalk(), frames, !isFacingRight, 3);
+             }
+            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+            //           WALK TURN / RUN TURN
+            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+             else{
+                  // Inicia la rampa en 'V' para invertir la velocidad en el tiempo de giro
+                  physicsManager->startVelocityTurnChange(frames);
+              }
+        break;
         
-        // RUN TO IDLE debe terminar antes, es una frenada más brusca
-        if(name == "RUN_TO_IDLE"){
-        // Crea una rampa hacia velocidad 0 usando los frames menos 2 de la animación de frenado
-        physicsManager->startVelocityChange(0, frames-2, isFacingRight);
-        }
-        // Para los demás usa los frames del movimiento
-        else {
-            // Crea una rampa hacia velocidad 0 usando los frames de la animación de frenado
-            physicsManager->startVelocityChange(0, frames, isFacingRight);
-        }
-        return;
-    }
-
-    // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
-    //                 RUN_TO_WALK
-    // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
-    if (name.find("RUN_TO_WALK") != std::string::npos) {
-        // ofLogNotice("MovementManager") << "-> Detectado RUN_TO_WALK";
-        // Baja la velocidad hasta el tope de caminar usando los frames de transición más 3 frames "prestados" del ciclo WALK
-        physicsManager->startVelocityChange(physicsManager->getMaxSpeedWalk(), frames+3, isFacingRight);
-        return;
-    }
-
-    // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
-    //                  WALK_TO_RUN
-    // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
-    if (name.find("WALK_TO_RUN") != std::string::npos) {
-        // ofLogNotice("MovementManager") << "-> Detectado WALK_TO_RUN";
-        // Acelera hasta correr usando la transición + 3 frames "prestados" del ciclo RUN
-        physicsManager->startVelocityChange(physicsManager->getMaxSpeedRun(), frames + 3, isFacingRight);
-        return;
-    }
-
-// ##############################################################################################################################
-//                                           BUCLES (PRIORIDAD BAJA)
-// ##############################################################################################################################
-    // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
-    //             WALK / IDLE_TO_WALK
-    // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
-    if (name.find("WALK") != std::string::npos) {
-        // ofLogNotice("MovementManager") << "-> Detectado WALK simple";
-        // Mantiene o ajusta la velocidad al máximo de caminar, durante el primer ciclo de WALK
-        physicsManager->startVelocityChange(physicsManager->getMaxSpeedWalk(), frames, isFacingRight);
-    }
-    // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
-    //             RUN / IDLE_TO_RUN
-    // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
-    else if (name.find("RUN") != std::string::npos) {
-        // ofLogNotice("MovementManager") << "-> Detectado RUN simple";
+        // ==========================================
+        //                  WALKING
+        // ==========================================
+        case MovementState::WALKING:
+            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+            //            RUN TO WALK (1 i 2)
+            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+            if (name.find("RUN_TO_WALK") != std::string::npos) {
+                // ofLogNotice("MovementManager") << "-> Detectado RUN_TO_WALK";
+                // Baja la velocidad hasta el tope de caminar usando los frames de transición más 3 frames "prestados" del ciclo WALK
+                physicsManager->startVelocityChange( physicsManager->getMaxSpeedWalk(), frames + 3, isFacingRight);
+            }
+            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+            //          WALK / IDLE TO WALK
+            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+            else {
+                ofLogNotice("MovementManager") << "-> Detectado WALK o IDLE_TO_WALK";
+                // Mantiene (WALK) o ajusta la velocidad al máximo de caminar durante el primer ciclo de IDLE_TO_WALK
+                physicsManager->startVelocityChange( physicsManager->getMaxSpeedWalk(), frames, isFacingRight );
+            }
+        break;
+            
+        // ==========================================
+        //                  RUNNING
+        // ==========================================
+        case MovementState::RUNNING:
+            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+            //          WALK TO RUN (1 i 2)
+            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+            if (name.find("WALK_TO_RUN") != std::string::npos) {
+                // ofLogNotice("MovementManager") << "-> Detectado WALK_TO_RUN";
+                // Acelera hasta correr usando la transición + 3 frames "prestados" del ciclo RUN
+                physicsManager->startVelocityChange(physicsManager->getMaxSpeedRun(), frames + 3, isFacingRight);
+            }
+            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+            //               IDLE TO RUN
+            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+            // IDLE TO RUN no debe llegar a su velocidad máxima durante los frames del movimiento, usamos un delay
+            else if(name == "IDLE_TO_RUN"){
+                // ofLogNotice("MovementManager") << "-> Detectado IDLE_TO_RUN ";
+                physicsManager->startVelocityChange(physicsManager->getMaxSpeedWalk(), frames, isFacingRight, 2);
+            }
+            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+            //                  RUN / IDLE TO WALK
+            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+            else {
+                // ofLogNotice("MovementManager") << "-> Detectado RUN o IDLTE_TO_RUN";
+                physicsManager->startVelocityChange(physicsManager->getMaxSpeedRun(), frames, isFacingRight);
+            }
+        break;
         
-        // IDLE TO RUN no debe llegar a su velocidad máxima durante los frames del movimiento, usamos un delay
-        if(name.find("IDLE_TO_RUN") != std::string::npos ){
-            // ofLogNotice("MovementManager") << "-> Detectado IDLE_TO_RUN ";
-            physicsManager->startVelocityChange(physicsManager->getMaxSpeedWalk(), frames, isFacingRight,2);
-        }
-        // Para los demás usa los frames del movimiento
-        else {
-            // ofLogNotice("MovementManager") << "-> Detectado RUN ";
-            physicsManager->startVelocityChange(physicsManager->getMaxSpeedRun(), frames, isFacingRight);
-        }
-    }
-    // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
-    //            IDLE, por ejemplo
-    // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
-    else {
-        ofLogNotice("MovementManager")  << name << " No tiene fisicas";
+        // ==========================================
+        //              NO DEFINIDO
+        // ==========================================
+        default:
+            ofLogNotice("MovementManager") << "ESTADO NO CONTEMPLADO PARA FISICAS";
+        break;
+            
     }
 }
+
+
 
 // ==========================================
 //      EJECUTOR

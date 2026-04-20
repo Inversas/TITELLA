@@ -120,6 +120,8 @@ public:
     // Actualiza ESTADOS segun INTENCIONES y gestiona si debe hacer cambio de Region
     void update();
     
+
+    
     // ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
     // Los Getters y Setters se pueden definir en el .h como "inline"
     // (dentro de la llave { }) no necesitan escribirse en el .cpp
@@ -284,8 +286,33 @@ private:
     void updateGroundedState(MovementState targetState);
     // !!!!!!! JUEZ DE AIRE !!!!!!! //
     void updateAirState(MovementState targetState);
-    // ARREPENTIMIENTOS Y REDIRECCIONES
+    
+    // ==========================================
+    //     ARREPENTIMIENTOS y REDIRECCIONES
+    // ==========================================
     bool handleWaitingInterrupt();
+    
+    // ==========================================
+    //      GESTIÓN DE TRANSICIONES
+    // ==========================================
+    void triggerTransition();
+    void triggerGroundedTransition();
+    void triggerAirTransition();
+    void finishedTransition();
+    void finishedGroundedTransition();
+    void finishedAirTransition();
+    
+    // ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
+    // & (Referencia): Evita que el ordenador cree una "copia" de toda la estructura del parámetro pasado en la memoria cada vez que llamas a la función.
+    // Las referencias (&) siempre apuntan a algo que existe, así que el código queda más limpio y seguro.
+    
+    // * (Puntero): Los punteros pueden ser nullptr (nulos), lo que te obligaría a poner un if (intent != nullptr) por seguridad.
+    
+    // El const: El const garantiza que no vas a modificar accidentalmente los valores de intent dentro de la función.
+    
+    // También si el objeto tiene más de uno o dos bytes, y no necesitas modificarlo, pásalo por const & → por referencia
+    // En cambio tipos primitivos y enums → por valor
+    // ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
     
     // ==========================================
     //      HANDELERS DE ESTADOS
@@ -297,29 +324,7 @@ private:
     void handleTurningState(MovementState target, MovementMoment moment);
     void handleStoppingState(MovementState target, MovementMoment moment);
     
-    // ==========================================
-    //      GESTIÓN DE TRANSICIONES
-    // ==========================================
-    void triggerTransition();
-    void triggerGroundedTransition();
-    void triggerAirTransition();
-    void finishedTransition();
-    // ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
-    // & (Referencia): Evita que el ordenador cree una "copia" de toda la estructura InputState en la memoria cada vez que llamas a la función.
-    // Las referencias (&) siempre apuntan a algo que existe, así que el código queda más limpio y seguro.
     
-    // * (Puntero): Los punteros pueden ser nullptr (nulos), lo que te obligaría a poner un if (intent != nullptr) por seguridad.
-    
-    // El const: El const garantiza que no vas a modificar accidentalmente los valores de intent dentro de la función.
-    
-    // También si el objeto tiene más de uno o dos bytes, y no necesitas modificarlo, pásalo por const & → por referencia
-    // En cambio tipos primitivos y enums → por valor
-    // ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
-    void finishedGroundedTransition();
-    void finishedAirTransition();
-
-
-
     // ==========================================
     //      MOTOR
     // ==========================================
