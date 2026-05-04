@@ -27,7 +27,8 @@ public:
     // *** EL LATIDO  ***
     // Esta función será llamada por MovementManager cada vez que cambie un frame de animación.
     void updateVelocityStep();
-
+    // Esta función será llamada por MovementManager cada vez que cambie un frame de animación, se encarga del eje Y
+    void updateVelocityStepY();
     
     // *** CAMBIOS DE VELOCIDAD ***
     // Calcula cuánto debe cambiar la velocidad en cada frame de la animación actual.
@@ -37,6 +38,22 @@ public:
     void startVelocityChange(float targetAbsSpeed, int frames, bool lookingRight, int delay = 0);
     void startVelocityTurnChange(int frames);
     
+    // -------- NUEVO --------
+    // !!!!!!!!! JUMP !!!!!!!!!
+    // *** GESTIÓN SALTO ***
+    //void startVelocityChangeY(float targetAbsSpeed, int frames);
+    void startVelocityJump (int totalJumpFrames, int delay, int stopFrames);
+    void updateJumpStep();
+    void startJumpToFall(int stopFrames);
+    void updateJumpToFallStep();
+    void cutJump();
+    
+    int getFramesRemainingJump() const;
+    bool getIsImpulsing() const;
+    bool getGravityOverride() const;
+    
+    void resetJumpState();
+    
 
     // *** APLICAR FISICAS ***
     // Aplicación final del movimiento
@@ -44,6 +61,9 @@ public:
     // Aplica la gravedad al personaje, con un límite de suelo (ground)
     void applyGravity();
     
+    
+
+
     
 
     
@@ -62,6 +82,9 @@ public:
     void setPositionY(float newY);
     void setCurrentScale(float scale);
     void setVelocityY(float newY);
+    void setGravityY(float newY);
+    void resetGravityY();
+
     
     void setMaxSpeedWalk(float maxSpeed);
     void setMaxSpeedRun(float maxSpeed);
@@ -89,11 +112,50 @@ private:
     float currentScale = 1.0f;
     
     // *** CONTROL DE TRANSICIÓN DE VELOCIDAD ***
-    float targetVelocityX;        // A qué velocidad queremos llegar (ej: 200.0 o 0.0)
-    float velocityStep;           // Cuánta velocidad sumamos/restamos en cada tick de animación
-    int framesRemaining;          // Cuántos "pasos" quedan para terminar el cambio de velocidad
-    int delayFramesRemaining = 0; // Cuántos "pasos" quedan para empezar el cambio de velocidad
-    bool isVelocityChanging;      // Flag de seguridad para saber si hay un cambio de velocidad en curso
+    float targetVelocityX;         // A qué velocidad queremos llegar (ej: 200.0 o 0.0)
+    float targetVelocityY;         // A qué velocidad queremos llegar (ej: 200.0 o 0.0) en el eje Y
+
+
+    float velocityStepX;           // Cuánta velocidad sumamos/restamos en cada tick de animación en el eje X
+    float velocityStepY;           // Cuánta velocidad sumamos/restamos en cada tick de animación en el eje Y
+    int framesRemaining;           // Cuántos "pasos" quedan para terminar el cambio de velocidad
+    int delayFramesRemaining = 0;  // Cuántos "pasos" quedan para empezar el cambio de velocidad
+    bool isVelocityChanging;       // Flag de seguridad para saber si hay un cambio de velocidad en curso
+    
+    
+    
+    
+
+    // -------- NUEVO --------
+    // !!!!!!!!! JUMP !!!!!!!!!
+    float baseJumpForce = 0.0f;    // Cuánto sube por frame de JUMP
+    float jumpForce = 0.0f;
+
+    
+    
+    
+    
+    
+    int stopFrames = 0;
+    int delayFramesRemainingJump = 0;
+    int framesRemainingJump = 0;
+    bool isImpulsing = false;           // Si estamos aplicando impulso de subida
+    bool isWaitingJumpImpulse = false;
+    int maxJumpFrames = 3; //(Controlable por GUI)
+    int minJumpFrames = 1; // (Controlable por GUI)
+    int totalJumpFrames = 0;
+    
+    // *** JUMP TO FALL ***
+    float stopStepY = 0.0f;
+    int framesRemainingStop = 0;
+    bool isStartingToFall = false;
+    bool isHanging = false;
+    bool gravityOverride = false;
+    
+    
+    
+    
+
 
     // *** MÉTODOS INTERNOS ***
     // Actualiza los valores de trabajo segun la escala

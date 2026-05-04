@@ -19,8 +19,18 @@ enum class TransitionOrigin {
     WALK_TURN,     // Giros desde WALK: WALK_TURN_1, WALK_TURN_2
     RUN_TURN,      // Giros desde RUN: RUN_TURN_1, RUN_TURN_2
     IDLE_TURN_TO_IDLE,  // Giro simple desde IDLE
-    IDLE_TURN_TO_RUN    // Giro desde IDLE con intención de correr
+    IDLE_TURN_TO_RUN,    // Giro desde IDLE con intención de correr
+    
+    TO_JUMP,         // IDLE/WALK/RUN _TO_JUMP
+    TO_FALL,         // JUMP_TO_FALL
+    // JUMP_TURN,       // Giro en JUMP
+    // FALL_TURN,       // Giro en FALL
+    // TO_LAND_IDLE,    // → LAND_TO_IDLE
+    // TO_LAND_WALK,    // → LAND_TO_WALK
+    // TO_LAND_RUN,     // → LAND_TO_RUN
 };
+ 
+
  
 
 // +++++++++++++ STRUCT +++++++++++++

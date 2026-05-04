@@ -76,6 +76,10 @@ void MovementUtilities::parseMovementsJson(ofxJSONElement& json) {
             else if (originStr == "RUN_TURN")   movement.originType = TransitionOrigin::RUN_TURN;
             else if (originStr == "TURN")       movement.originType = TransitionOrigin::IDLE_TURN_TO_IDLE;
             else if (originStr == "TURN_TO_RUN") movement.originType = TransitionOrigin::IDLE_TURN_TO_RUN;
+            else if (originStr == "TO_JUMP") movement.originType = TransitionOrigin::TO_JUMP;
+            else if (originStr == "TO_FALL") movement.originType = TransitionOrigin::TO_FALL;
+
+
             else                                movement.originType = TransitionOrigin::NONE;
             
             

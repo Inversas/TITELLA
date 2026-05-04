@@ -75,26 +75,39 @@ private:
     // 2. F.I. (Frame Intervals)
     // ==========================================
     ofxLabel currentMovementFrameIntervalGui;
-    ofxFloatSlider idleFrameIntervalGui;          // Slider para IDLE
-    ofxFloatSlider walkFrameIntervalGui;          // Slider para WALK
-    ofxFloatSlider walkToIdle1FrameIntervalGui;   // Slider para WalkToIdle1
-    ofxFloatSlider walkToIdle2FrameIntervalGui;   // Slider para WalkToIdle2
-    ofxFloatSlider walkToRun1FrameIntervalGui;    // Slider para WalkToRun1
-    ofxFloatSlider walkToRun2FrameIntervalGui;    // Slider para WalkToRun2
-    ofxFloatSlider runFrameIntervalGui;           // Slider para RUN
-    ofxFloatSlider runToIdle1FrameIntervalGui;    // Slider para RunToIdle1
-    ofxFloatSlider runToIdle2FrameIntervalGui;    // Slider para RunToIdle2
-    ofxFloatSlider runToWalk1FrameIntervalGui;    // Slider para RunToWalk1
-    ofxFloatSlider runToWalk2FrameIntervalGui;    // Slider para RunToWalk2
-    ofxFloatSlider turnFrameIntervalGui;          // Slider para TURN
-    ofxFloatSlider turnToRunFrameIntervalGui;     // Slider para TURN_TO_RUN
-    ofxFloatSlider walkTurn1FrameIntervalGui;     // Slider para WalkTurn1
-    ofxFloatSlider walkTurn2FrameIntervalGui;     // Slider para WalkTurn2
-    ofxFloatSlider runTurn1FrameIntervalGui;      // Slider para RunTurn1
-    ofxFloatSlider runTurn2FrameIntervalGui;      // Slider para RunTurn2
-    ofxFloatSlider idleToWalkFrameIntervalGui;    // Slider para Idle To Walk
-    ofxFloatSlider idleToRunFrameIntervalGui;;    // Slider para Idle To Run
+    ofxFloatSlider idleFrameIntervalGui;               // Slider para IDLE
+    ofxFloatSlider walkFrameIntervalGui;               // Slider para WALK
+    ofxFloatSlider walkToIdle1FrameIntervalGui;        // Slider para WalkToIdle1
+    ofxFloatSlider walkToIdle2FrameIntervalGui;        // Slider para WalkToIdle2
+    ofxFloatSlider walkToRun1FrameIntervalGui;         // Slider para WalkToRun1
+    ofxFloatSlider walkToRun2FrameIntervalGui;         // Slider para WalkToRun2
+    ofxFloatSlider runFrameIntervalGui;                // Slider para RUN
+    ofxFloatSlider runToIdle1FrameIntervalGui;         // Slider para RunToIdle1
+    ofxFloatSlider runToIdle2FrameIntervalGui;         // Slider para RunToIdle2
+    ofxFloatSlider runToWalk1FrameIntervalGui;         // Slider para RunToWalk1
+    ofxFloatSlider runToWalk2FrameIntervalGui;         // Slider para RunToWalk2
+    ofxFloatSlider idleTurnToIdleFrameIntervalGui;     // Slider para IdleTurnToIdle
+    ofxFloatSlider idleTurnToRunFrameIntervalGui;      // Slider para IdleTurnToRun
+    ofxFloatSlider walkTurn1FrameIntervalGui;          // Slider para WalkTurn1
+    ofxFloatSlider walkTurn2FrameIntervalGui;          // Slider para WalkTurn2
+    ofxFloatSlider runTurn1FrameIntervalGui;           // Slider para RunTurn1
+    ofxFloatSlider runTurn2FrameIntervalGui;           // Slider para RunTurn2
+    ofxFloatSlider idleToWalkFrameIntervalGui;         // Slider para Idle To Walk
+    ofxFloatSlider idleToRunFrameIntervalGui;;         // Slider para Idle To Run
     
+    ofxFloatSlider idleToJumpFrameIntervalGui;         // Slider para IdleToJump
+    ofxFloatSlider jumpFrameIntervalGui;               // Slider para JUMP
+    ofxFloatSlider jumpToFallFrameIntervalGui;         // Slider para JumpToFall
+    ofxFloatSlider fallFrameIntervalGui;               // Slider para FALL
+    ofxFloatSlider landToIdleFrameIntervalGui;         // Slider para LandToIdle
+    ofxFloatSlider walkToJump1FrameIntervalGui;        // Slider para WalkToJump1
+    ofxFloatSlider walkToJump2FrameIntervalGui;        // Slider para WalkToJump2
+    ofxFloatSlider landToWalkFrameIntervalGui;         // Slider para LandToWalk
+    ofxFloatSlider runToJump1FrameIntervalGui;         // Slider para RunToJump1
+    ofxFloatSlider runToJump2FrameIntervalGui;         // Slider para RunToJump2
+    ofxFloatSlider landToRunFrameIntervalGui;          // Slider para LandToRun
+    ofxFloatSlider jumpTurnFrameIntervalGui;           // Slider para JumpTurn
+    ofxFloatSlider fallTurnFrameIntervalGui;           // Slider para FallTurn
     
     
     // ==========================================
@@ -120,13 +133,22 @@ private:
     
     string currentRowGui;
     string currentRegionGui;
-    string currentVelocityXGui;      // Label para mostrar la velocidad actual del personaje
+    
+    string controlKeysGui;           // Label para mostrar las teclas de control
+    string currentStateGui;          // Para el estado actual
+    string currentIntentionGui;      // Label para mostrar la Intención Actual
+    string targetStateGui;           // Para el estado objetivo
+    
     string currentMovementNameGui;   // Label para mostrar el nombre del movimiento actual
     string nextOutRegionGui;         // Label para mostrar la siguiente región de salida
-    string currentStateGui;          // Para el estado actual
-    string targetStateGui;           // Para el estado objetivo
-    string controlKeysGui;           // Label para mostrar las teclas de control
-    string currentIntentionGui;      // Label para mostrar la Intención Actual
+
+    string currentVelocityXGui;      // Label para mostrar la velocidad actual del personaje en el eje X
+    // string currentVolocityYGui;   // Label para mostrar la velocidad actual del personaje en el eje Y
+    // string gravity;               // Label para mostrar la gravedad
+
+    bool isGroundedGui = false;     // Bool para mostrar si el personaje está en el suelo o no
+    bool isWalledGui   = false;     // Bool  para mostrar si el personaje está tocando una pared o no
+
     
     
     // *** REFERENCIAS A GESTORES *** //
@@ -152,24 +174,38 @@ private:
     
     
     // Callbacks for FRAME INTERVAL sliders
-    void onFrameIntervalChanged(float& value); // Callback para Global
-    void onIdleFrameIntervalChanged(float& value); // Callback para IDLE
-    void onWalkFrameIntervalChanged(float& value); // Callback para WALK
-    void onWalkToIdle1FrameIntervalChanged(float& value); // Callback para WalkToIdle1
-    void onWalkToIdle2FrameIntervalChanged(float& value); // Callback para Wal
-    void onWalkToRun1FrameIntervalChanged(float& value); // Callback para WalkToRun1
-    void onWalkToRun2FrameIntervalChanged(float& value); // Callback para WalkToRun2
-    void onRunFrameIntervalChanged(float& value);  // Callback para RUN
-    void onRunToIdle1FrameIntervalChanged(float& value); // Callback para RunToIdle1
-    void onRunToIdle2FrameIntervalChanged(float& value); // Callback para RunToIdle2
-    void onRunToWalk1FrameIntervalChanged(float& value); // Callback para RunToWalk1
-    void onRunToWalk2FrameIntervalChanged(float& value); // Callback para RunToWalk2
-    void onTurnFrameIntervalChanged(float& value); // Callback para TURN
-    void onTurnToRunFrameIntervalChanged(float& value); // Callback para TurnToRun
-    void onWalkTurn1FrameIntervalChanged(float& value); // Callback para WalkTurn1
-    void onWalkTurn2FrameIntervalChanged(float& value); // Callback para WalkTurn2
-    void onRunTurn1FrameIntervalChanged(float& value); // Callback para RunTurn1
-    void onRunTurn2FrameIntervalChanged(float& value); // Callback para RunTurn2
-    void onIdleToWalkFrameIntervalChanged(float& value); // Callback para Idle To Walk
-    void onIdleToRunFrameIntervalChanged(float& value); // Callback para Idle To Run
+    void onFrameIntervalChanged(float& value);                 // Callback para Global
+    void onIdleFrameIntervalChanged(float& value);             // Callback para IDLE
+    void onWalkFrameIntervalChanged(float& value);             // Callback para WALK
+    void onWalkToIdle1FrameIntervalChanged(float& value);      // Callback para WalkToIdle1
+    void onWalkToIdle2FrameIntervalChanged(float& value);      // Callback para WalkToIdle2
+    void onWalkToRun1FrameIntervalChanged(float& value);       // Callback para WalkToRun1
+    void onWalkToRun2FrameIntervalChanged(float& value);       // Callback para WalkToRun2
+    void onRunFrameIntervalChanged(float& value);              // Callback para RUN
+    void onRunToIdle1FrameIntervalChanged(float& value);       // Callback para RunToIdle1
+    void onRunToIdle2FrameIntervalChanged(float& value);       // Callback para RunToIdle2
+    void onRunToWalk1FrameIntervalChanged(float& value);       // Callback para RunToWalk1
+    void onRunToWalk2FrameIntervalChanged(float& value);       // Callback para RunToWalk2
+    void onIdleTurnToIdleFrameIntervalChanged(float& value);   // Callback para IdleTurnToIdle
+    void onIdleTurnToRunFrameIntervalChanged(float& value);    // Callback para IdleTurnToRun
+    void onWalkTurn1FrameIntervalChanged(float& value);        // Callback para WalkTurn1
+    void onWalkTurn2FrameIntervalChanged(float& value);        // Callback para WalkTurn2
+    void onRunTurn1FrameIntervalChanged(float& value);         // Callback para RunTurn1
+    void onRunTurn2FrameIntervalChanged(float& value);         // Callback para RunTurn2
+    void onIdleToWalkFrameIntervalChanged(float& value);       // Callback para Idle To Walk
+    void onIdleToRunFrameIntervalChanged(float& value);        // Callback para Idle To Run
+
+    void onIdleToJumpFrameIntervalChanged(float& value);       // Callback para IdleToJump
+    void onJumpFrameIntervalChanged(float& value);             // Callback para JUMP
+    void onJumpToFallFrameIntervalChanged(float& value);       // Callback para JumpToFall
+    void onFallFrameIntervalChanged(float& value);             // Callback para FALL
+    void onLandToIdleFrameIntervalChanged(float& value);       // Callback para LandToIdle
+    void onWalkToJump1FrameIntervalChanged(float& value);      // Callback para WalkToJump1
+    void onWalkToJump2FrameIntervalChanged(float& value);      // Callback para WalkToJump2
+    void onLandToWalkFrameIntervalChanged(float& value);       // Callback para LandToWalk
+    void onRunToJump1FrameIntervalChanged(float& value);       // Callback para RunToJump1
+    void onRunToJump2FrameIntervalChanged(float& value);       // Callback para RunToJump2
+    void onLandToRunFrameIntervalChanged(float& value);        // Callback para LandToRun
+    void onJumpTurnFrameIntervalChanged(float& value);         // Callback para JumpTurn
+    void onFallTurnFrameIntervalChanged(float& value);         // Callback para FallTurn
 };

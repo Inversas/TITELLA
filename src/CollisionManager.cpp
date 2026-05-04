@@ -469,7 +469,7 @@ void CollisionManager::loadInteractorsJSON(const std::string& filename) {
 }
 
 // !!!! VERSIÓN OF 0.10 !!!!
-/* void CollisionManager::loadInteractorsJSON(const std::string& filename) {
+/*void CollisionManager::loadInteractorsJSON(const std::string& filename) {
  ofxJSONElement json;
  
  // Usamos .open() como en MovementManager para mayor consistencia

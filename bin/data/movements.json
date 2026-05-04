@@ -22,7 +22,7 @@
           "isTransition": true,
           "origin_type": "TURN",
           "target_frame": 0,
-          "frameInterval": -0.05,
+          "frameInterval": -0.1,
           "stop_transitions": {},
           "turn_transitions": {},
           "change_transitions": {}
@@ -58,6 +58,10 @@
           "change_transitions": {
             "1": "WALK_TO_RUN_1",
             "5": "WALK_TO_RUN_2"
+          },
+          "jump_transitions": {
+            "1": "WALK_TO_JUMP_1",
+            "5": "WALK_TO_JUMP_2"
           }
         },
         "WALK_TO_IDLE_1": {
@@ -131,15 +135,10 @@
           "stop_transitions": {},
           "turn_transitions": {},
           "change_transitions": {}
-        }
-      }
-    },
-    {
-      "file": "Sprite_2.png",
-      "movements": {
+        },
         "RUN": {
           "name": "RUN",
-          "row": 0,
+          "row": 10,
           "numRegions": 8,
           "isTransition": false,
           "origin_type": "NONE",
@@ -156,23 +155,28 @@
           "change_transitions": {
             "1": "RUN_TO_WALK_1",
             "5": "RUN_TO_WALK_2"
+          },
+          "jump_transitions": {
+            "1": "RUN_TO_JUMP_1",
+            "5": "RUN_TO_JUMP_2"
           }
         },
         "IDLE_TURN_TO_RUN": {
           "name": "IDLE_TURN_TO_RUN",
-          "row": 1,
+          "row": 11,
           "numRegions": 6,
           "isTransition": true,
           "origin_type": "TURN_TO_RUN",
           "target_frame": 0,
-          "frameInterval": -0.05,
+          "frameInterval":  -0.1,
           "stop_transitions": {},
           "turn_transitions": {},
-          "change_transitions": {}
+          "change_transitions": {},
+          "jump_transitions":{}
         },
         "IDLE_TO_RUN": {
           "name": "IDLE_TO_RUN",
-          "row": 2,
+          "row": 12,
           "numRegions": 4,
           "isTransition": true,
           "origin_type": "TO_RUN",
@@ -180,11 +184,12 @@
           "frameInterval": -0.1,
           "stop_transitions": {},
           "turn_transitions": {},
-          "change_transitions": {}
+          "change_transitions": {},
+          "jump_transitions":{}
         },
         "RUN_TO_IDLE_1": {
           "name": "RUN_TO_IDLE_1",
-          "row": 3,
+          "row": 13,
           "numRegions": 6,
           "isTransition": true,
           "origin_type": "TO_IDLE",
@@ -192,11 +197,12 @@
           "frameInterval": -0.1,
           "stop_transitions": {},
           "turn_transitions": {},
-          "change_transitions": {}
+          "change_transitions": {},
+          "jump_transitions":{}
         },
         "RUN_TO_IDLE_2": {
           "name": "RUN_TO_IDLE_2",
-          "row": 4,
+          "row": 14,
           "numRegions": 6,
           "isTransition": true,
           "origin_type": "TO_IDLE",
@@ -204,11 +210,12 @@
           "frameInterval": -0.1,
           "stop_transitions": {},
           "turn_transitions": {},
-          "change_transitions": {}
+          "change_transitions": {},
+          "jump_transitions":{}
         },
         "RUN_TURN_1": {
           "name": "RUN_TURN_1",
-          "row": 5,
+          "row": 15,
           "numRegions": 6,
           "isTransition": true,
           "origin_type": "RUN_TURN",
@@ -216,11 +223,12 @@
           "frameInterval": -0.1,
           "stop_transitions": {},
           "turn_transitions": {},
-          "change_transitions": {}
+          "change_transitions": {},
+          "jump_transitions":{}
         },
         "RUN_TURN_2": {
           "name": "RUN_TURN_2",
-          "row": 6,
+          "row": 16,
           "numRegions": 6,
           "isTransition": true,
           "origin_type": "RUN_TURN",
@@ -228,11 +236,12 @@
           "frameInterval": -0.1,
           "stop_transitions": {},
           "turn_transitions": {},
-          "change_transitions": {}
+          "change_transitions": {},
+          "jump_transitions":{}
         },
         "RUN_TO_WALK_1": {
           "name": "RUN_TO_WALK_1",
-          "row": 7,
+          "row": 17,
           "numRegions": 4,
           "isTransition": true,
           "origin_type": "TO_WALK",
@@ -240,11 +249,12 @@
           "frameInterval": -0.1,
           "stop_transitions": {},
           "turn_transitions": {},
-          "change_transitions": {}
+          "change_transitions": {},
+          "jump_transitions":{}
         },
         "RUN_TO_WALK_2": {
           "name": "RUN_TO_WALK_2",
-          "row": 8,
+          "row": 18,
           "numRegions": 4,
           "isTransition": true,
           "origin_type": "TO_WALK",
@@ -252,7 +262,183 @@
           "frameInterval": -0.1,
           "stop_transitions": {},
           "turn_transitions": {},
-          "change_transitions": {}
+          "change_transitions": {},
+          "jump_transitions":{}
+        }
+      }
+    },
+    {
+      "file": "Sprite_2.png",
+      "movements": {
+        "IDLE_TO_JUMP": {
+          "name": "IDLE_TO_JUMP",
+          "row": 0,
+          "numRegions": 8,
+          "isTransition": true,
+          "origin_type": "TO_JUMP",
+          "target_frame": 0,
+          "frameInterval": -0.1,
+          "stop_transitions": {},
+          "turn_transitions": {},
+          "change_transitions": {},
+          "jump_transitions":{}
+        },
+        "JUMP": {
+          "name": "JUMP",
+          "row": 1,
+          "numRegions": 1,
+          "isTransition": false,
+          "origin_type": "TO_JUMP",
+          "target_frame": 0,
+          "frameInterval": -0.1,
+          "stop_transitions": {},
+          "turn_transitions": {},
+          "change_transitions": {},
+          "jump_transitions":{}
+        },
+        "JUMP_TO_FALL": {
+          "name": "JUMP_TO_FALL",
+          "row": 2,
+          "numRegions": 5,
+          "isTransition": true,
+          "origin_type": "TO_FALL",
+          "target_frame": 0,
+          "frameInterval": -0.1,
+          "stop_transitions": {},
+          "turn_transitions": {},
+          "change_transitions": {},
+          "jump_transitions":{}
+        },
+        "FALL": {
+          "name": "FALL",
+          "row": 3,
+          "numRegions": 1,
+          "isTransition": false,
+          "origin_type": "-",
+          "target_frame": 0,
+          "frameInterval": -0.1,
+          "stop_transitions": {},
+          "turn_transitions": {},
+          "change_transitions": {},
+          "jump_transitions":{}
+        },
+        "LAND_TO_IDLE": {
+          "name": "LAND_TO_IDLE",
+          "row": 4,
+          "numRegions": 8,
+          "isTransition": true,
+          "origin_type": "-",
+          "target_frame": 0,
+          "frameInterval": -0.1,
+          "stop_transitions": {},
+          "turn_transitions": {},
+          "change_transitions": {},
+          "jump_transitions":{}
+        },
+        "WALK_TO_JUMP_1": {
+          "name": "WALK_TO_JUMP_1",
+          "row": 5,
+          "numRegions": 8,
+          "isTransition": true,
+          "origin_type": "TO_JUMP",
+          "target_frame": 0,
+          "frameInterval": -0.1,
+          "stop_transitions": {},
+          "turn_transitions": {},
+          "change_transitions": {},
+          "jump_transitions":{}
+        },
+        "WALK_TO_JUMP_2": {
+          "name": "WALK_TO_JUMP_2",
+          "row": 6,
+          "numRegions": 8,
+          "isTransition": true,
+          "origin_type": "TO_JUMP",
+          "target_frame": 0,
+          "frameInterval": -0.1,
+          "stop_transitions": {},
+          "turn_transitions": {},
+          "change_transitions": {},
+          "jump_transitions":{}
+        },
+        "LAND_TO_WALK": {
+          "name": "LAND_TO_WALK",
+          "row": 7,
+          "numRegions": 8,
+          "isTransition": true,
+          "origin_type": "TO_WALK",
+          "target_frame": 0,
+          "frameInterval": -0.1,
+          "stop_transitions": {},
+          "turn_transitions": {},
+          "change_transitions": {},
+          "jump_transitions":{}
+        },
+        "RUN_TO_JUMP_1": {
+          "name": "RUN_TO_JUMP_1",
+          "row": 8,
+          "numRegions": 8,
+          "isTransition": true,
+          "origin_type": "TO_JUMP",
+          "target_frame": 4,
+          "frameInterval": -0.1,
+          "stop_transitions": {},
+          "turn_transitions": {},
+          "change_transitions": {},
+          "jump_transitions":{}
+        },
+        "RUN_TO_JUMP_2": {
+          "name": "RUN_TO_JUMP_2",
+          "row": 9,
+          "numRegions": 8,
+          "isTransition": true,
+          "origin_type": "TO_JUMP",
+          "target_frame": 4,
+          "frameInterval": -0.1,
+          "stop_transitions": {},
+          "turn_transitions": {},
+          "change_transitions": {},
+          "jump_transitions":{}
+        },
+        "LAND_TO_RUN": {
+          "name": "LAND_TO_RUN",
+          "row": 10,
+          "numRegions": 8,
+          "isTransition": true,
+          "origin_type": "TO_RUN",
+          "target_frame": 0,
+          "frameInterval": -0.1,
+          "stop_transitions": {},
+          "turn_transitions": {},
+          "change_transitions": {},
+          "jump_transitions":{}
+          
+        },
+        "JUMP_TURN": {
+          "name": "JUMP_TURN",
+          "row": 11,
+          "numRegions": 4,
+          "isTransition": true,
+          "origin_type": "TO_RUN",
+          "target_frame": 0,
+          "frameInterval": -0.1,
+          "stop_transitions": {},
+          "turn_transitions": {},
+          "change_transitions": {},
+          "jump_transitions":{}
+        },
+        "FALL_TURN": {
+          "name": "FALL_TURN",
+          "row": 12,
+          "numRegions": 4,
+          "isTransition": true,
+          "origin_type": "TO_RUN",
+          "target_frame": 0,
+          "frameInterval": -0.1,
+          "stop_transitions": {},
+          "turn_transitions": {},
+          "change_transitions": {},
+          "jump_transitions":{}
         }
       }
     }

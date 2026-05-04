@@ -52,8 +52,8 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     
     // Inicializar GUI
     gui.setup("Settings");
-    gui.setPosition(ofGetWidth() - 220, 30);
-    
+    gui.setPosition(ofGetWidth() - 270, 30);
+    gui.setWidthElements(250);
     
     // ==============================================================================================================================
     // CONFIGURACIÓN GRUPO: [SETTERS]
@@ -61,7 +61,7 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     settersGroup.setup("SETTERS");
     
     // GLOBAL SLIDERS
-    settersGroup.add(frameIntervalGui.setup("F.I. Global", movementManager.getFrameInterval(), 0.01, 0.5));
+    settersGroup.add(frameIntervalGui.setup("F.I. Global", movementManager.getFrameInterval(), 0.01, 2.0));
     settersGroup.add(scaleFactorGui.setup("Scale Factor", 1.0f, 0.5, 3.0));
     //scaleFactorGui = movementManager.getScaleFactor(); ????
 
@@ -101,14 +101,28 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     frameIntervalGroup.add(runToIdle2FrameIntervalGui.setup("F.I. RUN_TO_IDLE_2", 0.1f, 0.01, 0.5));
     frameIntervalGroup.add(runToWalk1FrameIntervalGui.setup("F.I. RUN_TO_WALK_1", 0.1f, 0.01, 0.5));
     frameIntervalGroup.add(runToWalk2FrameIntervalGui.setup("F.I. RUN_TO_WALK_2", 0.1f, 0.01, 0.5));
-    frameIntervalGroup.add(turnFrameIntervalGui.setup("F.I. TURN", 0.1f, 0.01, 0.5));
-    frameIntervalGroup.add(turnToRunFrameIntervalGui.setup("F.I. TURN_TO_RUN", 0.1f, 0.01, 0.5));
+    frameIntervalGroup.add(idleTurnToIdleFrameIntervalGui.setup("F.I. IDLE_TURN_TO_IDLE", 0.1f, 0.01, 0.5));
+    frameIntervalGroup.add(idleTurnToRunFrameIntervalGui.setup("F.I. IDLE_TURN_TO_RUN", 0.1f, 0.01, 0.5));
     frameIntervalGroup.add(walkTurn1FrameIntervalGui.setup("F.I. WALK_TURN_1", 0.1f, 0.01, 0.5));
     frameIntervalGroup.add(walkTurn2FrameIntervalGui.setup("F.I. WALK_TURN_2", 0.1f, 0.01, 0.5));
     frameIntervalGroup.add(runTurn1FrameIntervalGui.setup("F.I. RUN_TURN_1", 0.1f, 0.01, 0.5));
     frameIntervalGroup.add(runTurn2FrameIntervalGui.setup("F.I. RUN_TURN_2", 0.1f, 0.01, 0.5));
     frameIntervalGroup.add(idleToWalkFrameIntervalGui.setup("F.I. IDLE_TO_WALK", 0.1f, 0.01, 0.5));
     frameIntervalGroup.add(idleToRunFrameIntervalGui.setup("F.I. IDLE_TO_RUN", 0.1f, 0.01, 0.5));
+    
+    frameIntervalGroup.add(idleToJumpFrameIntervalGui.setup("F.I. IDLE_TO_JUMP", 0.1f, 0.01, 0.5));
+    frameIntervalGroup.add(jumpFrameIntervalGui.setup("F.I. JUMP", 0.1f, 0.01, 0.5));
+    frameIntervalGroup.add(jumpToFallFrameIntervalGui.setup("F.I. JUMP_TO_FALL", 0.1f, 0.01, 0.5));
+    frameIntervalGroup.add(fallFrameIntervalGui.setup("F.I. FALL", 0.1f, 0.01, 0.5));
+    frameIntervalGroup.add(landToIdleFrameIntervalGui.setup("F.I. LAND_TO_IDLE", 0.1f, 0.01, 0.5));
+    frameIntervalGroup.add(walkToJump1FrameIntervalGui.setup("F.I. WALK_TO_JUMP_1", 0.1f, 0.01, 0.5));
+    frameIntervalGroup.add(walkToJump2FrameIntervalGui.setup("F.I. WALK_TO_JUMP_2", 0.1f, 0.01, 0.5));
+    frameIntervalGroup.add(landToWalkFrameIntervalGui.setup("F.I. LAND_TO_WALK", 0.1f, 0.01, 0.5));
+    frameIntervalGroup.add(runToJump1FrameIntervalGui.setup("F.I. RUN_TO_JUMP_1", 0.1f, 0.01, 0.5));
+    frameIntervalGroup.add(runToJump2FrameIntervalGui.setup("F.I. RUN_TO_JUMP_2", 0.1f, 0.01, 0.5));
+    frameIntervalGroup.add(landToRunFrameIntervalGui.setup("F.I. LAND_TO_RUN", 0.1f, 0.01, 0.5));
+    frameIntervalGroup.add(jumpTurnFrameIntervalGui.setup("F.I. JUMP_TURN", 0.1f, 0.01, 0.5));
+    frameIntervalGroup.add(fallTurnFrameIntervalGui.setup("F.I. FALL_TURN", 0.1f, 0.01, 0.5));
     
     // ==========================================
     // INICIALIZAR TODOS LOS SLIDERS F.I.
@@ -124,14 +138,29 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     runToIdle2FrameIntervalGui = movementManager.getMovementFrameInterval("RUN_TO_IDLE_2");
     runToWalk1FrameIntervalGui = movementManager.getMovementFrameInterval("RUN_TO_WALK_1");
     runToWalk2FrameIntervalGui = movementManager.getMovementFrameInterval("RUN_TO_WALK_2");
-    turnFrameIntervalGui = movementManager.getMovementFrameInterval("TURN");
-    turnToRunFrameIntervalGui = movementManager.getMovementFrameInterval("TURN_TO_RUN");
+    idleTurnToIdleFrameIntervalGui = movementManager.getMovementFrameInterval("IDLE_TURN_TO_IDLE");
+    idleTurnToRunFrameIntervalGui = movementManager.getMovementFrameInterval("IDLE_TURN_TO_RUN");
     walkTurn1FrameIntervalGui = movementManager.getMovementFrameInterval("WALK_TURN_1");
     walkTurn2FrameIntervalGui = movementManager.getMovementFrameInterval("WALK_TURN_2");
     runTurn1FrameIntervalGui = movementManager.getMovementFrameInterval("RUN_TURN_1");
     runTurn2FrameIntervalGui = movementManager.getMovementFrameInterval("RUN_TURN_2");
     idleToWalkFrameIntervalGui = movementManager.getMovementFrameInterval("IDLE_TO_WALK");
     idleToRunFrameIntervalGui = movementManager.getMovementFrameInterval("IDLE_TO_RUN");
+    
+    idleToJumpFrameIntervalGui  = movementManager.getMovementFrameInterval("IDLE_TO_JUMP");
+    jumpFrameIntervalGui        = movementManager.getMovementFrameInterval("JUMP");
+    jumpToFallFrameIntervalGui  = movementManager.getMovementFrameInterval("JUMP_TO_FALL");
+    fallFrameIntervalGui        = movementManager.getMovementFrameInterval("FALL");
+    landToIdleFrameIntervalGui  = movementManager.getMovementFrameInterval("LAND_TO_IDLE");
+    walkToJump1FrameIntervalGui = movementManager.getMovementFrameInterval("WALK_TO_JUMP_1");
+    walkToJump2FrameIntervalGui = movementManager.getMovementFrameInterval("WALK_TO_JUMP_2");
+    landToWalkFrameIntervalGui  = movementManager.getMovementFrameInterval("LAND_TO_WALK");
+    runToJump1FrameIntervalGui  = movementManager.getMovementFrameInterval("RUN_TO_JUMP_1");
+    runToJump2FrameIntervalGui  = movementManager.getMovementFrameInterval("RUN_TO_JUMP_2");
+    landToRunFrameIntervalGui   = movementManager.getMovementFrameInterval("LAND_TO_RUN");
+    jumpTurnFrameIntervalGui    = movementManager.getMovementFrameInterval("JUMP_TURN");
+    fallTurnFrameIntervalGui    = movementManager.getMovementFrameInterval("FALL_TURN");
+    
     
     // AÑADIR A GUI
     gui.add(&frameIntervalGroup);
@@ -160,9 +189,11 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     // ==============================================================================================================================
     currentRowGui = "0";
     currentRegionGui = "0";
+    
     // $$$$$$$$$$$$$ FISICAS $$$$$$$$$$$$$
     currentVelocityXGui = "0.0";
     // $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+    
     currentMovementNameGui = "IDLE";
     nextOutRegionGui = "";
     currentStateGui = "IDLE";
@@ -199,14 +230,28 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     runToIdle1FrameIntervalGui.addListener(this, &GUIManager::onRunToIdle1FrameIntervalChanged);
     runToWalk1FrameIntervalGui.addListener(this, &GUIManager::onRunToWalk1FrameIntervalChanged);
     runToWalk2FrameIntervalGui.addListener(this, &GUIManager::onRunToWalk2FrameIntervalChanged);
-    turnFrameIntervalGui.addListener(this, &GUIManager::onTurnFrameIntervalChanged);
-    turnToRunFrameIntervalGui.addListener(this, &GUIManager::onTurnToRunFrameIntervalChanged);
+    idleTurnToIdleFrameIntervalGui.addListener(this, &GUIManager::onIdleTurnToIdleFrameIntervalChanged);
+    idleTurnToRunFrameIntervalGui.addListener(this, &GUIManager::onIdleTurnToIdleFrameIntervalChanged);
     walkTurn1FrameIntervalGui.addListener(this, &GUIManager::onWalkTurn1FrameIntervalChanged);
     walkTurn2FrameIntervalGui.addListener(this, &GUIManager::onWalkTurn2FrameIntervalChanged);
     runTurn1FrameIntervalGui.addListener(this, &GUIManager::onRunTurn1FrameIntervalChanged);
     runTurn2FrameIntervalGui.addListener(this, &GUIManager::onRunTurn2FrameIntervalChanged);
     idleToWalkFrameIntervalGui.addListener(this, &GUIManager::onIdleToWalkFrameIntervalChanged);
     idleToRunFrameIntervalGui.addListener(this, &GUIManager::onIdleToRunFrameIntervalChanged);
+    
+    idleToJumpFrameIntervalGui.addListener(this, &GUIManager::onIdleToJumpFrameIntervalChanged);
+    jumpFrameIntervalGui.addListener(this, &GUIManager::onJumpFrameIntervalChanged);
+    jumpToFallFrameIntervalGui.addListener(this, &GUIManager::onJumpToFallFrameIntervalChanged);
+    fallFrameIntervalGui.addListener(this, &GUIManager::onFallFrameIntervalChanged);
+    landToIdleFrameIntervalGui.addListener(this, &GUIManager::onLandToIdleFrameIntervalChanged);
+    walkToJump1FrameIntervalGui.addListener(this, &GUIManager::onWalkToJump1FrameIntervalChanged);
+    walkToJump2FrameIntervalGui.addListener(this, &GUIManager::onWalkToJump2FrameIntervalChanged);
+    landToWalkFrameIntervalGui.addListener(this, &GUIManager::onLandToWalkFrameIntervalChanged);
+    runToJump1FrameIntervalGui.addListener(this, &GUIManager::onRunToJump1FrameIntervalChanged);
+    runToJump2FrameIntervalGui.addListener(this, &GUIManager::onRunToJump2FrameIntervalChanged);
+    landToRunFrameIntervalGui.addListener(this, &GUIManager::onLandToRunFrameIntervalChanged);
+    jumpTurnFrameIntervalGui.addListener(this, &GUIManager::onJumpTurnFrameIntervalChanged);
+    fallTurnFrameIntervalGui.addListener(this, &GUIManager::onFallTurnFrameIntervalChanged);
 
 }
 
@@ -414,6 +459,11 @@ void GUIManager::updateLivePanel() {
     // Actualizar la velocidad actual del personaje en la GUI, es la base sin escalado
     currentVelocityXGui = std::to_string(physicsManager->getVelocity().x);
     
+    // Actualizar estado grounded y walled
+    CollisionResult lastCol = collisionManager->getLastResult();
+    isGroundedGui = lastCol.isGrounded;
+    isWalledGui   = (lastCol.isWalledLeft || lastCol.isWalledRight);
+    
     // Posicion
     livePanelPosition = physicsManager->getPosition();
     
@@ -428,7 +478,7 @@ void GUIManager::drawLivePanel(ofVec2f position) {
     // --- CONFIGURACIÓN DE DIMENSIONES ---
     // Rectángulo negro de fondo
     float panelW = 300;
-    float panelH = 250;
+    float panelH = 270;
     // Margen interno izquierdo para el texto
     float offsetRectangle = 15;
     // Margen personaje - panel (Es el aire que hay entre la cabeza del personaje y el borde inferior del panel)
@@ -567,12 +617,32 @@ void GUIManager::drawLivePanel(ofVec2f position) {
     // ==========================================
     // Espacio vertical inicial debajo del banner
     yOffset += lineSection*2;
+    
+    // GROUNDED
+    ofSetColor(isGroundedGui ? ofColor(0, 220, 0) : ofColor(220, 0, 0));
+    ofDrawBitmapString("GROUNDED", offsetRectangle, yOffset);
+    
+    // WALLED
+    ofSetColor(isWalledGui ? ofColor(0, 220, 0) : ofColor(220, 0, 0));
+    ofDrawBitmapString("WALLED", offsetRectangle, yOffset + lineHeight);
+    
+    // VEL X
     // Color BLANCO semitransparente para la velocidad
     ofSetColor(255, 255, 255, 150);
     // Texto con la velocidad actual en el eje X
     string velText = "VEL X: " + (string)currentVelocityXGui;
     // Dibujamos la velocidad en X
-    ofDrawBitmapString(velText, offsetRectangle, yOffset);
+    ofDrawBitmapString(velText, offsetRectangle, yOffset + lineHeight*2);
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
     // AÑADIR GROUNDED / WALLED
@@ -745,11 +815,11 @@ void GUIManager::onRunToWalk2FrameIntervalChanged(float& value) {
     movementManager->setMovementFrameInterval("RUN_TO_WALK_2", value);
 }
 
-void GUIManager::onTurnFrameIntervalChanged(float& value) {
+void GUIManager::onIdleTurnToIdleFrameIntervalChanged(float& value) {
     movementManager->setMovementFrameInterval("TURN", value);
 }
 
-void GUIManager::onTurnToRunFrameIntervalChanged(float& value) {
+void GUIManager::onIdleTurnToRunFrameIntervalChanged(float& value) {
     movementManager->setMovementFrameInterval("TURN_TO_RUN", value);
 }
 
@@ -775,6 +845,46 @@ void GUIManager::onIdleToWalkFrameIntervalChanged(float& value) {
 
 void GUIManager::onIdleToRunFrameIntervalChanged(float& value) {
     movementManager->setMovementFrameInterval("IDLE_TO_RUN", value);
+}
+
+void GUIManager::onIdleToJumpFrameIntervalChanged(float& value) {
+    movementManager->setMovementFrameInterval("IDLE_TO_JUMP", value);
+}
+void GUIManager::onJumpFrameIntervalChanged(float& value) {
+    movementManager->setMovementFrameInterval("JUMP", value);
+}
+void GUIManager::onJumpToFallFrameIntervalChanged(float& value) {
+    movementManager->setMovementFrameInterval("JUMP_TO_FALL", value);
+}
+void GUIManager::onFallFrameIntervalChanged(float& value) {
+    movementManager->setMovementFrameInterval("FALL", value);
+}
+void GUIManager::onLandToIdleFrameIntervalChanged(float& value) {
+    movementManager->setMovementFrameInterval("LAND_TO_IDLE", value);
+}
+void GUIManager::onWalkToJump1FrameIntervalChanged(float& value) {
+    movementManager->setMovementFrameInterval("WALK_TO_JUMP_1", value);
+}
+void GUIManager::onWalkToJump2FrameIntervalChanged(float& value) {
+    movementManager->setMovementFrameInterval("WALK_TO_JUMP_2", value);
+}
+void GUIManager::onLandToWalkFrameIntervalChanged(float& value) {
+    movementManager->setMovementFrameInterval("LAND_TO_WALK", value);
+}
+void GUIManager::onRunToJump1FrameIntervalChanged(float& value) {
+    movementManager->setMovementFrameInterval("RUN_TO_JUMP_1", value);
+}
+void GUIManager::onRunToJump2FrameIntervalChanged(float& value) {
+    movementManager->setMovementFrameInterval("RUN_TO_JUMP_2", value);
+}
+void GUIManager::onLandToRunFrameIntervalChanged(float& value) {
+    movementManager->setMovementFrameInterval("LAND_TO_RUN", value);
+}
+void GUIManager::onJumpTurnFrameIntervalChanged(float& value) {
+    movementManager->setMovementFrameInterval("JUMP_TURN", value);
+}
+void GUIManager::onFallTurnFrameIntervalChanged(float& value) {
+    movementManager->setMovementFrameInterval("FALL_TURN", value);
 }
 
 #pragma endregion

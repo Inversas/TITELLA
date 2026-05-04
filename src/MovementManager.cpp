@@ -132,50 +132,6 @@ void MovementManager::update() {
 // ==========================================
 //     TRADUCTORES (Intención --> Estado)
 // ==========================================
-// Comando --> Estado Objetivo
-void MovementManager::updateIntent() {
-    
-    // TRADUCCIÓN DE INTENCIÓN A COMANDO
-    translateIntent();
-
-    // TRADUCCIÓN DE COMANDO A ESTADO
-    switch (currentCommand) {
-        case MovementCommand::GO_TURN:
-            // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-            //               TO TURNING
-            // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-            targetState = MovementState::TURNING;
-        break;
-            
-        case MovementCommand::GO_FORWARD:
-            
-            // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-            //              TO WALKING
-            // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-            targetState = MovementState::WALKING;
-            break;
-            
-        case MovementCommand::GO_FORWARD_FAST:
-            
-            // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-            //              TO RUNNING
-            // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-            targetState = MovementState::RUNNING;
-            break;
-            
-        case MovementCommand::GO_STOP:
-            
-            // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-            //              TO STOPPING
-            // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-            targetState = MovementState::IDLE;
-            break;
-    }
-
-    // LLAMADA AL JUEZ
-    // Le pasamos nuestra intención. Él decidirá si se puede cumplir y cómo.
-    updateState(targetState);
-}
 // Intención --> Comando
 void MovementManager::translateIntent(){
     
@@ -211,7 +167,84 @@ void MovementManager::translateIntent(){
         currentCommand = MovementCommand::GO_TURN;
         return;
     }
-
+    
+    
+    
+    
+    // -------- NUEVO --------
+    // !!!!!!!!! JUMP !!!!!!!!!
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    //               GESTIÓN DE SALTO ACTIVO
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    if (currentState == MovementState::JUMPING) {
+        
+        // Salto cortado: jugador soltó SPACE mientras subía
+        if (!intent.wantsJump && physicsManager->getIsImpulsing() && !isGrounded) {
+            physicsManager->cutJump();
+            currentCommand = MovementCommand::GO_FALL;
+            return;
+        }
+        
+        // Salto agotado: se acabaron los frames de subida
+        if (!physicsManager->getIsImpulsing() && !isGrounded) {
+            currentCommand = MovementCommand::GO_FALL;
+            return;
+        }
+        
+        // Sigue subiendo: mantenemos el estado
+        currentCommand = MovementCommand::GO_JUMP;
+        return;
+    }
+    
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    //                 TO JUMP
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    // !!!!!!!!! JUMP !!!!!!!!!
+    
+    // ESTO SERíA SOLO PARA IDLE WALK o RUN TO_JUMP
+    
+    /*if (intent.wantsJump && isGrounded) {
+        currentCommand = MovementCommand::GO_JUMP;
+        return;
+    }*/
+    
+    // ESTO SE APLICA CON isGgrounded TANTO true COMO false
+  
+    if (intent.wantsJump && isGrounded) {
+        currentCommand = MovementCommand::GO_JUMP;
+        return;
+    }
+    
+    // Para el futuro doble salto??
+    /*if (intent.wantsJump && !isGorunded) {
+        currentCommand = MovementCommand::GO_JUMP;
+        return;
+    }*/
+    
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    //                 TO FALL
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    // No hay GIRO y no hay DIRECCIÓN, pero està en el aire i no se está impulsando
+    if (!intent.hasAnyDirection && !isGrounded && !physicsManager->getIsImpulsing()) {
+        currentCommand =  MovementCommand::GO_FALL;
+        return;
+    }
+    
+    // MÁXIMO SALTO
+    // Frames Remaining Jump mayor que 0
+   /* if(framesRemainingJump !=-1){
+        if(framesRemainingJump>0){
+            // Bajamos uno
+            framesRemainingJump--;
+        }
+        else {
+            currentCommand =  MovementCommand::GO_FALL;
+            framesRemainingJump=-1;
+        }
+        return;
+    }*/
+    
+    
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     //                 TO IDLE
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -265,6 +298,74 @@ void MovementManager::translateIntent(){
     currentCommand = MovementCommand::GO_STOP;
     return;
 }
+// Comando --> Estado Objetivo
+void MovementManager::updateIntent() {
+    
+    // TRADUCCIÓN DE INTENCIÓN A COMANDO
+    translateIntent();
+    
+    // TRADUCCIÓN DE COMANDO A ESTADO
+    switch (currentCommand) {
+        case MovementCommand::GO_TURN:
+            // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            //               TO TURNING
+            // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            targetState = MovementState::TURNING;
+            break;
+            
+        case MovementCommand::GO_FORWARD:
+            
+            // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            //              TO WALKING
+            // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            targetState = MovementState::WALKING;
+            break;
+            
+            
+            // !!!!!!!!! JUMP !!!!!!!!!
+        case MovementCommand::GO_JUMP:
+            
+            // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            //              TO JUMPING
+            // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            targetState = MovementState::JUMPING;
+            break;
+        
+        case MovementCommand::GO_FALL:
+            
+            // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            //              TO FALLING
+            // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            targetState = MovementState::FALLING;
+            break;
+            
+            
+        case MovementCommand::GO_FORWARD_FAST:
+            
+            // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            //              TO RUNNING
+            // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            targetState = MovementState::RUNNING;
+            break;
+            
+        case MovementCommand::GO_STOP:
+            
+            // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            //              TO STOPPING
+            // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            targetState = MovementState::IDLE;
+            break;
+    }
+    
+    
+    
+    // LLAMADA AL JUEZ
+    // Le pasamos nuestra intención. Él decidirá si se puede cumplir y cómo.
+    updateState(targetState);
+    
+    
+}
+
 
 
 // ==========================================
@@ -315,6 +416,7 @@ void MovementManager::updateGroundedState(MovementState targetState) {
         return;
     }
 
+    // PARA ARREPENTIMIENTOS Y REDIRECCIONES guardamos el previousState
     previousState = currentState;
 
     // MÁQUINA DE ESTADOS (Lógica de Transición)
@@ -326,9 +428,20 @@ void MovementManager::updateGroundedState(MovementState targetState) {
             
         case MovementState::RUNNING: handleRunningState(targetState, MovementMoment::CHANGE); break;
             
+        // !!!!!!!!! JUMP !!!!!!!!! (En principio si entra desde aquí solo debería gestionar (IDLE, WALK Y RUN) _TO_JUMP)
+        case MovementState::JUMPING: handleJumpingState(targetState, MovementMoment::CHANGE); break;
+            
+            
         // ESTOS DOS CASE NO HARÍAN FALTA POR EL CONTROL DE ESTADOS COMPROMETIDOS Y TRANSICIONES
         case MovementState::TURNING:  handleTurningState(targetState, MovementMoment::CHANGE); break;
         case MovementState::STOPPING: handleStoppingState(targetState, MovementMoment::CHANGE); break;
+        
+        //PARA LAND
+        case MovementState::FALLING:
+            currentState = MovementState::IDLE;
+            playMovement("LAND_TO_IDLE");
+            break;
+
             
         // ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
         // Si un case no tiene nada (en este caso UNO) "comparte" el código con el siguiente case que sí lo tenga (en esta caso DOS)
@@ -342,7 +455,116 @@ void MovementManager::updateGroundedState(MovementState targetState) {
 // !!!!!!! JUEZ DE AIRE !!!!!!! //
 void MovementManager::updateAirState(MovementState targetState) {
     // Aquí podríamos manejar estados específicos para cuando el personaje está en el aire, como saltando o cayendo.
-    ofLogNotice("MovementManager") << "AIRE ";
+    //ofLogNotice("MovementManager") << "AIRE en currentMovement: " << currentMovementName;
+    
+    
+    // Bloqueo si Ya estamos en el estado deseado
+    if (currentState == targetState) return;
+    
+    
+    // ##############################################################################################################################
+    //                              CONTROL DE ESTADOS COMPROMETIDOS Y TRANSICIONES (ARREPENTIMIENTOS)
+    // ##############################################################################################################################
+    
+    // Si estamos esperando llegar a un Punto de Salida
+    if(waitingForTransition){
+        // Gestionamos arrepentimientos y redirecciones
+        // Aunque haya actuado, ya ha hecho la gestión
+        handleWaitingInterrupt();
+        // Ha entrado por Waiting For Transition
+        return;
+    }
+    
+    // PARA ARREPENTIMIENTOS Y REDIRECCIONES guardamos el previousState
+    previousState = currentState;
+    
+    // MÁQUINA DE ESTADOS (Lógica de Transición)
+    switch (currentState) {
+            
+        case MovementState::IDLE:
+            //handleIdleState(targetState, MovementMoment::CHANGE);
+            
+                // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                //                TO FALLING
+                // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                if (targetState == MovementState::FALLING) {
+                    // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+                    //                  RUN
+                    // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+                    ofLogNotice("MovementManager") << "!!! ESTA IDLE, VAMOS A CAER DESDE: " << currentMovementName << "!!!";
+                    // ACTUALIZAMOS ESTADO
+                    ofLogNotice("MovementManager") << "!!! ACTUALIZAMOS ESTADO A FALLING " << "!!!";
+                    currentState = MovementState::FALLING;
+                    
+                    // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
+                    // NO TENEMOS MOVIMIENTO IDLE TO FALL
+                    // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+                    
+                    // EJECUTAMOS TRANSICION A FLEXIBLE
+                    ofLogNotice("MovementManager") << "!!! TRANSICION A FLEXIBLE: " << "IDLE" << "!!!";
+                    playMovement("FALL");
+                }
+
+            
+            
+            break;
+        case MovementState::JUMPING:
+            
+            // handleJumpingState(targetState, MovementMoment::CHANGE);
+            
+            if(targetState == MovementState::FALLING){
+                // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                //                TO FALLING
+                // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                    // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+                    //                  RUN
+                    // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+                    ofLogNotice("MovementManager") << "!!! ESTA SALTANDO, VAMOS A CAER DESDE: " << currentMovementName << "!!!";
+                    // ACTUALIZAMOS ESTADO
+                    ofLogNotice("MovementManager") << "!!! ACTUALIZAMOS ESTADO A FALLING " << "!!!";
+                    currentState = MovementState::FALLING;
+                    
+                    // EJECUTAMOS TRANSICION A FLEXIBLE
+                    ofLogNotice("MovementManager") << "!!! TRANSICION A FLEXIBLE: " << "JUMP" << "!!!";
+                    playMovement("JUMP_TO_FALL");
+            }
+            
+            
+            break;
+            
+        //PARA LAND
+        case MovementState::FALLING:
+            currentState = MovementState::IDLE;
+            playMovement("LAND_TO_IDLE");
+            break;
+            
+        case MovementState::WALKING:
+            // handleWalkingState(targetState, MovementMoment::CHANGE);
+            break;
+            
+        case MovementState::RUNNING:
+            // handleRunningState(targetState, MovementMoment::CHANGE);
+            break;
+            
+        case MovementState::TURNING:
+            // handleTurningState(targetState, MovementMoment::CHANGE);
+            break;
+        case MovementState::STOPPING:
+            // handleStoppingState(targetState, MovementMoment::CHANGE);
+            break;
+            
+            
+
+            
+            
+            // ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
+            // Si un case no tiene nada (en este caso UNO) "comparte" el código con el siguiente case que sí lo tenga (en esta caso DOS)
+            // case MovementState::UNO:
+            // case MovementState:: DOS:
+            // lo que haya
+            // break;
+            // ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
+    }
 
 }
 
@@ -431,6 +653,14 @@ void MovementManager::triggerGroundedTransition(){
             //               IDLE TRANS
             // ##########################################
         case MovementState::STOPPING: handleStoppingState(targetState, MovementMoment::TRIGGER); break;
+            
+
+            
+            
+        case MovementState::JUMPING:
+        break;
+        case MovementState::FALLING:
+        break;
     }
 }
 // !!!!!!! TRANSICIONES DE AIRE !!!!!!! //
@@ -476,8 +706,12 @@ void MovementManager::finishedGroundedTransition() {
     
     TransitionOrigin origin = currentMovement->originType;
     
+    ofLogNotice("MovementManager") << "FINAL TRANSICION SUELO: " << currentMovement->name << " (Origen: " << static_cast<int>(origin) << ")";
+    
     // Guardamos el estado actual antes de cambiarlo
     previousState = currentState;
+    
+    
 
     switch (origin) {
 
@@ -546,6 +780,27 @@ void MovementManager::finishedGroundedTransition() {
                 playMovement("IDLE");
                 break;
 
+            // !!!!!!!!! JUMP !!!!!!!!
+            // ######################################################
+            //   TO_JUMP
+            // ######################################################
+            /*case TransitionOrigin::TO_JUMP:
+                currentState = MovementState::JUMPING;
+                playMovement("JUMP");
+                break;*/
+            
+            
+            // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
+            // ESTO ESTA AQUÍ POR SI SE SALTA MUY POCO
+            // SE PODRÍA PONER UN SALTO MÍNIMO siempre que saltes
+            // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+            // (JUMP_TO_FALL)
+            case TransitionOrigin::TO_FALL:
+                currentState = MovementState::FALLING;
+                playMovement("FALL");
+            break;
+            
+            
             // ######################################################
             //   NONE u origen desconocido: seguridad, vamos a IDLE
             // ######################################################
@@ -561,6 +816,60 @@ void MovementManager::finishedGroundedTransition() {
 // ##############################################################################################################################
 void MovementManager::finishedAirTransition(){
     ofLogNotice("MovementManager") << "FINAL TRANSICION AIRE";
+    
+    
+    TransitionOrigin origin = currentMovement->originType;
+    
+    // Guardamos el estado actual antes de cambiarlo
+    previousState = currentState;
+
+    switch (origin) {
+
+            // ######################################################
+            //  TO_JUMP
+            // ######################################################
+            /*case TransitionOrigin::TO_JUMP:
+                //currentState = MovementState::JUMPING;
+                //playMovement("JUMP");
+            
+                // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
+                // DOBLE SALTO? seria en un case de JUMP?
+                // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+
+                break;*/
+            
+            case TransitionOrigin::TO_JUMP:
+                currentState = MovementState::JUMPING;
+                playMovement("JUMP");
+            break;
+            
+            case TransitionOrigin::TO_FALL:
+                currentState = MovementState::FALLING;
+                playMovement("FALL");
+                break;
+            
+        case TransitionOrigin::IDLE_TURN_TO_IDLE:
+        case TransitionOrigin::IDLE_TURN_TO_RUN:
+        case TransitionOrigin::TO_WALK:
+        case TransitionOrigin::TO_RUN:
+        case TransitionOrigin::WALK_TURN:
+        case TransitionOrigin::RUN_TURN:
+        case TransitionOrigin::TO_IDLE:
+        default:
+            //currentState = MovementState::IDLE;
+            //playMovement("IDLE");
+        break;
+            
+        /*
+        // ######################################################
+        //   NONE u origen desconocido: seguridad, vamos a IDLE
+        // ######################################################
+        default:
+            currentState = MovementState::IDLE;
+            playMovement("IDLE");
+            break;
+         */
+        }
 }
 
 
@@ -624,7 +933,7 @@ void MovementManager::handleIdleState(MovementState target, MovementMoment momen
                 //ofLogNotice("MovementManager") << "!!! ESTA IDLE, VAMOS A EMPEZAR A CAMINAR DESDE: " << currentMovementName << "!!!";
                 // ACTUALIZAMOS ESTADO
                 currentState = MovementState::WALKING;
-                // EJECUTAMOS TRANSICION A FELXIBLE
+                // EJECUTAMOS TRANSICION A FLEXIBLE
                 playMovement("IDLE_TO_WALK");
              
             }
@@ -639,17 +948,39 @@ void MovementManager::handleIdleState(MovementState target, MovementMoment momen
                 //ofLogNotice("MovementManager") << "!!! ESTA IDLE, VAMOS A EMPEZAR A CORRER DESDE: " << currentMovementName << "!!!";
                 // ACTUALIZAMOS ESTADO
                 currentState = MovementState::RUNNING;
-                // EJECUTAMOS TRANSICION A FELXIBLE
+                // EJECUTAMOS TRANSICION A FLEXIBLE
                 playMovement("IDLE_TO_RUN");
-
+            }
+            
+            // !!!!!!!!! JUMP !!!!!!!!
+            // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            //                TO JUMPING
+            // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            else if (targetState == MovementState::JUMPING) {
+                // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+                //                  RUN
+                // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+                ofLogNotice("MovementManager") << "!!! ESTA IDLE, VAMOS A SALTAR DESDE: " << currentMovementName << "!!!";
+                // ACTUALIZAMOS ESTADO
+                ofLogNotice("MovementManager") << "!!! ACTUALIZAMOS ESTADO A JUMPING " << "!!!";
+                currentState = MovementState::JUMPING;
+                // EJECUTAMOS TRANSICION A FLEXIBLE
+                ofLogNotice("MovementManager") << "!!! TRANSICION A FLEXIBLE: " << "IDLE TO JUMP" << "!!!";
+                playMovement("IDLE_TO_JUMP");
             }
         break;
+            
+            
+            
+            
         
         // ========================================================================
         //                           TRIGGER TRANSITION
         // ========================================================================
         case MovementMoment::TRIGGER:
             // NO HACE NADA
+            ofLogNotice("MovementManager") << "!!! NO HACE NADA" << "!!!";
+
         break;
     }
 }
@@ -705,6 +1036,22 @@ void MovementManager::handleWalkingState(MovementState target, MovementMoment mo
                 currentState = MovementState::RUNNING;
                 // BUSCAR PUNTO DE SALIDA y ACTIVAR ESPERA (lo ejecutará updateFrame())
                 handleTransition();
+            }
+            
+            // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            //                TO JUMPING
+            // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            else if (targetState == MovementState::JUMPING) {
+                // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+                //                  RUN
+                // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+                ofLogNotice("MovementManager") << "!!! ESTA WALKING, VAMOS A SALTAR DESDE: " << currentMovementName << "!!!";
+                // ACTUALIZAMOS ESTADO
+                ofLogNotice("MovementManager") << "!!! ACTUALIZAMOS ESTADO A JUMPING " << "!!!";
+                //currentState = MovementState::JUMPING;
+                // BUSCAR PUNTO DE SALIDA y ACTIVAR ESPERA (lo ejecutará updateFrame())
+                ofLogNotice("MovementManager") << "!!! BUSCAR PS Y ACTIVAR ESPERA PARA: " << "WALK_TO_JUMP" << "!!!";
+                //handleTransition();
             }
         break;
 
@@ -784,6 +1131,22 @@ void MovementManager::handleRunningState(MovementState targetState, MovementMome
                 // BUSCAR PUNTO DE SALIDA y ACTIVAR ESPERA (lo ejecutará updateFrame())
                 handleTransition();
             }
+            
+            // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            //                TO JUMPING
+            // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            else if (targetState == MovementState::JUMPING) {
+                // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+                //                  RUN
+                // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+                ofLogNotice("MovementManager") << "!!! ESTA RUNNING, VAMOS A SALTAR DESDE: " << currentMovementName << "!!!";
+                // ACTUALIZAMOS ESTADO
+                ofLogNotice("MovementManager") << "!!! ACTUALIZAMOS ESTADO A JUMPING " << "!!!";
+                //currentState = MovementState::JUMPING;
+                // BUSCAR PUNTO DE SALIDA y ACTIVAR ESPERA (lo ejecutará updateFrame())
+                ofLogNotice("MovementManager") << "!!! BUSCAR PS Y ACTIVAR ESPERA PARA: " << "RUN_TO_JUMP" << "!!!";
+                // handleTransition();
+            }
         break;
             
         // ========================================================================
@@ -814,6 +1177,15 @@ void MovementManager::handleRunningState(MovementState targetState, MovementMome
     */
 
 }
+
+// ##############################################################################################################################
+//                                                     JUMPING
+// ##############################################################################################################################
+void MovementManager::handleJumpingState(MovementState targetState, MovementMoment moment) {
+    
+}
+
+
 
 // ##############################################################################################################################
 //                                                       TURNING
@@ -878,9 +1250,21 @@ void MovementManager::handleStoppingState(MovementState targetState, MovementMom
 // ==========================================
 void MovementManager::updateFrame() {
     
+
+    
 // $$$$$$$$$$$$$ FISICAS $$$$$$$$$$$$$
     // Suma un pequeño incremento a la velocidad actual
     physicsManager->updateVelocityStep();
+    
+    
+    // -------- NUEVO --------
+    // !!!!!!!!! JUMP !!!!!!!!!
+    // Gestiona el delay, el impulso y el conteo de frames de subida
+    // Podríamos enviar el want Jump por si hay que recalcular a salto corto.
+    physicsManager->updateJumpStep();
+    // Gestiona el frenado y el hanging de JUMP_TO_FALL
+    physicsManager->updateJumpToFallStep();
+    
 // $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
     
@@ -918,7 +1302,7 @@ void MovementManager::updateFrame() {
     // Aplica velocidad
     physicsManager->applyVelocity();
 // $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-
+    
     
     
     // ##############################################################################################################################
@@ -977,7 +1361,6 @@ void MovementManager::handleMovementPhysics(const std::string& name) {
         case MovementState::IDLE:
             // IDLE no aplica físicas, existe por consistencia de código
             // ofLogNotice("MovementManager") << "Disparado Movimiento BASE IDLE ";
-
         break;
         // ==========================================
         //               STOPPING
@@ -1083,7 +1466,93 @@ void MovementManager::handleMovementPhysics(const std::string& name) {
                 physicsManager->startVelocityChange(physicsManager->getMaxSpeedRun(), frames, isFacingRight);
             }
         break;
-        
+            
+            
+            
+        // -------- NUEVO --------
+        // !!!!!!!!! JUMP !!!!!!!!!
+        // ==========================================
+        //                  JMPING
+        // ==========================================
+        case MovementState::JUMPING:
+            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+            //               IDLE TO JUMP
+            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+            if(name == "IDLE_TO_JUMP"){
+                ofLogNotice("MovementManager") << "-> Detectado IDLE_TO_JUMP ";
+                
+                // totalJumpFrames: frames de IDLE_TO_JUMP (dos últimos) (7-5), 3 de JUMP y 2 de JUMP_TO_FALL
+                physicsManager->startVelocityJump(7, 5, 2);
+            }
+            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+            //              JUMP
+            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+            if(name == "JUMP"){
+                /*
+                He dejado de apretar SPACE?
+                framesRemainingJump = 1;
+                or
+                Sigo apretando SPACE?
+
+                framesRemainingJump = 5;*/
+                
+                ofLogNotice("MovementManager") << "-> Detectado JUMP ";
+                /*
+                He dejado de apretar SPACE?
+                framesRemainingJump = 1;
+                or
+                Sigo apretando SPACE?
+
+                framesRemainingJump = 5;*/
+                
+           
+                
+                
+                // JUMP no llama a nada — el impulso ya está corriendo
+                // desde startVelocityJump, solo continuamos contando
+                ofLogNotice("MovementManager") << "-> JUMP en curso, framesRemainingJump="
+                                               << physicsManager->getFramesRemainingJump();
+
+            }
+            
+            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+            //          WALK TO JUMP (1 i 2)
+            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+            else if (name.find("WALK_TO_JUMP") != std::string::npos) {
+                // ofLogNotice("MovementManager") << "-> Detectado WALK_TO_JUMP";
+                // Fisicas
+            }
+            
+            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+            //                  RUN TO JUMP
+            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+            else if (name.find("RUN_TO_JUMP") != std::string::npos) {
+                // ofLogNotice("MovementManager") << "-> Detectado RUN_TO_JUMP";
+                // Fisicas
+            }
+        break;
+            
+        // ==========================================
+        //                  FALLING
+        // ==========================================
+        case MovementState::FALLING:
+            if(name == "JUMP_TO_FALL"){
+                ofLogNotice("MovementManager") << "-> Detectado JUMP_TO_FALL ";
+                /*physicsManager->resetGravityY();
+                physicsManager->setVelocityY(-10);
+                physicsManager->startVelocityChangeY(0, 2);*/
+                physicsManager->startJumpToFall(2);
+            }
+            
+            else if(name == "FALL"){
+                ofLogNotice("MovementManager") << "-> Detectado FALL ";
+            }
+            else if (name == "LAND_TO_IDLE"){
+                ofLogNotice("MovementManager") << "-> Detectado LAND_TO_IDLE ";
+                physicsManager->resetJumpState();
+            }
+        break;
+            
         // ==========================================
         //              NO DEFINIDO
         // ==========================================
@@ -1158,6 +1627,9 @@ void MovementManager::handleTransition() {
     }
     else if (currentState == MovementState::WALKING || currentState == MovementState::RUNNING) {
         transitionMap = &movement.change_transitions;
+    }
+    else if (currentState == MovementState::JUMPING) {
+        transitionMap = &movement.jump_transitions;
     }
 
     // Si el mapa no existe o está vacío, no hay transiciones que buscar
@@ -1327,6 +1799,10 @@ std::string MovementManager::getCurrentState() const {
             return "TURNING";
         case MovementState:: STOPPING:
             return "STOPPING";
+        case MovementState:: JUMPING:
+            return "JUMPING";
+        case MovementState:: FALLING:
+            return "FALLING";
         default:
             return "UNKNOWN";
     }
@@ -1344,6 +1820,10 @@ std::string MovementManager::getTargetState() const {
             return "TURNING";
         case MovementState:: STOPPING:
             return "STOPPING";
+        case MovementState:: JUMPING:
+            return "JUMPING";
+        case MovementState:: FALLING:
+            return "FALLING";
         default:
             return "UNKNOWN";
     }

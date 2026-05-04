@@ -41,8 +41,11 @@ enum class MovementState {
     RUNNING,
     TURNING,    // Cuando está ejecutando una animación de giro
     STOPPING,   // Cuando está en una transición hacia IDLE
-    // JUMPING,
-    // FALLING
+    
+    // !!!!!!!!! JUMP !!!!!!!!!
+    JUMPING,
+    FALLING,
+    // LANDING
 };
 
 // *** INTENCIONES LIMPIAS ***
@@ -58,14 +61,15 @@ enum class MovementCommand {
 
         // MOVIMIENTO: Mirada e Intención alineadas, sin paredes bloqueando
         GO_FORWARD,    // wantsRight && !wantsRun || wantsLeft && !wantsRun
-        GO_FORWARD_FAST      // wantsRight && wantsRun || wantsLeft && wantsRun
+        GO_FORWARD_FAST, // wantsRight && wantsRun || wantsLeft && wantsRunn
         // GO_RIGHT,      // wantsRight && !wantsRun
         // GO_LEFT,       // wantsLeft && !wantsRun
         // GO_RUN_RIGHT,  // wantsRight && wantsRun
         // GO_RUN_LEFT    // wantsLeft && wantsRun
     
-    
-        // GO_JUMP
+        // !!!!!!!!! JUMP !!!!!!!!!
+        GO_JUMP, // wantsJump
+        GO_FALL // no wants && no isGrounded
 };
 
 // *** MOMENTOS DE ANIMACIÓN ***
@@ -222,7 +226,9 @@ private:
     bool isWalledLeft = false;
     bool isWalledRight = false;
     
-    
+    // *** VARIABLES DE ESTADO DE JUMP ***
+    int framesRemainingJump =-1;  // Cuántos "pasos" mantiene la subida de velocidad Y
+
     // *** CURRENT ***
     // Fila actual en la hoja de sprites
     int currentRow = 0;
@@ -321,6 +327,11 @@ private:
     void handleIdleState(MovementState target, MovementMoment moment);
     void handleWalkingState(MovementState target, MovementMoment moment);
     void handleRunningState(MovementState target, MovementMoment moment);
+    
+    // !!!!!!!!! JUMP !!!!!!!!!
+    void handleJumpingState(MovementState target, MovementMoment moment);
+
+    
     void handleTurningState(MovementState target, MovementMoment moment);
     void handleStoppingState(MovementState target, MovementMoment moment);
     
