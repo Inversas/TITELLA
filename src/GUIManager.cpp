@@ -74,6 +74,9 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     settersGroup.add(hitBoxWGui.setup("HitBox W", collisionManager.getHitbox().width, 100, 400));
     settersGroup.add(hitRayFloorXGui.setup("HitRayFloor X", collisionManager.getHitbox().floorRayX, 0, 200));
     
+    settersGroup.add(currentVelocityYGui.setup("Vel Y", "0.00"));
+    settersGroup.add(gravityGui.setup("Gravity", "0.00"));
+    
     // AÑADIR A GUI
     // Sin & estaríamos pasando una copia
     gui.add(&settersGroup);
@@ -261,6 +264,9 @@ void GUIManager::update() {
     // UPDATE GRUPO: [SETTERS]
     // ==============================================================================================================================
     // Todo son sliders, por tanto los actualizan los listenners
+    // Menos
+    currentVelocityYGui = std::to_string(physicsManager->getVelocity().y);
+    gravityGui = std::to_string(physicsManager->getGravityY());
     
     // ==============================================================================================================================
     // UPDATE GRUPO: [F.I.]
@@ -459,6 +465,9 @@ void GUIManager::updateLivePanel() {
     // Actualizar la velocidad actual del personaje en la GUI, es la base sin escalado
     currentVelocityXGui = std::to_string(physicsManager->getVelocity().x);
     
+    currentVelocityYGui = std::to_string(physicsManager->getVelocity().y);
+    gravityGui = std::to_string(physicsManager->getGravityY());
+    
     // Actualizar estado grounded y walled
     CollisionResult lastCol = collisionManager->getLastResult();
     isGroundedGui = lastCol.isGrounded;
@@ -630,23 +639,10 @@ void GUIManager::drawLivePanel(ofVec2f position) {
     // Color BLANCO semitransparente para la velocidad
     ofSetColor(255, 255, 255, 150);
     // Texto con la velocidad actual en el eje X
-    string velText = "VEL X: " + (string)currentVelocityXGui;
+    string velTextX = "VEL X: " + (string)currentVelocityXGui;
     // Dibujamos la velocidad en X
-    ofDrawBitmapString(velText, offsetRectangle, yOffset + lineHeight*2);
+    ofDrawBitmapString(velTextX, offsetRectangle, yOffset + lineHeight*2);
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
-    // AÑADIR GROUNDED / WALLED
-    // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 
     ofPopMatrix();
     // Restauramos el estilo

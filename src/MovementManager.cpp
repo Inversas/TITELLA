@@ -174,19 +174,29 @@ void MovementManager::translateIntent(){
     // -------- NUEVO --------
     // !!!!!!!!! JUMP !!!!!!!!!
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    //               GESTIÓN DE SALTO ACTIVO
+    //           GESTIÓN DE SALTO ACTIVO
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     if (currentState == MovementState::JUMPING) {
         
+        
         // Salto cortado: jugador soltó SPACE mientras subía
-        if (!intent.wantsJump && physicsManager->getIsImpulsing() && !isGrounded) {
+        if (!intent.wantsJump && physicsManager->getIsImpulsing() && !isGrounded && !physicsManager->getIsMinJump()) {
+            ofLogNotice("MovementManager") << "$$$$$$$ cutJump check: isImpulsing="
+                << physicsManager->getIsImpulsing()
+                << " isMinJump=" << physicsManager->getIsMinJump()
+                << " isGrounded=" << isGrounded
+                << " wantsJump=" << intent.wantsJump;
             physicsManager->cutJump();
-            currentCommand = MovementCommand::GO_FALL;
+            // No ponemos GO FALL, porque tiene que terminar sus frames de JUMP
+            //currentCommand = MovementCommand::GO_FALL;
             return;
         }
         
+        
+        
+        
         // Salto agotado: se acabaron los frames de subida
-        if (!physicsManager->getIsImpulsing() && !isGrounded) {
+        if (!physicsManager->getIsImpulsing() && !isGrounded ) {
             currentCommand = MovementCommand::GO_FALL;
             return;
         }
@@ -384,16 +394,18 @@ void MovementManager::updateState(MovementState targetState) {
         return;
     }*/
     // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-
     
-    // SUB MAQUINAS DE ESTADOS
-    if (isGrounded) {
-        updateGroundedState(targetState);
-        return;
-    }
-    else {
-        updateAirState(targetState);
-        return;
+    // NO SE PUEDE CORTAR UNA TRANSICION
+    if(!currentMovement->isTransition){
+        // SUB MAQUINAS DE ESTADOS
+        if (isGrounded) {
+            updateGroundedState(targetState);
+            return;
+        }
+        else {
+            updateAirState(targetState);
+            return;
+        }
     }
 }
 // !!!!!!! JUEZ DE SUELO !!!!!!! //
@@ -1259,9 +1271,13 @@ void MovementManager::updateFrame() {
     
     // -------- NUEVO --------
     // !!!!!!!!! JUMP !!!!!!!!!
+    
+    // ESTO VER SI ES PROBLEMA QUE SE EVALUE CADA FRAME
+    // RECUPERAR "deseos" del jugador desde el InputManager
+    InputState intent = inputManager->getInputState();
+    
     // Gestiona el delay, el impulso y el conteo de frames de subida
-    // Podríamos enviar el want Jump por si hay que recalcular a salto corto.
-    physicsManager->updateJumpStep();
+    physicsManager->updateJumpStep(intent.wantsJump);
     // Gestiona el frenado y el hanging de JUMP_TO_FALL
     physicsManager->updateJumpToFallStep();
     
@@ -1361,6 +1377,17 @@ void MovementManager::handleMovementPhysics(const std::string& name) {
         case MovementState::IDLE:
             // IDLE no aplica físicas, existe por consistencia de código
             // ofLogNotice("MovementManager") << "Disparado Movimiento BASE IDLE ";
+            
+            
+            
+            // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
+            // AL DISPARAR LAND TO IDLE el state es IDLE, handleMovementPhyisics va "como después" en terminos de States.
+            // Valorar añadir un state LANDING, por si me parece un poco raro qeu esto este aquí en IDLE
+            // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+            if (name == "LAND_TO_IDLE"){
+                ofLogNotice("MovementManager") << "-> Detectado LAND_TO_IDLE ";
+                physicsManager->resetJumpState();
+            }
         break;
         // ==========================================
         //               STOPPING
@@ -1481,40 +1508,27 @@ void MovementManager::handleMovementPhysics(const std::string& name) {
             if(name == "IDLE_TO_JUMP"){
                 ofLogNotice("MovementManager") << "-> Detectado IDLE_TO_JUMP ";
                 
-                // totalJumpFrames: frames de IDLE_TO_JUMP (dos últimos) (7-5), 3 de JUMP y 2 de JUMP_TO_FALL
-                physicsManager->startVelocityJump(7, 5, 2);
+                // totalJumpFrames: frames de IDLE_TO_JUMP (dos últimos) (7-5), 3 de JUMP y 2 de JUMP_TO_FALL (stopFrames)
+                // PAsamos el total de frames de IDLE_TO_JUMP, y el delay de cuando debe empezar el impulso
+                physicsManager->startVelocityJump(7, 5);
             }
             // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
             //              JUMP
             // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
             if(name == "JUMP"){
-                /*
-                He dejado de apretar SPACE?
-                framesRemainingJump = 1;
-                or
-                Sigo apretando SPACE?
-
-                framesRemainingJump = 5;*/
                 
                 ofLogNotice("MovementManager") << "-> Detectado JUMP ";
-                /*
-                He dejado de apretar SPACE?
-                framesRemainingJump = 1;
-                or
-                Sigo apretando SPACE?
-
-                framesRemainingJump = 5;*/
-                
-           
-                
                 
                 // JUMP no llama a nada — el impulso ya está corriendo
                 // desde startVelocityJump, solo continuamos contando
                 ofLogNotice("MovementManager") << "-> JUMP en curso, framesRemainingJump="
                                                << physicsManager->getFramesRemainingJump();
-
             }
-            
+/*
+                else if (name == "JUMP_TO_FALL") {
+                    physicsManager->startJumpToFall(2);  // ← añadir esto aquí también
+                }
+            */
             // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
             //          WALK TO JUMP (1 i 2)
             // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
@@ -1538,19 +1552,19 @@ void MovementManager::handleMovementPhysics(const std::string& name) {
         case MovementState::FALLING:
             if(name == "JUMP_TO_FALL"){
                 ofLogNotice("MovementManager") << "-> Detectado JUMP_TO_FALL ";
-                /*physicsManager->resetGravityY();
-                physicsManager->setVelocityY(-10);
-                physicsManager->startVelocityChangeY(0, 2);*/
-                physicsManager->startJumpToFall(2);
+                physicsManager->startJumpToFall();
             }
             
             else if(name == "FALL"){
                 ofLogNotice("MovementManager") << "-> Detectado FALL ";
             }
+            
+            /*
+             PARA ESTO EL ESTADO YA ES IDLE
             else if (name == "LAND_TO_IDLE"){
                 ofLogNotice("MovementManager") << "-> Detectado LAND_TO_IDLE ";
                 physicsManager->resetJumpState();
-            }
+            }*/
         break;
             
         // ==========================================

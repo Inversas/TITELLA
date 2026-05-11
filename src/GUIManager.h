@@ -69,6 +69,8 @@ private:
     ofxFloatSlider maxSpeedRunGui;      // Velocidad máxima correr       $$$$$$$$$$$$$
     ofxFloatSlider hitBoxWGui;          // Ancho de la Hitbox            >>>>>>>>>>>>>
     ofxFloatSlider hitRayFloorXGui;     // Posición X del rayo de suelo  >>>>>>>>>>>>>
+    ofxLabel currentVelocityYGui;       // Label para mostrar la velocidad actual del personaje en el eje Y
+    ofxLabel gravityGui;                // Label para mostrar la gravedad
     
     
     // ==========================================
@@ -143,8 +145,6 @@ private:
     string nextOutRegionGui;         // Label para mostrar la siguiente región de salida
 
     string currentVelocityXGui;      // Label para mostrar la velocidad actual del personaje en el eje X
-    // string currentVolocityYGui;   // Label para mostrar la velocidad actual del personaje en el eje Y
-    // string gravity;               // Label para mostrar la gravedad
 
     bool isGroundedGui = false;     // Bool para mostrar si el personaje está en el suelo o no
     bool isWalledGui   = false;     // Bool  para mostrar si el personaje está tocando una pared o no

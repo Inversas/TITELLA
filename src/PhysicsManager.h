@@ -41,17 +41,16 @@ public:
     // -------- NUEVO --------
     // !!!!!!!!! JUMP !!!!!!!!!
     // *** GESTIÓN SALTO ***
-    //void startVelocityChangeY(float targetAbsSpeed, int frames);
-    void startVelocityJump (int totalJumpFrames, int delay, int stopFrames);
-    void updateJumpStep();
-    void startJumpToFall(int stopFrames);
+    void startVelocityJump (int frames, int delay);
+    void updateJumpStep(bool wantJump);
+    void startJumpToFall();
     void updateJumpToFallStep();
     void cutJump();
     
     int getFramesRemainingJump() const;
     bool getIsImpulsing() const;
     bool getGravityOverride() const;
-    
+    bool getIsMinJump() const;
     void resetJumpState();
     
 
@@ -125,32 +124,61 @@ private:
     
     
     
-
+    // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
+    // CREAR VALROES DE TRABAJO Y VALORES BASE PARA EL ESCALADO DE LA GESTION DE SALTO
+    // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+    
     // -------- NUEVO --------
     // !!!!!!!!! JUMP !!!!!!!!!
-    float baseJumpForce = 0.0f;    // Cuánto sube por frame de JUMP
-    float jumpForce = 0.0f;
+    float jumpImpulse = 0.0f;
+    
+    
+    // *** JUMP FRAMES ***
+    // FRAMES movimiento _TO_JUMP, menos DELAY
+    int impulseFrames;
+    
+ 
+    
+    // Frames que quedan para completar el salto
+    int framesRemainingJump;
+    
+    // Frames parada gradual en JUMP_TO_FALL
+    int framesRemainingJumpStop;
+
+    // Frames a esperar para iniciar el salto en _TO_JUMP
+    int delayFramesRemainingJump;
+    
+    // Siempre usamos 2 frames de JUMP_TO_FALL // (Controlable por GUI) (de 2 a 4)
+    int stopFrames = 2;
+    
+    // SALTO MÍNIMO
+    int minJumpFrames = 3; // (Controlable por GUI) (de 1 a 3)
+    
+    // SALTO MÁXIMO
+    int maxJumpFrames = 6; //(Controlable por GUI) (de 3 a 6)
 
     
     
+   
+
     
-    
-    
-    int stopFrames = 0;
-    int delayFramesRemainingJump = 0;
-    int framesRemainingJump = 0;
-    bool isImpulsing = false;           // Si estamos aplicando impulso de subida
+    // *** VARIABLES DE CONTROL ***
+    bool isImpulsing = false;
     bool isWaitingJumpImpulse = false;
-    int maxJumpFrames = 3; //(Controlable por GUI)
-    int minJumpFrames = 1; // (Controlable por GUI)
-    int totalJumpFrames = 0;
-    
-    // *** JUMP TO FALL ***
-    float stopStepY = 0.0f;
-    int framesRemainingStop = 0;
     bool isStartingToFall = false;
     bool isHanging = false;
     bool gravityOverride = false;
+    bool isMinJump = false; 
+
+    
+    
+    
+   
+
+    
+    // *** JUMP TO FALL ***
+    float stopStepY = 0.0f;
+
     
     
     
