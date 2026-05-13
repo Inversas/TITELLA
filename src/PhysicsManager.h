@@ -84,6 +84,9 @@ public:
     void setGravityY(float newY);
     void resetGravityY();
 
+    void setStopFrames(int value);
+    void setMinJumpFrames(int value);
+    void setMaxJumpFrames(int value);
     
     void setMaxSpeedWalk(float maxSpeed);
     void setMaxSpeedRun(float maxSpeed);

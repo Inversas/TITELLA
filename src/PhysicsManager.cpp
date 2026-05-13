@@ -472,6 +472,16 @@ void PhysicsManager::setGravityY(float newY) {
 void PhysicsManager::resetGravityY() {
     gravity.y = baseGravity.y * currentScale;;
 }
+
+void PhysicsManager::setStopFrames(int value) {
+    stopFrames = value;
+}
+void PhysicsManager::setMinJumpFrames(int value) {
+    minJumpFrames = value;
+}
+void PhysicsManager::setMaxJumpFrames(int value) {
+    maxJumpFrames = value;
+}
     
 
 void PhysicsManager::setMaxSpeedWalk(float maxSpeed) {

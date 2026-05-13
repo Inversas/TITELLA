@@ -71,6 +71,9 @@ private:
     ofxFloatSlider hitRayFloorXGui;     // Posición X del rayo de suelo  >>>>>>>>>>>>>
     ofxLabel currentVelocityYGui;       // Label para mostrar la velocidad actual del personaje en el eje Y
     ofxLabel gravityGui;                // Label para mostrar la gravedad
+    ofxIntSlider stopFramesGui;
+    ofxIntSlider minJumpFramesGui;
+    ofxIntSlider maxJumpFramesGui;
     
     
     // ==========================================
@@ -172,6 +175,9 @@ private:
     void onHitBoxWChanged(float& value);
     void onHitRayFloorXChanged(float& value);
     
+    void onStopFramesChanged(int& value);
+    void onMinJumpFramesChanged(int& value);
+    void onMaxJumpFramesChanged(int& value);
     
     // Callbacks for FRAME INTERVAL sliders
     void onFrameIntervalChanged(float& value);                 // Callback para Global

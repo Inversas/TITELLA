@@ -77,6 +77,11 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     settersGroup.add(currentVelocityYGui.setup("Vel Y", "0.00"));
     settersGroup.add(gravityGui.setup("Gravity", "0.00"));
     
+    // FISICAS SLIDERS $$$$$$$$$$$$$
+    settersGroup.add(stopFramesGui.setup("Stop Frames", 2, 2, 6));
+    settersGroup.add(minJumpFramesGui.setup("Min Jump Frames", 3, 1, 4));
+    settersGroup.add(maxJumpFramesGui.setup("Max Jump Frames", 6, 3, 10));
+    
     // AÑADIR A GUI
     // Sin & estaríamos pasando una copia
     gui.add(&settersGroup);
@@ -221,6 +226,11 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     // >>>>>>>>>>>> COLISIONES >>>>>>>>>>>>
     hitBoxWGui.addListener(this, &GUIManager::onHitBoxWChanged);
     hitRayFloorXGui.addListener(this, &GUIManager::onHitRayFloorXChanged);
+    
+    // $$$$$$$$$$$$$ FISICAS $$$$$$$$$$$$$
+    stopFramesGui.addListener(this, &GUIManager::onStopFramesChanged);
+    minJumpFramesGui.addListener(this, &GUIManager::onMinJumpFramesChanged);
+    maxJumpFramesGui.addListener(this, &GUIManager::onMaxJumpFramesChanged);
     
     // [F.I.]
     idleFrameIntervalGui.addListener(this, &GUIManager::onIdleFrameIntervalChanged);
@@ -761,6 +771,19 @@ void GUIManager::onHitBoxWChanged(float& value) {
 }
 void GUIManager::onHitRayFloorXChanged(float& value) {
     collisionManager->setHitRayXFloor(value);
+}
+
+// $$$$$$$$$$$$$ FISICAS $$$$$$$$$$$$$
+void GUIManager::onStopFramesChanged(int& value) {
+    physicsManager->setStopFrames(value);
+}
+
+void GUIManager::onMinJumpFramesChanged(int& value) {
+    physicsManager->setMinJumpFrames(value);
+}
+
+void GUIManager::onMaxJumpFramesChanged(int& value) {
+    physicsManager->setMaxJumpFrames(value);
 }
 
 
