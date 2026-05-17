@@ -41,8 +41,6 @@ enum class MovementState {
     RUNNING,
     TURNING,    // Cuando está ejecutando una animación de giro
     STOPPING,   // Cuando está en una transición hacia IDLE
-    
-    // !!!!!!!!! JUMP !!!!!!!!!
     JUMPING,
     FALLING,
     // LANDING
@@ -67,7 +65,6 @@ enum class MovementCommand {
         // GO_RUN_RIGHT,  // wantsRight && wantsRun
         // GO_RUN_LEFT    // wantsLeft && wantsRun
     
-        // !!!!!!!!! JUMP !!!!!!!!!
         GO_JUMP, // wantsJump
         GO_FALL // no wants && no isGrounded
 };
@@ -328,10 +325,9 @@ private:
     void handleWalkingState(MovementState target, MovementMoment moment);
     void handleRunningState(MovementState target, MovementMoment moment);
     
-    // !!!!!!!!! JUMP !!!!!!!!!
+    //JUMPING (VACÍO)
     void handleJumpingState(MovementState target, MovementMoment moment);
 
-    
     void handleTurningState(MovementState target, MovementMoment moment);
     void handleStoppingState(MovementState target, MovementMoment moment);
     
