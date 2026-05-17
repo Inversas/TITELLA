@@ -1,51 +1,46 @@
 #include "PhysicsManager.h"
 
-
-
-// -------- NUEVO --------
-// !!!!!!!!! JUMP !!!!!!!!!
 // *** CONSTRUCTOR ***
 PhysicsManager::PhysicsManager()
     :
-       /*currentScale(1.0f),
-       targetVelocityX(0.0f),
-       velocityStepX(0.0f),
-       framesRemaining(0),
-       delayFramesRemaining(0),
-       isVelocityChanging(false)*/
-
       currentScale(1.0f),
       targetVelocityX(0.0f),
       velocityStepX(0.0f),
       framesRemaining(0),
       delayFramesRemaining(0),
       isVelocityChanging(false),
-      // *** JUMP ***
+
+      baseMaxSpeedRun(0.0f),
+      baseMaxSpeedWalk(0.0f),
+      maxSpeedRun(0.0f),
+      maxSpeedWalk(0.0f),
+
       jumpImpulse(0.0f),
-      stopFrames(2),
-      delayFramesRemainingJump(0),
-      framesRemainingJump(0),
-      isImpulsing(false),
-      isWaitingJumpImpulse(false),
-      // *** JUMP TO FALL ***
       stopStepY(0.0f),
+      stopFrames(0),
+      minJumpFrames(0),
+      maxJumpFrames(0),
+
+      framesRemainingJump(0),
+      impulseFrames(0),
       framesRemainingJumpStop(0),
+      delayFramesRemainingJump(0),
+
+      isWaitingJumpImpulse(false),
+      isImpulsing(false),
+      isMinJump(false),
+      isJumpCutted(false),
       isStartingToFall(false),
-      isHanging(false),
-      gravityOverride(false)
+      gravityOverride(false),
+
+      isHanging(false)
 {
-    // Inicializamos los vectores a cero
+    // Inicializamos los vectores a cero (aquí por el uso de set)
     position.set(0, 0);
     velocity.set(0, 0);
     baseGravity.set(0, 0);
     gravity.set(0, 0);
     
-    // Inicializamos velocidades base
-    baseMaxSpeedWalk = 0.0f;
-    baseMaxSpeedRun = 0.0f;
-    maxSpeedWalk = 0.0f;
-    maxSpeedRun = 0.0f;
-
     // Nota: Aunque setup() les dará los valores reales (7.0, 18.0, etc.),
     // el constructor garantiza que si alguien intenta leer la velocidad
     // antes de tiempo, recibirá un 0 y no un número aleatorio gigante.
@@ -67,7 +62,6 @@ void PhysicsManager::setup(float startX, float startY) {
     // Velocidad Inicial
     velocity.set(0, 0);
     
-    
     // Gravedad
     baseGravity.set(0, 5.8f); // Valor de gravedad
     // Valores iniciales por defecto (se pueden cambiar con los setters)
@@ -83,6 +77,17 @@ void PhysicsManager::setup(float startX, float startY) {
     framesRemaining = 0;
     isVelocityChanging = false;
     
+    // *** VALORES BASE FRAMES *** (modificables desde GUI)
+    // FRAMES DE PARADA GRADUAL
+    stopFrames = 2;
+    // SALTO MÍNIMO
+    minJumpFrames = 3;
+    // SALTO MÁXIMO
+    maxJumpFrames = 6;
+    
+    // Está bien resetear las variables
+    resetJumpVariables();
+    
     // Debemos dar valor a las variables de trabajo con la escala inicial
     updateScaledPhysics();
 }
@@ -94,7 +99,7 @@ void PhysicsManager::update() {
 }
 
 
-// *** EL LATIDO ***
+// *** EL LATIDO en X ***
 // Aplica el incremento/decremento calculado en cada paso de animación (Frame Data) y gestiona la finalización de la rampa.
 void PhysicsManager::updateVelocityStep() {
     
@@ -125,12 +130,8 @@ void PhysicsManager::updateVelocityStep() {
         }
     }
 }
-void PhysicsManager::updateVelocityStepY() {
-    
-}
 
-
-// *** CAMBIOS DE VELOCIDAD ***
+// *** CAMBIOS DE VELOCIDAD en X ***
 // Configura una rampa de aceleración o frenado (cambio de velocidad progresivo).
 void PhysicsManager::startVelocityChange(float targetAbsSpeed, int frames, bool lookingRight, int delay) {
     
@@ -182,47 +183,7 @@ void PhysicsManager::startVelocityTurnChange(int frames) {
 
 
 
-
-// -------- NUEVO --------
-// !!!!!!!!! JUMP !!!!!!!!!
-// *** GESTIÓN SALTO ***
-
-// impulseFrames, frames de impulso 2 = frames - delay (7-5)
-// frames de salto máximo jumpFrames = 3
-// frames de parada (JUMP_TO_FALL) stopFrames = 2 (para el máximo)
-void PhysicsManager::startVelocityJump(int frames, int delay) {
-
-    framesRemainingJumpStop = stopFrames;
-    // totalJumpFrames: frames de IDLE_TO_JUMP (dos últimos, (frames - delay), 3 de JUMP y 2 de JUMP_TO_FALL
-    framesRemainingJump = (frames - delay) + maxJumpFrames + framesRemainingJumpStop;
-    ofLogNotice("PhysicsManager") << "FRAMES IDLE_TO_JUMP = " << frames;
-    ofLogNotice("PhysicsManager") << "DELAY = " << delay;
-    ofLogNotice("PhysicsManager") << "USADO MAXJUMPFRAMES = " << maxJumpFrames;
-    ofLogNotice("PhysicsManager") << "FRAMES STOP = " << maxJumpFrames;
-    ofLogNotice("PhysicsManager") << "FRAMES RESTANTES INICIO SALTO = " << framesRemainingJump;
-
-    
-    // El impulso debe ser suficiente para que la gravedad nos lleve a una velocidad
-    // que en 'stopFrames' frames pueda llegar a 0.
-    
-    // Es decir, en (totalJumpFrames - stopFrames) frames la gravedad habrá consumido:
-    // (totalJumpFrames - stopFrames) * gravity.y
-    
-    // Lo que queda para que JUMP_TO_FALL lo lleve a 0 en stopFrames:
-    // stopFrames * gravity.y
-    
-    // Por tanto el impulso total es:
-    jumpImpulse = framesRemainingJump * gravity.y;
-    
-    // El impulso se aplica después del delay (en el frame indicado de IDLE_TO_JUMP)
-    delayFramesRemainingJump = delay;
-    
-    // Todavía no estamos impulsando, esperamos el delay
-    isImpulsing = false;
-    isWaitingJumpImpulse = true;
-}
-
-// Aquí podría llegar un parámetro, que si no estamos wantJump, entonces recalcular el impulso, para hacer el salto corto.
+// *** EL LATIDO DEL SALTO ***
 void PhysicsManager::updateJumpStep(bool wantJump) {
     
     // ==========================================
@@ -236,22 +197,29 @@ void PhysicsManager::updateJumpStep(bool wantJump) {
             // Salimos, segimos esperando
             return;
         }
-        
-        // ESPERA DE DELAY COMPLETADA
+        // ==========================================
+        // FASE 1.1: COMPLETADO DELAY
+        // ==========================================
         isWaitingJumpImpulse = false;
         
-        // SI NO QUEREMOS SEGUIR SALTANDO, aplicamos el salto mínimo
+        // JUMP STARTED, pero no presionada tecla SPACE
         if (!wantJump) {
+            
+            // SALTO MÍNIMO
             isMinJump = true;
-            // totalJumpFrames: EL DELAY YA PASÓ, y aplicamos los valores de salto mínimo
+            
+            // DEFINIMOS Total de frames de salto:
+            // Delay ya ha pasado, no lo sumamos
+            // Frames de salto mínimo
+            // Frames de parada (JUMP_TO_FALL)
             framesRemainingJump = minJumpFrames + framesRemainingJumpStop;
+            
+            // RECALCULO impulso
             jumpImpulse = framesRemainingJump * gravity.y;
-            ofLogNotice("PhysicsManager") << "------- SALTO CORTO";
         }
-        ofLogNotice("PhysicsManager") << "------- IMPULSO APLICDAO";
-        // APLICAMOS EL IMPULSO
+
+        // APLICAMOS EL IMPULSO (negativo para subir)
         velocity.y = -jumpImpulse;
-        // Estamos subiendo
         isImpulsing = true;
         return;
     }
@@ -259,41 +227,20 @@ void PhysicsManager::updateJumpStep(bool wantJump) {
     // ==========================================
     // FASE 2: CONTANDO FRAMES DE SUBIDA
     // ==========================================
-    // Mientras estamos subiendo
+    // Mientras estamos impulsando
     if (isImpulsing) {
         // Quitamos frame de salto
         framesRemainingJump--;
         
         // Si solo quedan los stop frames
         if (framesRemainingJump <= framesRemainingJumpStop) {
-            // Inofrmamos el final de impulso, translateIntent nos pondrá en GO_FALL
+            // Informamos el final de impulso, translateIntent de MovementManager nos pondrá en GO_FALL
             isImpulsing = false;
-            ofLogNotice("PhysicsManager") << "FRAMES DE SALTO AGOTADOS, a VEL = " << velocity.y;
         }
     }
 }
 
-
-void PhysicsManager::startJumpToFall() {
-
-    // Desde la velocity.y actual, calculamos el step para llegar a 0
-    // en exactamente stopFrames frames, sin gravedad activa durante ese proceso.
-    // stopStepY será positivo porque velocity.y es negativa (aún subiendo)
-    stopStepY = -velocity.y / framesRemainingJumpStop;
-    
-    // Suspendemos la gravedad — ella interferiría con el cálculo lineal
-    gravityOverride = true;
-    
-    // Empezamos el proceso de Subir a Bajar
-    isStartingToFall = true;
-    
-    // PARA FORZAR ALMENOS UN FRAME PARADO
-    isHanging = false;
-    ofLogNotice("PhysicsManager") << "------- JUMP TO FALL";
-
-}
-
-
+// *** EL LATIDO DE JUMP_TO_FALL ***
 void PhysicsManager::updateJumpToFallStep() {
     
     // ==========================================
@@ -303,112 +250,202 @@ void PhysicsManager::updateJumpToFallStep() {
     if (isStartingToFall) {
         
         // La Gravedad está inhabilitada
-        // Aplicamos el cambio de velocidad, segun los frames definidos para llegar a 0
+        // Aplicamos nuevo paso de velocidad, para llegar a 0 en STOP_FRAMES
         velocity.y += stopStepY;
         
-        // Es stopFrames
         // QUitamos uno porque hemos aplicado el paso
         framesRemainingJumpStop--;
         
-        // Si no quedan stopFrames
+        // ==========================================
+        // FASE 1.1: FRENADO COMPLETADO
+        // ==========================================
         if (framesRemainingJumpStop <= 0) {
+            // Debemos estar cerca de 0
             // Forzamos la velocidad a 0, evitamos floats residuales
             velocity.y = 0.0f;
             // Ya hemos pasado de Subir a Bajar, justo estamos en 0
             isStartingToFall = false;
             
-            // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
-            // CUANDO FUNCIONE, VER SI NOS GUSTA HANGING
-            // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-            // ESTO SE USA PARA FORZAR QUE HAYA UN FRAME CON VELOCIDAD 0
-            // isHanging = true;
-            // SI HACEMOS LO ANTERIOR EL GRAVITYOVERRIDE SE PONE A FALSE EN EL HANGING
-            gravityOverride = false; // Liberamos la gravedad
-
-            ofLogNotice("PhysicsManager") << "-------  FRENADO COMPLETO";
+            // ESTO SE USA PARA FORZAR QUE HAYA UN FRAME CON VELOCIDAD 0, queda más fino
+            isHanging = true;
         }
         return;
     }
     
-    
-    // ESTO SE USA PARA FORZAR QUE HAYA UN FRAME CON VELOCIDAD 0
     // ==========================================
-    // FASE 2: HANGING (1 frame parado)
+    // FASE 2: HANGING (FORZAR QUE HAYA UN FRAME CON VELOCIDAD 0)
     // ==========================================
-    /*if (isHanging) {
+    if (isHanging) {
         velocity.y = 0.0f;      // Mantenemos parado
         gravityOverride = false; // Liberamos la gravedad
         isHanging = false;
-        ofLogNotice("PhysicsManager") << "Hanging completo, gravedad activa";
-    }*/
+    }
 }
 
 
-// Después de revisar todo lo anterior tendremos más control para hacer lo siguiente
+// *** CAMBIOS DE VELOCIDAD en Y ***
+// Se dispara con los MOVIMIENTOS TO_JUMP
+void PhysicsManager::startVelocityJump(int frames, int delay) {
+    
+    // stopFrames se guarda en framesRemainingJumpStop
+    framesRemainingJumpStop = stopFrames;
+    // Frames de dentro de movimientos TO_JUMP donde ya se eleva
+    impulseFrames = frames - delay;
+
+    // DEFINIMOS Total de frames de salto:
+    // Frames del movimiento menos el delay
+    // Frames de salto máximo
+    // Frames de parada (JUMP_TO_FALL)
+    framesRemainingJump = impulseFrames + maxJumpFrames + framesRemainingJumpStop;
+    
+    
+    // *** CÁLCULO DEL IMPULSO INICIAL ***
+    // Cada frame de subida, la gravedad suma +gravity.y a velocity.y.
+    // Para que velocity.y llegue a exactamente 0 al final de la subida,
+    // el impulso inicial debe ser igual a lo que la gravedad va a consumir
+    // durante todos los frames de subida:
+    //     jumpImpulse = N * gravity.y   (donde N = framesRemainingJump)
+    jumpImpulse = framesRemainingJump * gravity.y;
+    
+    
+    // El impulso se aplicará después del delay (en el frame indicado de IDLE_TO_JUMP)
+    delayFramesRemainingJump = delay;
+    isImpulsing = false;
+    isWaitingJumpImpulse = true;
+}
+
+// Se dispara con el MOVIMIENTO JUMP_TO_FALL
+void PhysicsManager::startJumpToFall() {
+
+    // *** CÁLCULO DEL STEP DE PARADA GRADUAL ***
+    // Con gravityOverride=true la gravedad NO actúa durante esta fase.
+    // Solo actúa stopStepY, que cada frame suma una cantidad fija.
+    // Usamos la fórmula de step lineal: (destino - origen) / pasos
+    //     = (0 - velocity.y) / framesRemainingJumpStop
+    //     = -velocity.y / framesRemainingJumpStop
+    // Como velocity.y es negativa en este momento, el resultado es positivo:
+    // cada frame sumamos ese valor positivo a velocity.y hasta llegar a 0.
+    stopStepY = -velocity.y / framesRemainingJumpStop;
+    
+    // Suspendemos la gravedad (sino interferiría con el cálculo lineal)
+    gravityOverride = true;
+    
+    // Empezamos el proceso de Subir a Bajar
+    isStartingToFall = true;
+    
+    // PARA FORZAR ALMENOS UN FRAME PARADO
+    isHanging = false;
+}
+
+// *** RECALCULO FRAMES y VELOCIDAD para CORTE SALTO ***
+// Se dispara mientras estamos en JUMP, pero se ha soltado la tecla SPACE (lo dispara translateIntent en MovementManager)
 void PhysicsManager::cutJump() {
     
-    ofLogNotice("PhysicsManager") << ")()()()()()()()()( CORTE, quedaban total de !!! " << framesRemainingJump;
-    ofLogNotice("PhysicsManager") << "!!!! CORTE, quedaban stopframes !!! " << framesRemainingJumpStop;
-    ofLogNotice("PhysicsManager") << "!!!! CORTE, quedaban jumpframes !!! " << framesRemainingJump-framesRemainingJumpStop;
-
-        
-    int jumpFramesRemaining = (framesRemainingJump - framesRemainingJumpStop);
+    isJumpCutted = true;
     
-    // ¿Quedan más frames de subida que el mínimo?
+    // SWITCH LOG EXPLICATIVO
+    /*
+    switch (framesRemainingJump) {
+        case 11:
+            ofLogNotice("Physics") << "[FRAME -2 (IDLE_TO_JUMP)] Quedan: " << framesRemainingJump
+                                   << " | Parada: " << stopFrames
+                                   << " | Subida Pura (Totales - Parada): " << (framesRemainingJump - stopFrames);
+            break;
+            
+        case 10:
+            ofLogNotice("Physics") << "[FRAME -1 (IDLE_TO_JUMP)] Quedan: " << framesRemainingJump
+                                   << " | Parada: " << stopFrames
+                                   << " | Subida Pura (Totales - Parada): " << (framesRemainingJump - stopFrames);
+            break;
+            
+        case 9:
+            ofLogNotice("Physics") << "[FRAME 0 (IDLE_TO_JUMP)] Quedan: " << framesRemainingJump
+                                   << " | Parada: " << stopFrames
+                                   << " | Subida Pura (Totales - Parada): " << (framesRemainingJump - stopFrames);
+            break;
+            
+        case 8: // Frame 1 del salto real
+            ofLogNotice("Physics") << "[FRAME 1] Quedan: " << framesRemainingJump
+                                   << " | Parada: " << stopFrames
+                                   << " | Subida Pura (Totales - Parada): " << (framesRemainingJump - stopFrames);
+            break;
+            
+        case 7: // Frame 2 del salto real
+            ofLogNotice("Physics") << "[FRAME 2] Quedan: " << framesRemainingJump
+                                   << " | Parada: " << stopFrames
+                                   << " | Subida Pura (Totales - Parada): " << (framesRemainingJump - stopFrames);
+            break;
+            
+        case 6: // Frame 3 del salto real
+            ofLogNotice("Physics") << "[FRAME 3] Quedan: " << framesRemainingJump
+                                   << " | Parada: " << stopFrames
+                                   << " | Subida Pura (Totales - Parada): " << (framesRemainingJump - stopFrames);
+            break;
+            
+        case 5: // Frame 4 del salto real
+            ofLogNotice("Physics") << "[FRAME 4] Quedan: " << framesRemainingJump
+                                   << " | Parada: " << stopFrames
+                                   << " | Subida Pura (Totales - Parada): " << (framesRemainingJump - stopFrames);
+            break;
+            
+        case 4: // Frame 5 del salto real
+            ofLogNotice("Physics") << "[FRAME 5] Quedan: " << framesRemainingJump
+                                   << " | Parada: " << stopFrames
+                                   << " | Subida Pura (Totales - Parada): " << (framesRemainingJump - stopFrames);
+            break;
+            
+        case 3: // Frame 6 del salto real
+            ofLogNotice("Physics") << "[FRAME 6] Quedan: " << framesRemainingJump
+                                   << " | Parada: " << stopFrames
+                                   << " | Subida Pura (Totales - Parada): " << (framesRemainingJump - stopFrames);
+            break;
+            
+        case 2: // Penúltimo frame (Frenado gradual)
+            ofLogNotice("Physics") << "[FRAME 7] Quedan: " << framesRemainingJump
+                                   << " | Parada: " << stopFrames
+                                   << " | Subida Pura (Totales - Parada): " << (framesRemainingJump - stopFrames);
+            break;
+            
+        case 1: // Último frame (Frenado gradual)
+            ofLogNotice("Physics") << "[FRAME 8] Quedan: " << framesRemainingJump
+                                   << " | Parada: " << stopFrames
+                                   << " | Subida Pura (Totales - Parada): " << (framesRemainingJump - stopFrames);
+            break;
+
+        default:
+            ofLogNotice("Physics") << "[ALERTA] cutJump() llamado con valor inesperado: " << framesRemainingJump;
+            break;
+    }
+     */
+    
+    // Si quedan más que el mínimo, lo convertimos al mínimo, si quedan menos lo termina
     if ( (framesRemainingJump - framesRemainingJumpStop) > minJumpFrames) {
-        ofLogNotice("PhysicsManager") << "·······················RECALUCLO !!! " << minJumpFrames + framesRemainingJumpStop;
         // Forzamos al mínimo
         framesRemainingJump = minJumpFrames + framesRemainingJumpStop;
         
-        // Recalculamos la velocity para que sea coherente:
-        // En minJumpFrames frames, la gravedad la llevará a una velocidad
-        // que en stopFrames frames llegue a 0
-        // Eso significa que ahora debe ser: -(framesRemainingJump) * gravity.y
+        // *** RECÁLCULO DE velocity.y AL CORTAR EL SALTO ***
+        // La gravedad sola es la que lleva velocity.y hasta 0, frame a frame.
+        // En N frames habrá sumado: N * gravity.y
+        // Para que velocity.y llegue a exactamente 0 al final de esos N frames:
+        //     velocity.y + (N * gravity.y) = 0
+        //     velocity.y = -(N * gravity.y)
         velocity.y = -(float)framesRemainingJump * gravity.y;
     }
-    // Si quedan menos o igual que el mínimo, dejamos correr lo que queda
-    //isImpulsing = false; 
 }
 
-int PhysicsManager::getFramesRemainingJump() const {
-    return framesRemainingJump;
-}
-bool PhysicsManager::getIsImpulsing() const {
-    return isImpulsing;
-}
-
-
-
-
-bool PhysicsManager::getGravityOverride() const {
-    return gravityOverride;
-}
-
-bool PhysicsManager::getIsMinJump() const {
-    return isMinJump;
-}
-
-
-// |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
-// CUANDO FUNCIONE, REVISAR NECESARIO
-// ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-void PhysicsManager::resetJumpState() {
-    isImpulsing          = false;
-    isWaitingJumpImpulse = false;
-    isStartingToFall     = false;
-    isHanging            = false;
-    gravityOverride      = false;
-    framesRemainingJump  = 0;
-    framesRemainingJumpStop  = 0;
-    delayFramesRemainingJump = 0;
-    stopStepY            = 0.0f;
-    //ofLogNotice("PhysicsManager") << "$$$$$$$ resetJumpState: isMinJump era " << isMinJump;
-
-    isMinJump            = false;
-
-    stopFrames = 2;
+// REINICIO DE VARIABLES DE CONTORL y StopStep
+void PhysicsManager::resetJumpVariables() {
     
-    ofLogNotice("PhysicsManager") << "resetJumpState: estado de salto limpiado al aterrizar.";
+    isWaitingJumpImpulse = false;
+    isImpulsing = false;
+    isMinJump = false;
+    isJumpCutted = false;
+
+    isStartingToFall = false;
+    isHanging = false;
+    gravityOverride = false;
+    
+    stopStepY = 0.0f;
 }
 
 
@@ -450,6 +487,28 @@ float PhysicsManager::getCurrentScale() const{
     return currentScale;
 }
 
+// *** GETTERS JUMP ***
+int PhysicsManager::getFramesRemainingJump() const {
+    return framesRemainingJump;
+}
+int PhysicsManager::getFramesRemainingJumpStop() const {
+    return framesRemainingJumpStop;
+}
+int PhysicsManager::getImpulseFrames() const {
+    return impulseFrames;
+}
+bool PhysicsManager::getIsImpulsing() const {
+    return isImpulsing;
+}
+bool PhysicsManager::getGravityOverride() const {
+    return gravityOverride;
+}
+bool PhysicsManager::getIsMinJump() const {
+    return isMinJump;
+}
+bool PhysicsManager::getIsJumpCutted() const {
+    return isJumpCutted;
+}
 
 // *** SETTERS ***
 void PhysicsManager::setPositionX(float newX) {
@@ -473,6 +532,8 @@ void PhysicsManager::resetGravityY() {
     gravity.y = baseGravity.y * currentScale;;
 }
 
+
+// *** SETTERS FOR GUI ***
 void PhysicsManager::setStopFrames(int value) {
     stopFrames = value;
 }

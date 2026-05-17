@@ -24,13 +24,11 @@ public:
     void update();
 
 
-    // *** EL LATIDO  ***
+    // *** EL LATIDO en X ***
     // Esta función será llamada por MovementManager cada vez que cambie un frame de animación.
     void updateVelocityStep();
-    // Esta función será llamada por MovementManager cada vez que cambie un frame de animación, se encarga del eje Y
-    void updateVelocityStepY();
     
-    // *** CAMBIOS DE VELOCIDAD ***
+    // *** CAMBIOS DE VELOCIDAD en X, llamadas en handleMovementPhysics ***
     // Calcula cuánto debe cambiar la velocidad en cada frame de la animación actual.
     // targetSpeedX: Velocidad final deseada.
     // frames: Cuántos frames de animación dura el cambio.
@@ -38,20 +36,18 @@ public:
     void startVelocityChange(float targetAbsSpeed, int frames, bool lookingRight, int delay = 0);
     void startVelocityTurnChange(int frames);
     
-    // -------- NUEVO --------
-    // !!!!!!!!! JUMP !!!!!!!!!
-    // *** GESTIÓN SALTO ***
-    void startVelocityJump (int frames, int delay);
+
+    // *** EL LATIDO DEL SALTO ***
     void updateJumpStep(bool wantJump);
-    void startJumpToFall();
     void updateJumpToFallStep();
-    void cutJump();
     
-    int getFramesRemainingJump() const;
-    bool getIsImpulsing() const;
-    bool getGravityOverride() const;
-    bool getIsMinJump() const;
-    void resetJumpState();
+    // *** CAMBIOS DE VELOCIDAD en Y, llamadas en handleMovementPhysics ***
+    void startVelocityJump (int frames, int delay);
+    void startJumpToFall();
+    // *** RECALCULO FRAMES y VELOCIDAD para CORTE SALTO ***
+    void cutJump();
+    // REINICIO DE VARIABLES DE CONTORL y StopStep
+    void resetJumpVariables();
     
 
     // *** APLICAR FISICAS ***
@@ -60,11 +56,6 @@ public:
     // Aplica la gravedad al personaje, con un límite de suelo (ground)
     void applyGravity();
     
-    
-
-
-    
-
     
     // ------------------- GETTERS - SETTERS -------------------
 
@@ -76,6 +67,16 @@ public:
     float getGravityY() const;
     float getCurrentScale() const;
     
+    // *** GETTERS JUMP ***
+    int getFramesRemainingJump() const;
+    int getFramesRemainingJumpStop() const;
+    int getImpulseFrames() const;
+    bool getIsImpulsing() const;
+    bool getGravityOverride() const;
+    bool getIsMinJump() const;
+    bool getIsJumpCutted() const;
+    
+    
     // *** SETTERS ***
     void setPositionX(float newX);
     void setPositionY(float newY);
@@ -83,17 +84,16 @@ public:
     void setVelocityY(float newY);
     void setGravityY(float newY);
     void resetGravityY();
-
+    
+    // *** SETTERS FOR GUI ***
+    void setMaxSpeedWalk(float maxSpeed);
+    void setMaxSpeedRun(float maxSpeed);
+    
+    // *** SETTERS JUMP FOR GUI ***
     void setStopFrames(int value);
     void setMinJumpFrames(int value);
     void setMaxJumpFrames(int value);
-    
-    void setMaxSpeedWalk(float maxSpeed);
-    void setMaxSpeedRun(float maxSpeed);
 
-
-
-    
 private:
     
     // *** VARIABLES DE ESTADO (Dinámica actual) ***
@@ -113,81 +113,61 @@ private:
     // Escala actual del personaje (1.0 = 100%)
     float currentScale = 1.0f;
     
-    // *** CONTROL DE TRANSICIÓN DE VELOCIDAD ***
+    // *** CONTROL DE TRANSICIÓN DE VELOCIDAD en X ***
     float targetVelocityX;         // A qué velocidad queremos llegar (ej: 200.0 o 0.0)
-    float targetVelocityY;         // A qué velocidad queremos llegar (ej: 200.0 o 0.0) en el eje Y
-
-
     float velocityStepX;           // Cuánta velocidad sumamos/restamos en cada tick de animación en el eje X
-    float velocityStepY;           // Cuánta velocidad sumamos/restamos en cada tick de animación en el eje Y
     int framesRemaining;           // Cuántos "pasos" quedan para terminar el cambio de velocidad
     int delayFramesRemaining = 0;  // Cuántos "pasos" quedan para empezar el cambio de velocidad
     bool isVelocityChanging;       // Flag de seguridad para saber si hay un cambio de velocidad en curso
     
-    
-    
-    
-    // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
-    // CREAR VALROES DE TRABAJO Y VALORES BASE PARA EL ESCALADO DE LA GESTION DE SALTO
-    // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-    
-    // -------- NUEVO --------
-    // !!!!!!!!! JUMP !!!!!!!!!
-    float jumpImpulse = 0.0f;
-    
-    
-    // *** JUMP FRAMES ***
-    // FRAMES movimiento _TO_JUMP, menos DELAY
-    int impulseFrames;
-    
  
     
-    // Frames que quedan para completar el salto
-    int framesRemainingJump;
+    // LA GESTIÓN de SALTO no necesita valores escalados:
+    // jumpImpulse = framesRemainingJump * gravity.y    // gravity.y ya está escalada
+    // velocity.y  = -jumpImpulse                       // hereda la escala
+    // cutJump: velocity.y = -(N * gravity.y)           // hereda la escala
+    // stopStepY se calcula a partir de velocity.y en ese momento, que ya tiene la escala incorporada.
     
-    // Frames parada gradual en JUMP_TO_FALL
+    // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
+    // Pero tenerlo en cuenta si nunca hacemos un cambio de escala DURANTE el salto
+    // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+    
+    // *** CONTROL DE TRANSICIÓN DE VELOCIDAD en Y ***
+    // Impulso aplicado para iniciar salto
+    float jumpImpulse = 0.0f;
+    // Cuánta velocidad sumamos/restamos en el eje Y en cada frame para PARADA GRADUAL
+    float stopStepY = 0.0f;
+    
+    // *** VALORES BASE FRAMES *** (modificables desde GUI)
+    // FRAMES DE PARADA GRADUAL
+    int stopFrames;
+    // SALTO MÍNIMO
+    int minJumpFrames;
+    // SALTO MÁXIMO
+    int maxJumpFrames;
+    
+    // *** JUMP FRAMES ***
+    // Frames restantes TOTALES para completar el salto (el delay, la subida, y la parada gradual)
+    int framesRemainingJump;
+    // Frames de dentro de movimientos TO_JUMP donde ya se eleva
+    int impulseFrames;
+    // Frames restantes PARADA gradual en JUMP_TO_FALL
     int framesRemainingJumpStop;
-
-    // Frames a esperar para iniciar el salto en _TO_JUMP
+    // Frames restantes DELAY para iniciar el salto en _TO_JUMP
     int delayFramesRemainingJump;
     
-    // Siempre usamos 2 frames de JUMP_TO_FALL // (Controlable por GUI) (de 2 a 4)
-    int stopFrames = 2;
-    
-    // SALTO MÍNIMO
-    int minJumpFrames = 3; // (Controlable por GUI) (de 1 a 3)
-    
-    // SALTO MÁXIMO
-    int maxJumpFrames = 6; //(Controlable por GUI) (de 3 a 6)
-
-    
-    
-   
-
-    
     // *** VARIABLES DE CONTROL ***
-    bool isImpulsing = false;
     bool isWaitingJumpImpulse = false;
+    bool isImpulsing = false;
+    bool isMinJump = false;
+    bool isJumpCutted = false;
+
     bool isStartingToFall = false;
-    bool isHanging = false;
     bool gravityOverride = false;
-    bool isMinJump = false; 
+    
+    bool isHanging = false;
 
     
-    
-    
-   
-
-    
-    // *** JUMP TO FALL ***
-    float stopStepY = 0.0f;
-
-    
-    
-    
-    
-
-
     // *** MÉTODOS INTERNOS ***
     // Actualiza los valores de trabajo segun la escala
     void updateScaledPhysics();

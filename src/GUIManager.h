@@ -75,6 +75,9 @@ private:
     ofxIntSlider minJumpFramesGui;
     ofxIntSlider maxJumpFramesGui;
     
+    ofxLabel framesStartJumpGui;
+    ofxLabel remainingFramesJumpGui;
+    ofxLabel remainingFramesStopJumpGui;
     
     // ==========================================
     // 2. F.I. (Frame Intervals)

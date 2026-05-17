@@ -141,22 +141,13 @@ void MovementManager::translateIntent(){
     // RECUPERAR "deseos" del jugador desde el InputManager
     InputState intent = inputManager->getInputState();
     
-    /*
-    // CÁLCULO DE LA ORIENTACIÓN LÓGICA (OBSOLETO)
-    // Dirección Actual (true = derecha, false = izquierda)
-    bool lookingRight = getIsFacingRight();
     
-    // pulsa IZQUIERDA (intent.wantsLeft) y mira a la DERECHA (lookingRight)
-    // pulsa DERECHA (intent.wantsRight) y mira a la IZQUIERDA (!lookingRight)
-    bool wantsTurn = (intent.wantsLeft && lookingRight) || (intent.wantsRight && !lookingRight);
-    */
     
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    //               TO TURNING
+    //                   TURN
+    //      QUIERE IR A LA DIRECCIÓN CONTRARIA
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    // SI QUIERE IR A LA DIRECCIÓN CONTRARIA
-    // Caso: Quiere ir a la derecha pero está mirando a la izquierda
-    if ( (intent.wantsRight && !isFacingRight) || (intent.wantsLeft && isFacingRight) ) {
+        if ( (intent.wantsRight && !isFacingRight) || (intent.wantsLeft && isFacingRight) ) {
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         //           flag IDLE_TURN_TO_RUN
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -168,128 +159,100 @@ void MovementManager::translateIntent(){
         return;
     }
     
-    
-    
-    
-    // -------- NUEVO --------
-    // !!!!!!!!! JUMP !!!!!!!!!
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    //           GESTIÓN DE SALTO ACTIVO
+    //               TO_FALL
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    // ············································································
+    // NO DIRECTION (DE MOMENTO HASTA TENER MOVIMIENTO X EN AIRE) / NO GROUNDED / NO IMPULSING
+    // ············································································
+    if (!intent.hasAnyDirection && !isGrounded && !physicsManager->getIsImpulsing()) {
+        currentCommand =  MovementCommand::GO_FALL;
+        return;
+    }
+
+
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    //              SALTO EN CURSO
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    // Solo si estmaos en JUMPING
     if (currentState == MovementState::JUMPING) {
         
-        
-        // Salto cortado: jugador soltó SPACE mientras subía
-        if (!intent.wantsJump && physicsManager->getIsImpulsing() && !isGrounded && !physicsManager->getIsMinJump()) {
-            ofLogNotice("MovementManager") << "$$$$$$$ cutJump check: isImpulsing="
-                << physicsManager->getIsImpulsing()
-                << " isMinJump=" << physicsManager->getIsMinJump()
-                << " isGrounded=" << isGrounded
-                << " wantsJump=" << intent.wantsJump;
+        // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        //               SALTO CORTADO
+        //         SUELTA SPACE MIENTRAS SUBÍA
+        // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        // ············································································
+        // SPACE OFF / IS IMPULSING / NO GROUNDED / NO MINJUMP / NO JUMP CUTTED
+        // ············································································
+        if (!intent.wantsJump && physicsManager->getIsImpulsing() && !isGrounded && !physicsManager->getIsMinJump() && !physicsManager->getIsJumpCutted()) {
             physicsManager->cutJump();
             // No ponemos GO FALL, porque tiene que terminar sus frames de JUMP
-            //currentCommand = MovementCommand::GO_FALL;
+            // currentCommand = MovementCommand::GO_FALL;
             return;
         }
-        
-        
-        
-        
-        // Salto agotado: se acabaron los frames de subida
+        // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        //               SALTO AGOTADO
+        // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        // ············································································
+        // NO IMPULSING / NO GROUNDED
+        // ············································································
         if (!physicsManager->getIsImpulsing() && !isGrounded ) {
             currentCommand = MovementCommand::GO_FALL;
             return;
         }
         
-        // Sigue subiendo: mantenemos el estado
+        // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        //               SIGUE SUBIENDO
+        // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        // Mantener Estado
         currentCommand = MovementCommand::GO_JUMP;
         return;
     }
     
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    //                 TO JUMP
+    //              TO_JUMP
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    // !!!!!!!!! JUMP !!!!!!!!!
-    
-    // ESTO SERíA SOLO PARA IDLE WALK o RUN TO_JUMP
-    
-    /*if (intent.wantsJump && isGrounded) {
-        currentCommand = MovementCommand::GO_JUMP;
-        return;
-    }*/
-    
-    // ESTO SE APLICA CON isGgrounded TANTO true COMO false
-  
+    // ············································································
+    // SPACE ON / IS GROUNDED
+    // ············································································
+    // debería ser solo para IDLE / WALK / RUN -> TO_JUMP
     if (intent.wantsJump && isGrounded) {
         currentCommand = MovementCommand::GO_JUMP;
         return;
     }
     
-    // Para el futuro doble salto??
+    // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
+    // Para el doble salto??
     /*if (intent.wantsJump && !isGorunded) {
         currentCommand = MovementCommand::GO_JUMP;
         return;
     }*/
-    
-    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    //                 TO FALL
-    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    // No hay GIRO y no hay DIRECCIÓN, pero està en el aire i no se está impulsando
-    if (!intent.hasAnyDirection && !isGrounded && !physicsManager->getIsImpulsing()) {
-        currentCommand =  MovementCommand::GO_FALL;
-        return;
-    }
-    
-    // MÁXIMO SALTO
-    // Frames Remaining Jump mayor que 0
-   /* if(framesRemainingJump !=-1){
-        if(framesRemainingJump>0){
-            // Bajamos uno
-            framesRemainingJump--;
-        }
-        else {
-            currentCommand =  MovementCommand::GO_FALL;
-            framesRemainingJump=-1;
-        }
-        return;
-    }*/
-    
-    
+    // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     //                 TO IDLE
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    // No hay GIRO y no hay DIRECCIÓN
-    if (!intent.hasAnyDirection) {
-        currentCommand =  MovementCommand::GO_STOP;
-        return;
-    }
-    
+    // (VENIMOS DE NO GIRO) / (grounded true o false)
+    // NO DIRECTION
     // >>>>>>>>>>>> COLISIONES >>>>>>>>>>>>
-    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    //                 TO IDLE
-    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    // Si quiere ir a la derecha pero hay pared...
-    if (intent.wantsRight && isWalledRight) {
-        currentCommand = MovementCommand::GO_STOP;
-        return;
-    }
-    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    //                 TO IDLE
-    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    // Si quiere ir a la izquierda pero hay pared...
-    if (intent.wantsLeft && isWalledLeft) {
-        currentCommand = MovementCommand::GO_STOP;
+    //  WANT RIGHT / IS WALLED RIGHT
+    //  WANT LEFT / IS WALLED LEFT
+    if (!intent.hasAnyDirection || (intent.wantsRight && isWalledRight) || (intent.wantsLeft && isWalledLeft) ) {
+        currentCommand =  MovementCommand::GO_STOP;
         return;
     }
 
     
-    // HAY DIRECCIÓN
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    //                 HAY DIRECCIÓN
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    // WANT DIRECTION
     if (intent.wantsRight || intent.wantsLeft) {
         
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        //              TO RUNNING
+        //               TO RUNNING
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        // Quiere correr --> Quiere avanzar rápido
+        // WANT RUN (AVANZAR RÁPIDO)
         if (intent.wantsRun) {
             currentCommand = MovementCommand::GO_FORWARD_FAST;
             return;
@@ -297,13 +260,14 @@ void MovementManager::translateIntent(){
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         //              TO WALKING
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        // Si no, simplemente avanzar
+        // WANT DIRECTION (AVANZAR)
         } else {
             currentCommand = MovementCommand::GO_FORWARD;
             return;
         }
     }
 
+    
     // Por seguridad, si algo fallara, devolvemos parada.
     currentCommand = MovementCommand::GO_STOP;
     return;
@@ -395,6 +359,12 @@ void MovementManager::updateState(MovementState targetState) {
     }*/
     // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
     
+    
+    
+    // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
+    // Hemo añadido el control para no cortar nunca una transición.
+    // TENERLO EN CUENTA PARA EL FUTURO
+    // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
     // NO SE PUEDE CORTAR UNA TRANSICION
     if(!currentMovement->isTransition){
         // SUB MAQUINAS DE ESTADOS
@@ -1386,7 +1356,7 @@ void MovementManager::handleMovementPhysics(const std::string& name) {
             // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
             if (name == "LAND_TO_IDLE"){
                 ofLogNotice("MovementManager") << "-> Detectado LAND_TO_IDLE ";
-                physicsManager->resetJumpState();
+                physicsManager->resetJumpVariables();
             }
         break;
         // ==========================================
@@ -1508,9 +1478,9 @@ void MovementManager::handleMovementPhysics(const std::string& name) {
             if(name == "IDLE_TO_JUMP"){
                 ofLogNotice("MovementManager") << "-> Detectado IDLE_TO_JUMP ";
                 
-                // totalJumpFrames: frames de IDLE_TO_JUMP (dos últimos) (7-5), 3 de JUMP y 2 de JUMP_TO_FALL (stopFrames)
+                // totalJumpFrames: frames de IDLE_TO_JUMP (tres últimos) (8-5), 3 de JUMP y 2 de JUMP_TO_FALL (stopFrames)
                 // PAsamos el total de frames de IDLE_TO_JUMP, y el delay de cuando debe empezar el impulso
-                physicsManager->startVelocityJump(7, 5);
+                physicsManager->startVelocityJump(frames, 5);
             }
             // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
             //              JUMP
@@ -1524,11 +1494,14 @@ void MovementManager::handleMovementPhysics(const std::string& name) {
                 ofLogNotice("MovementManager") << "-> JUMP en curso, framesRemainingJump="
                                                << physicsManager->getFramesRemainingJump();
             }
-/*
+            
+            /*
                 else if (name == "JUMP_TO_FALL") {
                     physicsManager->startJumpToFall(2);  // ← añadir esto aquí también
                 }
             */
+            
+            
             // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
             //          WALK TO JUMP (1 i 2)
             // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈

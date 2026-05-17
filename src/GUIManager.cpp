@@ -82,6 +82,10 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     settersGroup.add(minJumpFramesGui.setup("Min Jump Frames", 3, 1, 4));
     settersGroup.add(maxJumpFramesGui.setup("Max Jump Frames", 6, 3, 10));
     
+    settersGroup.add(framesStartJumpGui.setup("START JUMP FRAMES", "0"));
+    settersGroup.add(remainingFramesJumpGui.setup("CURRENT TOTAL FRAMES JUMP", "0"));
+    settersGroup.add(remainingFramesStopJumpGui.setup("CURRENT STOP JUMP FRAMES", "0"));
+    
     // AÑADIR A GUI
     // Sin & estaríamos pasando una copia
     gui.add(&settersGroup);
@@ -277,6 +281,10 @@ void GUIManager::update() {
     // Menos
     currentVelocityYGui = std::to_string(physicsManager->getVelocity().y);
     gravityGui = std::to_string(physicsManager->getGravityY());
+    
+    framesStartJumpGui = ofToString(physicsManager->getImpulseFrames());
+    remainingFramesJumpGui = ofToString(physicsManager->getFramesRemainingJump());
+    remainingFramesStopJumpGui = ofToString(physicsManager->getFramesRemainingJumpStop());
     
     // ==============================================================================================================================
     // UPDATE GRUPO: [F.I.]
