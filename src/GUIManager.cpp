@@ -69,6 +69,8 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     // FISICAS SLIDERS $$$$$$$$$$$$$
     settersGroup.add(maxSpeedWalkGui.setup("Max Speed Walk", physicsManager.getMaxSpeedWalk(), 0.0, 15.0));
     settersGroup.add(maxSpeedRunGui.setup("Max Speed Run", physicsManager.getMaxSpeedRun(), 0.0, 25.0));
+    settersGroup.add(maxSpeedAirGui.setup("Max Speed Air", physicsManager.getMaxSpeedAir(), 0.0, 15.0));
+
 
     // COLLISION SLIDERS >>>>>>>>>>>>
     settersGroup.add(hitBoxWGui.setup("HitBox W", collisionManager.getHitbox().width, 100, 400));
@@ -81,6 +83,9 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     settersGroup.add(stopFramesGui.setup("Stop Frames", 2, 2, 6));
     settersGroup.add(minJumpFramesGui.setup("Min Jump Frames", 3, 1, 4));
     settersGroup.add(maxJumpFramesGui.setup("Max Jump Frames", 6, 3, 10));
+    
+    settersGroup.add(airForwardFramesGUi.setup("Air Forward Frames", 3, 1, 5));
+    settersGroup.add(airUnforwardFrames.setup("Air Unforward Frames", 3, 1, 5));
     
     settersGroup.add(framesStartJumpGui.setup("START JUMP FRAMES", "0"));
     settersGroup.add(remainingFramesJumpGui.setup("CURRENT TOTAL FRAMES JUMP", "0"));
@@ -226,6 +231,8 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     // $$$$$$$$$$$$$ FISICAS $$$$$$$$$$$$$
     maxSpeedWalkGui.addListener(this, &GUIManager::onMaxSpeedWalkChanged);
     maxSpeedRunGui.addListener(this, &GUIManager::onMaxSpeedRunChanged);
+    maxSpeedAirGui.addListener(this, &GUIManager::onMaxSpeedAirChanged);
+
     
     // >>>>>>>>>>>> COLISIONES >>>>>>>>>>>>
     hitBoxWGui.addListener(this, &GUIManager::onHitBoxWChanged);
@@ -235,6 +242,9 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     stopFramesGui.addListener(this, &GUIManager::onStopFramesChanged);
     minJumpFramesGui.addListener(this, &GUIManager::onMinJumpFramesChanged);
     maxJumpFramesGui.addListener(this, &GUIManager::onMaxJumpFramesChanged);
+    
+    airForwardFramesGUi.addListener(this, &GUIManager::onAirForwardFramesChanged);
+    airUnforwardFrames.addListener(this, &GUIManager::onAirUnforwardFramesChanged);
     
     // [F.I.]
     idleFrameIntervalGui.addListener(this, &GUIManager::onIdleFrameIntervalChanged);
@@ -285,7 +295,7 @@ void GUIManager::update() {
     framesStartJumpGui = ofToString(physicsManager->getImpulseFrames());
     remainingFramesJumpGui = ofToString(physicsManager->getFramesRemainingJump());
     remainingFramesStopJumpGui = ofToString(physicsManager->getFramesRemainingJumpStop());
-    
+        
     // ==============================================================================================================================
     // UPDATE GRUPO: [F.I.]
     // ==============================================================================================================================
@@ -772,6 +782,9 @@ void GUIManager::onMaxSpeedWalkChanged(float& value) {
 void GUIManager::onMaxSpeedRunChanged(float& value) {
     physicsManager->setMaxSpeedRun(value);
 }
+void GUIManager::onMaxSpeedAirChanged(float& value) {
+    physicsManager->setMaxSpeedAir(value);
+}
 
 // >>>>>>>>>>>> COLISIONES >>>>>>>>>>>>
 void GUIManager::onHitBoxWChanged(float& value) {
@@ -792,6 +805,14 @@ void GUIManager::onMinJumpFramesChanged(int& value) {
 
 void GUIManager::onMaxJumpFramesChanged(int& value) {
     physicsManager->setMaxJumpFrames(value);
+}
+
+void GUIManager::onAirForwardFramesChanged(int& value) {
+    physicsManager->setAirForwardFrames(value);
+}
+
+void GUIManager::onAirUnforwardFramesChanged(int& value) {
+    physicsManager->setAirUnforwardFrames(value);
 }
 
 

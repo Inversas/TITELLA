@@ -27,6 +27,7 @@ public:
     // *** EL LATIDO en X ***
     // Esta función será llamada por MovementManager cada vez que cambie un frame de animación.
     void updateVelocityStep();
+   
     
     // *** CAMBIOS DE VELOCIDAD en X, llamadas en handleMovementPhysics ***
     // Calcula cuánto debe cambiar la velocidad en cada frame de la animación actual.
@@ -36,7 +37,7 @@ public:
     void startVelocityChange(float targetAbsSpeed, int frames, bool lookingRight, int delay = 0);
     void startVelocityTurnChange(int frames);
     
-
+    
     // *** EL LATIDO DEL SALTO ***
     void updateJumpStep(bool wantJump);
     void updateJumpToFallStep();
@@ -64,8 +65,10 @@ public:
     ofVec2f getVelocity() const;
     float getMaxSpeedWalk() const;
     float getMaxSpeedRun() const;
+    float getMaxSpeedAir() const;
     float getGravityY() const;
     float getCurrentScale() const;
+    bool getIsVelocityChanging() const;
     
     // *** GETTERS JUMP ***
     int getFramesRemainingJump() const;
@@ -75,7 +78,8 @@ public:
     bool getGravityOverride() const;
     bool getIsMinJump() const;
     bool getIsJumpCutted() const;
-    
+    int getAirForwardFrames() const;
+    int getAirUnforwardFrames() const;
     
     // *** SETTERS ***
     void setPositionX(float newX);
@@ -88,11 +92,16 @@ public:
     // *** SETTERS FOR GUI ***
     void setMaxSpeedWalk(float maxSpeed);
     void setMaxSpeedRun(float maxSpeed);
+    void setMaxSpeedAir(float maxSpeed);
+
     
     // *** SETTERS JUMP FOR GUI ***
     void setStopFrames(int value);
     void setMinJumpFrames(int value);
     void setMaxJumpFrames(int value);
+    void setAirForwardFrames(int value);
+    void setAirUnforwardFrames(int value);
+    
 
 private:
     
@@ -120,7 +129,14 @@ private:
     int delayFramesRemaining = 0;  // Cuántos "pasos" quedan para empezar el cambio de velocidad
     bool isVelocityChanging;       // Flag de seguridad para saber si hay un cambio de velocidad en curso
     
- 
+    // *** CONTROL DE VELOCIDAD AÉREA EN X ***
+    float baseMaxSpeedAir;           // velocidad base para desplazarse en el aire, sin escalar
+    float maxSpeedAir;               // límite de velocidad aérea, escalada
+   
+    int airForwardFrames;            // Frames para llegar a maxSpeedAir, controlable por GUI
+    int airUnforwardFrames;          // Frames para volver a 0 al soltar, controlable por GUI
+
+    
     
     // LA GESTIÓN de SALTO no necesita valores escalados:
     // jumpImpulse = framesRemainingJump * gravity.y    // gravity.y ya está escalada
@@ -145,6 +161,7 @@ private:
     int minJumpFrames;
     // SALTO MÁXIMO
     int maxJumpFrames;
+
     
     // *** JUMP FRAMES ***
     // Frames restantes TOTALES para completar el salto (el delay, la subida, y la parada gradual)

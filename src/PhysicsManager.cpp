@@ -3,37 +3,42 @@
 // *** CONSTRUCTOR ***
 PhysicsManager::PhysicsManager()
     :
-      currentScale(1.0f),
-      targetVelocityX(0.0f),
-      velocityStepX(0.0f),
-      framesRemaining(0),
-      delayFramesRemaining(0),
-      isVelocityChanging(false),
+        currentScale(1.0f),
+        targetVelocityX(0.0f),
+        velocityStepX(0.0f),
+        framesRemaining(0),
+        delayFramesRemaining(0),
+        isVelocityChanging(false),
 
-      baseMaxSpeedRun(0.0f),
-      baseMaxSpeedWalk(0.0f),
-      maxSpeedRun(0.0f),
-      maxSpeedWalk(0.0f),
+        baseMaxSpeedRun(0.0f),
+        baseMaxSpeedWalk(0.0f),
+        maxSpeedRun(0.0f),
+        maxSpeedWalk(0.0f),
 
-      jumpImpulse(0.0f),
-      stopStepY(0.0f),
-      stopFrames(0),
-      minJumpFrames(0),
-      maxJumpFrames(0),
+        baseMaxSpeedAir(0.0f),
+        maxSpeedAir(0.0f),
+        airForwardFrames(0),
+        airUnforwardFrames(0),
 
-      framesRemainingJump(0),
-      impulseFrames(0),
-      framesRemainingJumpStop(0),
-      delayFramesRemainingJump(0),
+        jumpImpulse(0.0f),
+        stopStepY(0.0f),
+        stopFrames(0),
+        minJumpFrames(0),
+        maxJumpFrames(0),
 
-      isWaitingJumpImpulse(false),
-      isImpulsing(false),
-      isMinJump(false),
-      isJumpCutted(false),
-      isStartingToFall(false),
-      gravityOverride(false),
+        framesRemainingJump(0),
+        impulseFrames(0),
+        framesRemainingJumpStop(0),
+        delayFramesRemainingJump(0),
 
-      isHanging(false)
+        isWaitingJumpImpulse(false),
+        isImpulsing(false),
+        isMinJump(false),
+        isJumpCutted(false),
+        isStartingToFall(false),
+        gravityOverride(false),
+
+        isHanging(false)
 {
     // Inicializamos los vectores a cero (aquí por el uso de set)
     position.set(0, 0);
@@ -67,6 +72,7 @@ void PhysicsManager::setup(float startX, float startY) {
     // Valores iniciales por defecto (se pueden cambiar con los setters)
     baseMaxSpeedWalk = 7.0f;
     baseMaxSpeedRun = 18.0f;
+    baseMaxSpeedAir = 4.0f;
     
     // Escala Inicial
     currentScale = 1.0f;
@@ -84,6 +90,11 @@ void PhysicsManager::setup(float startX, float startY) {
     minJumpFrames = 3;
     // SALTO MÁXIMO
     maxJumpFrames = 6;
+    // FRAMES DE AVANCE EN EL AIRE
+    airForwardFrames = 4;
+    // FRAMES DE CESE DE AVANCE EN EL AIRE
+    airUnforwardFrames = 4;
+    
     
     // Está bien resetear las variables
     resetJumpVariables();
@@ -480,11 +491,19 @@ float PhysicsManager::getMaxSpeedWalk() const {
 float PhysicsManager::getMaxSpeedRun() const {
     return maxSpeedRun;
 }
+float PhysicsManager::getMaxSpeedAir() const {
+    return maxSpeedAir;
+}
+
 float PhysicsManager::getGravityY() const {
     return gravity.y;
 }
 float PhysicsManager::getCurrentScale() const{
     return currentScale;
+}
+
+bool PhysicsManager::getIsVelocityChanging() const {
+    return isVelocityChanging;
 }
 
 // *** GETTERS JUMP ***
@@ -508,6 +527,12 @@ bool PhysicsManager::getIsMinJump() const {
 }
 bool PhysicsManager::getIsJumpCutted() const {
     return isJumpCutted;
+}
+int PhysicsManager::getAirForwardFrames() const {
+    return airForwardFrames;
+}
+int PhysicsManager::getAirUnforwardFrames() const {
+    return airUnforwardFrames;
 }
 
 // *** SETTERS ***
@@ -543,7 +568,13 @@ void PhysicsManager::setMinJumpFrames(int value) {
 void PhysicsManager::setMaxJumpFrames(int value) {
     maxJumpFrames = value;
 }
-    
+
+void PhysicsManager::setAirForwardFrames(int value) {
+    airForwardFrames = value;
+}
+void PhysicsManager::setAirUnforwardFrames(int value) {
+    airUnforwardFrames = value;
+}
 
 void PhysicsManager::setMaxSpeedWalk(float maxSpeed) {
     // Guardamos el valor puro que viene del GUI
@@ -557,7 +588,12 @@ void PhysicsManager::setMaxSpeedRun(float maxSpeed) {
     // Sincronizamos para que el valor de trabajo (maxSpeedRun) se actualice
     updateScaledPhysics();
 }
-
+void PhysicsManager::setMaxSpeedAir(float maxSpeed) {
+    // Guardamos el valor puro que viene del GUI
+    baseMaxSpeedAir = maxSpeed;
+    // Sincronizamos para que el valor de trabajo (maxSpeedRun) se actualice
+    updateScaledPhysics();
+}
 
 
 
@@ -575,6 +611,7 @@ void PhysicsManager::updateScaledPhysics() {
 
     maxSpeedWalk = baseMaxSpeedWalk * velocityFactor;
     maxSpeedRun = baseMaxSpeedRun * velocityFactor;
+    maxSpeedAir = baseMaxSpeedAir * velocityFactor;
 }
 
 float PhysicsManager::cleanFloat(float value) {

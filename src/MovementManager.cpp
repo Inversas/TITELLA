@@ -1307,7 +1307,7 @@ void MovementManager::handleStoppingState(MovementState targetState, MovementMom
 void MovementManager::updateFrame() {
    
 // $$$$$$$$$$$$$ FISICAS $$$$$$$$$$$$$
-    // Suma un pequeño incremento a la velocidad actual
+    // Suma un pequeño incremento a la velocidad actual, isGrounded
     physicsManager->updateVelocityStep();
     
     // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
@@ -1316,6 +1316,33 @@ void MovementManager::updateFrame() {
     // RECUPERAR "deseos" del jugador desde el InputManager
     InputState intent = inputManager->getInputState();
     
+    // !!!!!!!!! AIR DIRECTION !!!!!!!!
+    bool wantsForward = (intent.wantsRight && isFacingRight) || (intent.wantsLeft && !isFacingRight);
+    
+    if (!isGrounded) {
+        
+        // Esto hace que al preisonar un avance hasta que no llega a la velocidad máxima no para.
+        // Es un tema de concepto, si no lo hacemos así la velocidad no cambia por update solo, sino que se recalcula el paso en cada frame con
+        // starteVelocityChange
+        // No habíamos encontrado esto, porque siempre usabamos startVelocityChange una sola vez (cuando se ejecuta un movimiento)
+        // En AIR direction no funciona así, sino que, si no ponemos el control de isVelocityChanging, cada frame recalcula un nuevo paso, segun la velocidad actual,
+        // en lugar de solo actualizarlo en update
+        // Sin el contorl no funciona mal, de hecho tiene sentido, pero las funciones que reutilizamos no estan pensadas para llamarlas en cada Frame.
+        if( !physicsManager->getIsVelocityChanging()){
+            
+            if (wantsForward && physicsManager->getVelocity().x == 0) {
+                physicsManager->startVelocityChange(physicsManager->getMaxSpeedAir(), 5, isFacingRight);
+            }
+            // si wantsForward && velocity.x != 0 → la rampa ya está corriendo, no hacemos nada
+            
+            if (!wantsForward && physicsManager->getVelocity().x != 0) {
+                // bajada hacia 0
+                physicsManager->startVelocityChange(0, 2, isFacingRight);
+            }
+        }
+    }
+    
+
     // Gestiona el delay, el impulso y el conteo de frames de subida
     physicsManager->updateJumpStep(intent.wantsJump);
     // Gestiona el frenado y el hanging de JUMP_TO_FALL
@@ -1423,6 +1450,10 @@ void MovementManager::handleMovementPhysics(const std::string& name) {
             if (name == "LAND_TO_IDLE"){
                 ofLogNotice("MovementManager") << "-> Detectado LAND_TO_IDLE, aplicar FISICA";
                 physicsManager->resetJumpVariables();
+                
+                // !!!!!!!!! AIR DIRECTION !!!!!!!!
+                // X to 0
+                physicsManager->startVelocityChange(0, 4, isFacingRight);
             }
         break;
             

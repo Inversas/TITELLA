@@ -67,6 +67,7 @@ private:
     ofxFloatSlider scaleFactorGui;      // Factor de escala global
     ofxFloatSlider maxSpeedWalkGui;     // Velocidad máxima caminar      $$$$$$$$$$$$$
     ofxFloatSlider maxSpeedRunGui;      // Velocidad máxima correr       $$$$$$$$$$$$$
+    ofxFloatSlider maxSpeedAirGui;      // Velocidad máxima en aire       $$$$$$$$$$$$$
     ofxFloatSlider hitBoxWGui;          // Ancho de la Hitbox            >>>>>>>>>>>>>
     ofxFloatSlider hitRayFloorXGui;     // Posición X del rayo de suelo  >>>>>>>>>>>>>
     ofxLabel currentVelocityYGui;       // Label para mostrar la velocidad actual del personaje en el eje Y
@@ -75,9 +76,13 @@ private:
     ofxIntSlider minJumpFramesGui;
     ofxIntSlider maxJumpFramesGui;
     
+    ofxIntSlider airForwardFramesGUi;   // !!!!!!!!! AIR DIRECTION !!!!!!!!
+    ofxIntSlider airUnforwardFrames;    // !!!!!!!!! AIR DIRECTION !!!!!!!!
+    
     ofxLabel framesStartJumpGui;
     ofxLabel remainingFramesJumpGui;
     ofxLabel remainingFramesStopJumpGui;
+    
     
     // ==========================================
     // 2. F.I. (Frame Intervals)
@@ -175,12 +180,16 @@ private:
     void onScaleFactorChanged(float& value);
     void onMaxSpeedWalkChanged(float& value);
     void onMaxSpeedRunChanged(float& value);
+    void onMaxSpeedAirChanged(float& value);
     void onHitBoxWChanged(float& value);
     void onHitRayFloorXChanged(float& value);
     
     void onStopFramesChanged(int& value);
     void onMinJumpFramesChanged(int& value);
     void onMaxJumpFramesChanged(int& value);
+    
+    void onAirForwardFramesChanged(int& value);
+    void onAirUnforwardFramesChanged(int& value);
     
     // Callbacks for FRAME INTERVAL sliders
     void onFrameIntervalChanged(float& value);                 // Callback para Global
