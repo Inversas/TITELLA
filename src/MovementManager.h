@@ -325,8 +325,10 @@ private:
     void handleWalkingState(MovementState target, MovementMoment moment);
     void handleRunningState(MovementState target, MovementMoment moment);
     
-    //JUMPING (VACÍO)
+    // JUMPING
     void handleJumpingState(MovementState target, MovementMoment moment);
+    // FALLING
+    void handleFallingState(MovementState target, MovementMoment moment);
 
     void handleTurningState(MovementState target, MovementMoment moment);
     void handleStoppingState(MovementState target, MovementMoment moment);

@@ -50,6 +50,13 @@ public:
     // REINICIO DE VARIABLES DE CONTORL y StopStep
     void resetJumpVariables();
     
+    
+    // !!!!!!!!! GIRO AIRE !!!!!!!!
+    // *** GIRO EN EL AIRE ***
+    // Mira si quedan almenos 4 o más frames de subida antes de JUMP_TO_FALL
+    bool checkTurnJump();
+    
+    
 
     // *** APLICAR FISICAS ***
     // Aplicación final del movimiento

@@ -222,6 +222,45 @@ CollisionResult CollisionManager::checkCollisions(ofVec2f currentPos, ofVec2f ve
     // Aunque lo hemos guardado, devolvemos el resultado
     return result;
 }
+
+// !!!!!!!!! GIRO AIRE !!!!!!!!
+// *** GIRO EN EL AIRE ***
+// Mira si en los proximos cuatro frames tocará el suelo
+bool CollisionManager::checkTurnFall(ofVec2f currentPos, ofVec2f velocity, float gravity, bool isFacingRight) {
+    
+    // Creamos variables "fantasma" para simular el futuro sin alterar las reales
+    ofVec2f simPos = currentPos;
+    ofVec2f simVel = velocity;
+    
+    // Animación de giro dura 4 frames
+    int framesToSimulate = 4;
+    
+    for (int i = 0; i < framesToSimulate; i++) {
+        
+        // 1. Calculamos dónde estarían los sensores en este paso simulado
+        SensorState sensors = calculateSensors(simPos, simVel, gravity, isFacingRight);
+        
+        // 2. Comprobamos colisión solo contra las superficies (SURFACE)
+        for (auto &inter : interactors) {
+            if (inter.type == InteractorType::SURFACE) {
+                // Si en ESTE frame simulado chocamos con el suelo
+                if (checkFloorCollision(inter, sensors)) {
+                    ofLogNotice("CollisionManager") << "Giro en aire denegado: Suelo detectado en el frame futuro " << (i + 1);
+                    return false; // Va a chocar, NO es seguro girar
+                }
+            }
+        }
+        
+        // 3. Avanzamos la física un frame hacia el futuro (idéntico a MovementManager::updateFrame)
+        simVel.y += gravity;
+        // Asumimos que la inercia X se mantiene constante durante estos 4 frames para la predicción
+        simPos.x += simVel.x;
+        simPos.y += simVel.y;
+    }
+    
+    // Si terminamos el bucle sin chocar, hay espacio de sobra
+    return true;
+}
     
 // *** MÉTODOS DE EDICIÓN ***
 // Añade un nuevo interactor a la colección

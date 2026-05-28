@@ -460,6 +460,30 @@ void PhysicsManager::resetJumpVariables() {
 }
 
 
+// !!!!!!!!! GIRO AIRE !!!!!!!!
+// Mira si quedan almenos 4 o más frames de subida antes de JUMP_TO_FALL
+bool PhysicsManager::checkTurnJump() {
+    int framesSubida = framesRemainingJump - framesRemainingJumpStop;
+    // Si todavía está en impulso activo (botón pulsado)
+    if (isImpulsing) {
+        ofLogNotice("PhysicsManager") << "-PPPPPPPPPPPPPPPPPPPPPPPPPPPPP-------------- cortado pero isImpulsing";
+        ofLogNotice("PhysicsManager") << framesSubida;
+        ofLogNotice("PhysicsManager") << (framesSubida >= 4);
+
+        // Frames de subida pura: total menos los frames de parada gradual
+        return (framesSubida >= 4);
+    }
+    // Si el salto ya ha sido cortado, pero sigue flotando hacia arriba en el frenado gradual
+    else {
+        ofLogNotice("PhysicsManager") << "-PPPPPPPPPPPPPPPPPPPPPPPPPPPPP-------------- cortado pero girar?";
+        ofLogNotice("PhysicsManager") << (velocity.y < 0 && framesSubida > 4);
+        
+        
+        // Mientras la velocidad sea hacia arriba (negativa en Y) y queden frames de frenado
+        return (velocity.y < 0 && framesSubida >= 4);
+    }
+}
+
 // *** APLICAR FISICAS ***
 void PhysicsManager::applyVelocity() {
     // El movimiento real: aquí la posición X (e Y más adelante) se actualizan

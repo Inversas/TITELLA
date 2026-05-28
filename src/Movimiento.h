@@ -23,8 +23,8 @@ enum class TransitionOrigin {
     
     TO_JUMP,         // IDLE/WALK/RUN _TO_JUMP
     TO_FALL,         // JUMP_TO_FALL
-    // JUMP_TURN,       // Giro en JUMP
-    // FALL_TURN,       // Giro en FALL
+    JUMP_TURN,       // Giro en JUMP
+    FALL_TURN       // Giro en FALL
     // TO_LAND_IDLE,    // → LAND_TO_IDLE
     // TO_LAND_WALK,    // → LAND_TO_WALK
     // TO_LAND_RUN,     // → LAND_TO_RUN
