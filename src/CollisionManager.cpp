@@ -225,15 +225,15 @@ CollisionResult CollisionManager::checkCollisions(ofVec2f currentPos, ofVec2f ve
 
 // !!!!!!!!! GIRO AIRE !!!!!!!!
 // *** GIRO EN EL AIRE ***
-// Mira si en los proximos cuatro frames tocará el suelo
-bool CollisionManager::checkTurnFall(ofVec2f currentPos, ofVec2f velocity, float gravity, bool isFacingRight) {
+// Mira si en los proximos FALL TURN FRAMES frames tocará el suelo
+bool CollisionManager::checkTurnFall(ofVec2f currentPos, ofVec2f velocity, float gravity, bool isFacingRight, int requiredFrames) {
     
     // Creamos variables "fantasma" para simular el futuro sin alterar las reales
     ofVec2f simPos = currentPos;
     ofVec2f simVel = velocity;
     
-    // Animación de giro dura 4 frames
-    int framesToSimulate = 4;
+    // Animación de giro (ahora 4 frames)
+    int framesToSimulate = requiredFrames;
     
     for (int i = 0; i < framesToSimulate; i++) {
         

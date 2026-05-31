@@ -54,7 +54,7 @@ public:
     // !!!!!!!!! GIRO AIRE !!!!!!!!
     // *** GIRO EN EL AIRE ***
     // Mira si quedan almenos 4 o más frames de subida antes de JUMP_TO_FALL
-    bool checkTurnJump();
+    bool checkTurnJump(int requiredFrames);
     
     
 
@@ -80,6 +80,7 @@ public:
     // *** GETTERS JUMP ***
     int getFramesRemainingJump() const;
     int getFramesRemainingJumpStop() const;
+    int getStopFramesJump() const;
     int getImpulseFrames() const;
     bool getIsImpulsing() const;
     bool getGravityOverride() const;

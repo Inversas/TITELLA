@@ -161,23 +161,39 @@ void MovementManager::translateIntent(){
             // IS JUMP MOVEMENT
             // ············································································
             if( currentMovementName == "JUMP") {
+                ofLogNotice("MovementManager") << "-> JUMP en curso, framesRemainingJump= "
+                                               << physicsManager->getFramesRemainingJump()
+                                               <<  " ->framesRemainingJump - stopFrames = "
+                                               << physicsManager->getFramesRemainingJump() - physicsManager->getStopFramesJump();
                 // ············································································
-                // FRAMES DE SUBIDA RESTANTES => 4
+                // FRAMES DE SUBIDA RESTANTES =>  frames en JUMP_TURN (ahora 4)
                 // ············································································
-                // Si quedan almenos cuatro frames de subida
-                if(physicsManager->checkTurnJump()) {
+                // Si de subida quedan almenos los frames de JUMP TURN
+                if(physicsManager->checkTurnJump(movementUtilities.getMovement("JUMP_TURN").numRegions)) {
                     currentCommand = MovementCommand::GO_TURN;
                 }
                 // ············································································
-                // FRAMES DE SUBIDA RESTANTES < 4
+                // FRAMES DE SUBIDA RESTANTES < frames en JUMP_TURN (ahora 4)
                 // ············································································
                 else {
                     // No puedo girar
                     ofLogNotice("MovementManager") << "GIRO DENEGADO";
                     // ············································································
+                    // QUEDAN FRAMES
+                    // ············································································
+                    if(physicsManager->getFramesRemainingJump() - physicsManager->getStopFramesJump() > 0) {
+                        currentCommand = MovementCommand::GO_JUMP;
+                    }
+                    // ············································································
                     // SALTO CORTADO O SALTO MÍNIMO O SALTO TERMINADO NATURALMENTE
                     // ············································································
-                    currentCommand = MovementCommand::GO_FALL;
+                    else {
+                        // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO - TO DO ANIMATION] |||||||||||||||
+                        // SI ES POR SALTO CORTO, crear animación JUMP_TO_FALL_TURN
+                        // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+                        
+                        currentCommand = MovementCommand::GO_FALL;
+                    }
                 }
             }
             // ············································································
@@ -186,9 +202,9 @@ void MovementManager::translateIntent(){
             else if (currentMovementName == "FALL") {
                 
                 // ············································································
-                // CHOQUE CON SUELO EN <= 4
+                // CHOQUE CON SUELO EN <= farmes de FALL_TURN (ahora 4)
                 // ············································································
-                if(collisionManager->checkTurnFall(physicsManager->getPosition(), physicsManager->getVelocity(), physicsManager->getGravityY(), getIsFacingRight())) {
+                if(collisionManager->checkTurnFall(physicsManager->getPosition(), physicsManager->getVelocity(), physicsManager->getGravityY(), getIsFacingRight(),movementUtilities.getMovement("FALL_TURN").numRegions)) {
                     currentCommand = MovementCommand::GO_TURN;
                 }
             }
@@ -209,7 +225,6 @@ void MovementManager::translateIntent(){
             if (intent.wantsRun) {
                 flag_turn_to_run = true;
             }
-            ofLogNotice("MovementManager") << "------------------------------------------------ POR EL TO JUUUUUUUMP";
             currentCommand = MovementCommand::GO_TURN;
             return;
         }
@@ -531,7 +546,7 @@ void MovementManager::updateAirState(MovementState targetState) {
                 // ACTUALIZAMOS ESTADO
                 currentState = MovementState::FALLING;
                 
-                // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
+                // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO - TO DO ANIMATION] |||||||||||||||
                 // NO TENEMOS MOVIMIENTO IDLE TO FALL
                 // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
                 
@@ -946,14 +961,18 @@ void MovementManager::finishedAirTransition(){
             // !!!!!!!!! GIRO AIRE !!!!!!!!
             // ######################################################
             //   JUMP_TURN: el giro desde JUMP (en el aire) terminó
-            //   → volvemos a JUMP?
-            //   → o miramos si debemos ir  a JUMP_TO_FALL?
-            //   de momento aplicamos el concepto "trust the next tick": vamos a JUMP i confiamos que el sistema gestionará
+            //   → miramos si debemos ir a JUMP_TO_FALL
+            //   → sino volvemos a JUMP
             // ######################################################
             case TransitionOrigin::JUMP_TURN:
-                ofLogNotice("MovementManager") << "--MMMM----M--MMMM---MM--MMM-M------Frames restantes de salto, sin stopFrames"<< physicsManager->getFramesRemainingJump()-2 << "----MMMM----M--MMMM---MM--MMM-M------";
-                currentState = MovementState::JUMPING;
-                playMovement("JUMP");
+                /*if( physicsManager->getFramesRemainingJump()-2 == 0){
+                    currentState = MovementState::FALLING;
+                    playMovement("JUMP_TO_FALL");
+                }
+                else{*/
+                    currentState = MovementState::JUMPING;
+                    playMovement("JUMP");
+                //}
                 break;
             
             // !!!!!!!!! GIRO AIRE !!!!!!!!
@@ -1422,15 +1441,20 @@ void MovementManager::updateFrame() {
         // en lugar de solo actualizarlo en update
         // Sin el contorl no funciona mal, de hecho tiene sentido, pero las funciones que reutilizamos no estan pensadas para llamarlas en cada Frame.
         if( !physicsManager->getIsVelocityChanging()){
-            
+
+            // QUEREMOS IR HACIA ADELTANTE Y VELOCIDAD en X es 0
             if (wantsForward && physicsManager->getVelocity().x == 0) {
                 physicsManager->startVelocityChange(physicsManager->getMaxSpeedAir(), 5, isFacingRight);
             }
-            // si wantsForward && velocity.x != 0 → la rampa ya está corriendo, no hacemos nada
             
-            if (!wantsForward && physicsManager->getVelocity().x != 0) {
-                // bajada hacia 0
-                physicsManager->startVelocityChange(0, 2, isFacingRight);
+            // NO QUEREMOS IR HACIA ADELTANTE Y VELOCIDAD en X NO es 0
+            else if (!wantsForward && physicsManager->getVelocity().x != 0) {
+                // Evitamos que nos corte la inercia si justo estamos en el último
+                // frame de un giro (donde isFacingRight aún no se ha actualizado).
+                if (currentState != MovementState::TURNING) {
+                    // bajada hacia 0
+                    physicsManager->startVelocityChange(0, 2, isFacingRight);
+                }
             }
         }
     }
@@ -1595,15 +1619,21 @@ void MovementManager::handleMovementPhysics(const std::string& name) {
                  // al terminar y pasarle el testigo a otra animación ya estará bien.
                  physicsManager->startVelocityChange( physicsManager->getMaxSpeedWalk(), frames, !isFacingRight, 3);
              }
+            
+            // !!!!!!!!! GIRO AIRE !!!!!!!
             // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
-            //           WALK TURN / RUN TURN
+            //      TURN (WALK / RUN / JUMP / FALL)
             // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
              else{
-                 // !!!!!!!!! GIRO AIRE !!!!!!!!
-                  ofLogNotice("MovementManager") << "JUMP TAMBIEEEEEEEEEEEEN FALL";
-                 
-                  // Inicia la rampa en 'V' para invertir la velocidad en el tiempo de giro
-                  physicsManager->startVelocityTurnChange(frames);
+                 // Si la velocidad es 0 (solo peude darse en JUMP_TURN y FALL_TURN)
+                 if (physicsManager->getVelocity().x == 0) {
+                     physicsManager->startVelocityChange( physicsManager->getMaxSpeedWalk(), frames, !isFacingRight);
+                 }
+                 // Para el resto de giros que no son desde IDLE, o cuando llevamos velocidad en JUMP_TURN y FALL_TURN
+                 else {
+                     // Inicia la rampa en 'V' para invertir la velocidad en el tiempo de giro
+                     physicsManager->startVelocityTurnChange(frames);
+                 }
               }
         break;
         
@@ -1678,8 +1708,7 @@ void MovementManager::handleMovementPhysics(const std::string& name) {
             else if(name == "JUMP") {
                 // JUMP no llama a nada — el impulso ya está corriendo
                 // desde startVelocityJump, solo continuamos contando
-                ofLogNotice("MovementManager") << "-> JUMP en curso, framesRemainingJump="
-                                               << physicsManager->getFramesRemainingJump();
+                ofLogNotice("MovementManager") << "-> Detectado JUMP, no aplica física";
             }
 
 

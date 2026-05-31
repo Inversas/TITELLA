@@ -90,7 +90,7 @@ public:
     // !!!!!!!!! GIRO AIRE !!!!!!!!
     // *** GIRO EN EL AIRE ***
     // Mira si en los proximos cuatro frames tocará el suelo
-    bool checkTurnFall(ofVec2f currentPos, ofVec2f velocity, float gravity, bool isFacingRight);
+    bool checkTurnFall(ofVec2f currentPos, ofVec2f velocity, float gravity, bool isFacingRight, int requiredFrames);
     
     
     
