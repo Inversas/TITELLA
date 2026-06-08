@@ -35,16 +35,21 @@ public:
     // frames: Cuántos frames de animación dura el cambio.
     // delay: si hay un numero de frames iniciales donde no aplicamos velocidad.
     void startVelocityChange(float targetAbsSpeed, int frames, bool lookingRight, int delay = 0);
+    // Velocidad X Giro en suelo, el objetivo es la misma velocidad con sentido opuesto
     void startVelocityTurnChange(int frames);
     
     
     // *** EL LATIDO DEL SALTO ***
-    void updateJumpStep(bool wantJump);
+    void updateJumpStep(bool wantJump, bool hasAnyDirection);
     void updateJumpToFallStep();
     
     // *** CAMBIOS DE VELOCIDAD en Y, llamadas en handleMovementPhysics ***
-    void startVelocityJump (int frames, int delay);
+    void startVelocityJump (int frames, int delay, bool lookingRight, float jumpVelocityX = 0);
+    // Velocidad X Giro en aire, el objetivo es la velocidad máxima en sentido.
+    void startVelocityTurnChangeAir(float targetAbsSpeed, int frames, bool lookingRight);
     void startJumpToFall();
+
+    
     // *** RECALCULO FRAMES y VELOCIDAD para CORTE SALTO ***
     void cutJump();
     // REINICIO DE VARIABLES DE CONTORL y StopStep
@@ -73,6 +78,9 @@ public:
     float getMaxSpeedWalk() const;
     float getMaxSpeedRun() const;
     float getMaxSpeedAir() const;
+    float getBaseMaxSpeedAir() const;
+
+    
     float getGravityY() const;
     float getCurrentScale() const;
     bool getIsVelocityChanging() const;
@@ -140,6 +148,7 @@ private:
     // *** CONTROL DE VELOCIDAD AÉREA EN X ***
     float baseMaxSpeedAir;           // velocidad base para desplazarse en el aire, sin escalar
     float maxSpeedAir;               // límite de velocidad aérea, escalada
+    float beforeJumpVelocityX;       // Velociadd que llevaba antes de saltar
    
     int airForwardFrames;            // Frames para llegar a maxSpeedAir, controlable por GUI
     int airUnforwardFrames;          // Frames para volver a 0 al soltar, controlable por GUI

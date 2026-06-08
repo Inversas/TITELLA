@@ -200,6 +200,9 @@ public:
     std::string getCurrentState() const;
     // Retorna un string con el estado objetivo del personaje
     std::string getTargetState() const;
+    // retorna un string con el estado anterior del personaje
+    std::string getPreviousState() const;
+
     // Retorna true si está esperando una transición, false en caso contrario
     bool isWaitingForTransition() const;
     

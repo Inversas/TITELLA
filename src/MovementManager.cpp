@@ -191,7 +191,6 @@ void MovementManager::translateIntent(){
                         // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO - TO DO ANIMATION] |||||||||||||||
                         // SI ES POR SALTO CORTO, crear animación JUMP_TO_FALL_TURN
                         // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-                        
                         currentCommand = MovementCommand::GO_FALL;
                     }
                 }
@@ -245,17 +244,19 @@ void MovementManager::translateIntent(){
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     //              SALTO EN CURSO
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    // Solo si estmaos en JUMPING
-    if (currentState == MovementState::JUMPING) {
+    // ············································································
+    // CURRENT STATE JUMPING / NO GROUND
+    // ············································································
+    if (currentState == MovementState::JUMPING  && !isGrounded) {
         
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         //               SALTO CORTADO
         //         SUELTA SPACE MIENTRAS SUBÍA
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         // ············································································
-        // SPACE OFF / IS IMPULSING / NO GROUNDED / NO MINJUMP / NO JUMP CUTTED
+        // SPACE OFF / IS IMPULSING / NO MINJUMP / NO JUMP CUTTED
         // ············································································
-        if (!intent.wantsJump && physicsManager->getIsImpulsing() && !isGrounded && !physicsManager->getIsMinJump() && !physicsManager->getIsJumpCutted()) {
+        if (!intent.wantsJump && physicsManager->getIsImpulsing() && !physicsManager->getIsMinJump() && !physicsManager->getIsJumpCutted()) {
             physicsManager->cutJump();
             // No ponemos GO FALL, porque tiene que terminar sus frames de JUMP
             // currentCommand = MovementCommand::GO_FALL;
@@ -269,9 +270,9 @@ void MovementManager::translateIntent(){
         //               SALTO AGOTADO
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         // ············································································
-        // NO IMPULSING / NO GROUNDED
+        // NO IMPULSING
         // ············································································
-        if (!physicsManager->getIsImpulsing() && !isGrounded ) {
+        if (!physicsManager->getIsImpulsing() ) {
             currentCommand = MovementCommand::GO_FALL;
             return;
         }
@@ -282,6 +283,9 @@ void MovementManager::translateIntent(){
         // Mantener Estado
         currentCommand = MovementCommand::GO_JUMP;
         return;
+        
+        
+        
     }
     
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -643,21 +647,23 @@ void MovementManager::updateAirState(MovementState targetState) {
 // ==========================================
 bool MovementManager::handleWaitingInterrupt() {
     
-    
     // !!!!!!!!! JUMP !!!!!!!!
-    // ESTE ARREPENTIMIENTO CONTEMPLA SI ESTOY EN WALK, PRESIONO JUMP, PERO ANTES DE LLEGAR AL PS DE JUMP VUELVO A WALK?
-    // CREO QUE SÍ, pero no contempla si en esa misma situación quiero girar o parar o correr
-    
+    // ESTE ARREPENTIMIENTO CONTEMPLA SI ESTOY EN WALKING, entonces mientras esperamos transicion (el target es otro diferente por ejemplo RUNNING, o JUMPING)
+    // pero entonces volvemos al target WALKING antes de PS, volvemos al estadoa anterior.
+
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     //         ARREPENTIMIENTO
     // El jugador quiere volver al estado del que venía.
     // Cancelamos la espera y restauramos previousState.
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    if (targetState == previousState) {
+    
+   if (targetState == previousState) {
         waitingForTransition = false;
         currentState = previousState;
         return true;
     }
+    
+
     
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     //         REDIRECCIÓN: STOPPING → TURNING
@@ -667,6 +673,18 @@ bool MovementManager::handleWaitingInterrupt() {
     if (currentState == MovementState::STOPPING && targetState == MovementState::TURNING) {
         currentState = MovementState::TURNING;
         handleTransition(); // Reconfigura buscando PS en turn_transitions
+        return true;
+    }
+    
+    // !!!!!!!!! JUMP !!!!!!!!
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    //         REDIRECCIÓN: STOPPING → JUMPING
+    // Estaba esperando PS para frenar, pero ahora quiere saltar.
+    // No cancelamos la espera, la reconfiguramos con jump_transitions.
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    if (currentState == MovementState::STOPPING && targetState == MovementState::JUMPING) {
+        currentState = MovementState::JUMPING;
+        handleTransition(); // Reconfigura buscando PS en jump_transitions
         return true;
     }
     
@@ -684,25 +702,50 @@ bool MovementManager::handleWaitingInterrupt() {
     
     // !!!!!!!!! JUMP !!!!!!!!
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    //         REDIRECCIÓN: TURNING → JUMPING
+    // Estaba esperando PS para girar, pero ahora quiere frenar.
+    // No cancelamos la espera, la reconfiguramos con stop_transitions.
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    if (currentState == MovementState::TURNING && targetState == MovementState::JUMPING) {
+        currentState = MovementState::JUMPING;
+        handleTransition(); // Reconfigura buscando PS en jump_transitions
+        return true;
+    }
+    
+    
+    // !!!!!!!!! JUMP !!!!!!!!
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     //         REDIRECCIÓN: JUMPING → STOPPING
     // Estaba esperando PS para saltar, pero ahora quiere frenar.
     // No cancelamos la espera, la reconfiguramos con stop_transitions.
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    if (currentState == MovementState::JUMPING && targetState == MovementState::IDLE) {
+        currentState = MovementState::STOPPING;
+        handleTransition(); // Reconfigura buscando PS en stop_transitions
+        return true;
+    }
     
+    // !!!!!!!!! JUMP !!!!!!!!
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     //         REDIRECCIÓN: JUMPING → TURNING
     // Estaba esperando PS para saltar, pero ahora quiere girar.
     // No cancelamos la espera, la reconfiguramos con turn_transitions.
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    if (currentState == MovementState::JUMPING && targetState == MovementState::TURNING) {
+        currentState = MovementState::TURNING;
+        handleTransition(); // Reconfigura buscando PS en turn_transitions
+        return true;
+    }
+    
     
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    //         REDIRECCIÓN: fromo WALKING → wating for JUMPING → now want RUNNING
+    //         REDIRECCIÓN: from WALKING → wating for JUMPING → now want RUNNING
     // Estaba esperando PS para saltar caminando, pero ahora quiere correr.
     // No cancelamos la espera, la reconfiguramos con change_transitions ????
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    //         REDIRECCIÓN: fromo RUNNING → wating for JUMPING → now want WALKING
+    //         REDIRECCIÓN: from RUNNING → wating for JUMPING → now want WALKING
     // Estaba esperando PS para saltar coriendo, pero ahora quiere caminar.
     // No cancelamos la espera, la reconfiguramos con change_transitions ????
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -758,11 +801,15 @@ void MovementManager::triggerGroundedTransition(){
             // ##########################################
         case MovementState::STOPPING: handleStoppingState(targetState, MovementMoment::TRIGGER); break;
             
-        // !!!!!!!!! JUMP !!!!!!!!
-        // PUEDE ENTRAR AQUÍ ????
-        case MovementState::JUMPING:
-            ofLogNotice("MovementManager") << "!!! !!! !!! !!! !!! !!! !!! !!! !!! !!!  HEMOS ENTRADO EN CURRENT STATE JUMPING en GROUND para TRIGGER TRANS!!!";
+            // !!!!!!!!! JUMP !!!!!!!!
+            // ##########################################
+            //           WALKING JUMP TRANS
+            // ##########################################
+        case MovementState::JUMPING: handleJumpingState(targetState, MovementMoment::TRIGGER); break;
         break;
+            
+            
+            
         case MovementState::FALLING:
             ofLogNotice("MovementManager") << "!!! !!! !!! !!! !!! !!! !!! !!! !!! !!!  HEMOS ENTRADO EN CURRENT STATE FALLING en GROUND para TRIGGER TRANS!!!";
         break;
@@ -890,19 +937,18 @@ void MovementManager::finishedGroundedTransition() {
                 playMovement("IDLE");
                 break;
 
-            
-            
-            
-            
+
             // !!!!!!!!! JUMP !!!!!!!!!
             // ESTO NO VA, PORQUE LOS ULTIMOS FRAMES DE JUMP YA SON EN EL AIRE
             // ######################################################
             //   TO_JUMP
             // ######################################################
-            /*case TransitionOrigin::TO_JUMP:
+           /* case TransitionOrigin::TO_JUMP:
+            ofLogNotice("MovementManager") << "!!! !!! !!! !!! !!! !!! !!! !!! !!! !!!  HEMOS ENTRADO EN FINISHED TRANSITION TO_JUMP en SUELO!!!";
                 currentState = MovementState::JUMPING;
                 playMovement("JUMP");
-                break;*/
+                break;
+            */
             
             // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
             // ESTO NO DEBERÍA IR AQUÍ, porque JUMP_TO_FALL siempre es en el AIRE
@@ -1183,11 +1229,11 @@ void MovementManager::handleWalkingState(MovementState target, MovementMoment mo
                 // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
                 ofLogNotice("MovementManager") << "!!! ESTA WALKING, VAMOS A SALTAR DESDE: " << currentMovementName << "!!!";
                 // ACTUALIZAMOS ESTADO
-                ofLogNotice("MovementManager") << "!!! ACTUALIZAMOS ESTADO A JUMPING " << "!!!";
-                // currentState = MovementState::JUMPING;
+                ofLogNotice("MovementManager") << "!!! CAMBIAMOS ESTADO A JUMPING " << "!!!";
+                currentState = MovementState::JUMPING;
                 // BUSCAR PUNTO DE SALIDA y ACTIVAR ESPERA (lo ejecutará updateFrame())
                 ofLogNotice("MovementManager") << "!!! BUSCAR PS Y ACTIVAR ESPERA PARA: " << "WALK_TO_JUMP" << "!!!";
-                //handleTransition();
+                handleTransition();
             }
         break;
 
@@ -1206,18 +1252,11 @@ void MovementManager::handleWalkingState(MovementState target, MovementMoment mo
             playMovement(currentMovement->change_transitions[targetRegion]);
             
             
-            // !!!!!!!!! JUMP !!!!!!!!
-            /*
+             // !!!!!!!!! JUMP !!!!!!!!
              // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
              //              WALK TO JUMP
              // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
-             // ACTUALIZAMOS ESTADO
-             if (currentMovementName == "WALK_TO_JUMP") {
-                 currentState = MovementState::JUMPING; // Lo marcamos como RUNNING (aunque ya se ha marcado en updateState, por ser transición)
-             }
-             // EJECUTAMOS
-             playMovement(currentMovement->jump_transitions[targetRegion]);
-             */
+             // No va aquí porque el estado ya es JUMPING y no WALKING
         break;
             
             
@@ -1347,7 +1386,33 @@ void MovementManager::handleRunningState(MovementState targetState, MovementMome
 //                                                   JUMPING
 // ##############################################################################################################################
 void MovementManager::handleJumpingState(MovementState targetState, MovementMoment moment) {
-    ofLogNotice("MovementManager") << "!!! !!! !!! !!! !!! !!! !!! !!! !!! !!!  HEMOS ENTRADO EN handleJumping State GROUNDED!!!";
+    switch (moment) {
+            
+            // ========================================================================
+            //                                UPDATE STATE
+            // ========================================================================
+        case MovementMoment::CHANGE:
+            ofLogNotice("MovementManager") << "!!! !!! !!! !!! !!! !!! !!! !!! !!! !!! " << "LO LLAMA ALGUIEN AQUI?? " << "!!!";
+            break;
+            
+            // ========================================================================
+            //                           TRIGGER TRANSITION
+            // ========================================================================
+        case MovementMoment::TRIGGER:
+            // !!!!!!!!! JUMP !!!!!!!!
+            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+            //              WALK TO JUMP
+            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+            // ACTUALIZAMOS ESTADO
+            if (currentMovementName == "WALK_TO_JUMP") {
+                // Lo marcamos como JUMPING
+                currentState = MovementState::JUMPING;
+            }
+            // EJECUTAMOS
+            playMovement(currentMovement->jump_transitions[targetRegion]);
+            
+            break;
+    }
 }
 
 
@@ -1425,26 +1490,32 @@ void MovementManager::updateFrame() {
     
     
     
-    // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
-    //     Ver que pasa con le airTurn
-    // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+   
     // !!!!!!!!! AIR DIRECTION !!!!!!!!
     bool wantsForward = (intent.wantsRight && isFacingRight) || (intent.wantsLeft && !isFacingRight);
     
     if (!isGrounded) {
         
+        // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
+        //     TIENE QUE VER CON EL REPLANTEAMIENTO Y FACTORIZACIÓN DE PHYSICS MANAGER
+        // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
         // Esto hace que al preisonar un avance hasta que no llega a la velocidad máxima no para.
         // Es un tema de concepto, si no lo hacemos así la velocidad no cambia por update solo, sino que se recalcula el paso en cada frame con
         // starteVelocityChange
         // No habíamos encontrado esto, porque siempre usabamos startVelocityChange una sola vez (cuando se ejecuta un movimiento)
         // En AIR direction no funciona así, sino que, si no ponemos el control de isVelocityChanging, cada frame recalcula un nuevo paso, segun la velocidad actual,
         // en lugar de solo actualizarlo en update
-        // Sin el contorl no funciona mal, de hecho tiene sentido, pero las funciones que reutilizamos no estan pensadas para llamarlas en cada Frame.
+        // Sin el control no funciona mal, de hecho tiene sentido, pero las funciones que reutilizamos no estan pensadas para llamarlas en cada Frame.
         if( !physicsManager->getIsVelocityChanging()){
 
             // QUEREMOS IR HACIA ADELTANTE Y VELOCIDAD en X es 0
             if (wantsForward && physicsManager->getVelocity().x == 0) {
-                physicsManager->startVelocityChange(physicsManager->getMaxSpeedAir(), 5, isFacingRight);
+                // Si no coinciden la velocidad BASE en aire escalada con la velocidad actual
+                if( (physicsManager->getMaxSpeedAir() != physicsManager->getBaseMaxSpeedAir()*sqrt(physicsManager->getCurrentScale() ))){
+                    // Igualamos porque hemos llegado a 0, así volvemos a la original
+                    physicsManager->setMaxSpeedAir(physicsManager->getBaseMaxSpeedAir());
+                }
+                physicsManager->startVelocityChange(physicsManager->getMaxSpeedAir(), physicsManager->getAirForwardFrames(), isFacingRight);
             }
             
             // NO QUEREMOS IR HACIA ADELTANTE Y VELOCIDAD en X NO es 0
@@ -1453,7 +1524,7 @@ void MovementManager::updateFrame() {
                 // frame de un giro (donde isFacingRight aún no se ha actualizado).
                 if (currentState != MovementState::TURNING) {
                     // bajada hacia 0
-                    physicsManager->startVelocityChange(0, 2, isFacingRight);
+                    physicsManager->startVelocityChange(0, physicsManager->getAirUnforwardFrames(), isFacingRight);
                 }
             }
         }
@@ -1461,7 +1532,7 @@ void MovementManager::updateFrame() {
     
 
     // Gestiona el delay, el impulso y el conteo de frames de subida
-    physicsManager->updateJumpStep(intent.wantsJump);
+    physicsManager->updateJumpStep(intent.wantsJump, (intent.wantsRight|| intent.wantsLeft) );
     // Gestiona el frenado y el hanging de JUMP_TO_FALL
     physicsManager->updateJumpToFallStep();
 // $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
@@ -1625,9 +1696,10 @@ void MovementManager::handleMovementPhysics(const std::string& name) {
             //      TURN (WALK / RUN / JUMP / FALL)
             // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
              else{
-                 // Si la velocidad es 0 (solo peude darse en JUMP_TURN y FALL_TURN)
-                 if (physicsManager->getVelocity().x == 0) {
-                     physicsManager->startVelocityChange( physicsManager->getMaxSpeedWalk(), frames, !isFacingRight);
+                 // Si es JUMP_TURN o FALL_TURN)
+                 if (name == "JUMP_TURN" || name == "FALL_TURN") {
+                     // Rampa para ir a la velocidad maxima en aire en sentido contrario
+                     physicsManager->startVelocityTurnChangeAir(physicsManager->getMaxSpeedAir(), frames, !isFacingRight);
                  }
                  // Para el resto de giros que no son desde IDLE, o cuando llevamos velocidad en JUMP_TURN y FALL_TURN
                  else {
@@ -1700,8 +1772,32 @@ void MovementManager::handleMovementPhysics(const std::string& name) {
                 ofLogNotice("MovementManager") << "-> Detectado IDLE_TO_JUMP, aplicar FISICA ";
                 // totalJumpFrames: frames de IDLE_TO_JUMP (tres últimos) (8-5), 3 de JUMP y 2 de JUMP_TO_FALL (stopFrames)
                 // Pasamos el total de frames de IDLE_TO_JUMP, y el delay de cuando debe empezar el impulso
-                physicsManager->startVelocityJump(frames, 5);
+                physicsManager->startVelocityJump(frames, 5, isFacingRight);
             }
+            
+            // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
+            // ES POSIBLE QUE ESTO LO PONGAMOS DONDE EL ANTERIOR, IDLE TO JUMP
+            // PERO POS SI ACASO ES OTRA FÍSICA LO MANTENEMOS SEPARADO
+            // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+            // !!!!!!!!! JUMP !!!!!!!!!
+            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+            //          WALK TO JUMP (1 i 2)
+            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+            else if (name.find("WALK_TO_JUMP") != std::string::npos) {
+                ofLogNotice("MovementManager") << "-> Detectado WALK_TO_JUMP 1 o 2, aplicar FISICA ";
+                // totalJumpFrames: frames de WALK_TO_JUMP (tres últimos) (8-5), 3 de JUMP y 2 de JUMP_TO_FALL (stopFrames)
+                // Pasamos el total de frames de WALK_TO_JUMP, y el delay de cuando debe empezar el impulso
+                physicsManager->startVelocityJump(frames, 5, isFacingRight, physicsManager->getVelocity().x);
+            }
+            
+            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+            //                  RUN TO JUMP
+            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+            else if (name.find("RUN_TO_JUMP") != std::string::npos) {
+                // ofLogNotice("MovementManager") << "-> Detectado RUN_TO_JUMP";
+                // Fisicas
+            }
+            
             // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
             //              JUMP
             // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
@@ -1712,21 +1808,7 @@ void MovementManager::handleMovementPhysics(const std::string& name) {
             }
 
 
-            // !!!!!!!!! JUMP !!!!!!!!!
-            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
-            //          WALK TO JUMP (1 i 2)
-            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
-            else if (name.find("WALK_TO_JUMP") != std::string::npos) {
-                // ofLogNotice("MovementManager") << "-> Detectado WALK_TO_JUMP";
-                // Fisicas
-            }
-            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
-            //                  RUN TO JUMP
-            // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
-            else if (name.find("RUN_TO_JUMP") != std::string::npos) {
-                // ofLogNotice("MovementManager") << "-> Detectado RUN_TO_JUMP";
-                // Fisicas
-            }
+
         break;
             
         // ==========================================
@@ -2010,6 +2092,27 @@ std::string MovementManager::getCurrentState() const {
 // Retorna un string con el estado objetivo del personaje
 std::string MovementManager::getTargetState() const {
     switch (targetState) {
+        case MovementState::IDLE:
+            return "IDLE";
+        case MovementState::WALKING:
+            return "WALKING";
+        case MovementState::RUNNING:
+            return "RUNNING";
+        case MovementState:: TURNING:
+            return "TURNING";
+        case MovementState:: STOPPING:
+            return "STOPPING";
+        case MovementState:: JUMPING:
+            return "JUMPING";
+        case MovementState:: FALLING:
+            return "FALLING";
+        default:
+            return "UNKNOWN";
+    }
+}
+// Retorna un string con el estado anterior del personaje
+std::string MovementManager::getPreviousState() const {
+    switch (previousState) {
         case MovementState::IDLE:
             return "IDLE";
         case MovementState::WALKING:

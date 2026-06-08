@@ -215,6 +215,7 @@ void GUIManager::setup(MovementManager& movementManager, SpriteSheetManager& spr
     nextOutRegionGui = "";
     currentStateGui = "IDLE";
     targetStateGui = "IDLE";
+    previousStateGui = "IDLE";
     controlKeysGui = "NONE";
     currentIntentionGui = "NO WANTS";
     livePanelPosition = physicsManager.getPosition();
@@ -480,6 +481,8 @@ void GUIManager::updateLivePanel() {
     // Actualiza Estado Objetivo en la GUI como String
     targetStateGui = movementManager->getTargetState();
     
+    // Actualiza Estado Anterior en la GUI como String
+    previousStateGui = movementManager->getPreviousState();
  
     // Actualizar las teclas presionadas
     controlKeysGui = inputManager->getPressedKeysAsString();
@@ -597,6 +600,9 @@ void GUIManager::drawLivePanel(ofVec2f position) {
     ofSetColor(255);
     // Dibujamos el estado al que queremos transicionar
     ofDrawBitmapString("TARGET: " + targetStateGui, offsetRectangle, yOffset + lineHeight*2);
+    
+    // Dibujamos el estado anterior al actual
+    ofDrawBitmapString("PREVIOUS: " + previousStateGui, offsetRectangle, yOffset + lineHeight*3);
 
     // ==========================================
     // --- NIVEL 3: MOV / ROW / REGION / NEXT REGION ---

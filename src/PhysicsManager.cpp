@@ -195,8 +195,9 @@ void PhysicsManager::startVelocityTurnChange(int frames) {
 
 
 // *** EL LATIDO DEL SALTO ***
-void PhysicsManager::updateJumpStep(bool wantJump) {
+void PhysicsManager::updateJumpStep(bool wantJump, bool hasAnyDirection) {
     
+
     // ==========================================
     // FASE 1: ESPERANDO EL DELAY
     // ==========================================
@@ -232,6 +233,41 @@ void PhysicsManager::updateJumpStep(bool wantJump) {
         // APLICAMOS EL IMPULSO (negativo para subir)
         velocity.y = -jumpImpulse;
         isImpulsing = true;
+        
+        
+        
+        // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+        //              GESTIÓN X SALTO CON VELOCIDAD ANTERIOR
+        // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+        // Si hemos guardado una velocidad anterior al salto
+        
+        
+        // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
+        //     TIENE QUE VER CON EL REPLANTEAMIENTO Y FACTORIZACIÓN DE PHYSICS MANAGER
+        // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+        // TENEMOS EL MISMO ERROR CONCEPTUAL DE LLAMAR CADA FRAME A startVelocityCHange
+        // la función startVelocityCHange que reutilizamos no estan pensadas para llamarlas en cada Frame.
+        //if (!isVelocityChanging) return;
+        
+        if(beforeJumpVelocityX !=0 ){
+            // Si hay intención de dirección
+            if(hasAnyDirection){
+                 // Recuperamos la dirección original mirando el signo de la velocidad guardada
+                 bool wasLookingRight = (beforeJumpVelocityX > 0);
+                        
+                 // Aplicamos rampa para recuperar esa velocidad máxima con la dirección correcta
+                 startVelocityChange(maxSpeedAir, airForwardFrames, wasLookingRight);
+            }
+            else {
+                // Resetamos la maxSpeedAir con su valor base
+                setMaxSpeedAir(baseMaxSpeedAir);
+            }
+        }
+        // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+        //
+        // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+        
+        
         return;
     }
     
@@ -296,7 +332,26 @@ void PhysicsManager::updateJumpToFallStep() {
 
 // *** CAMBIOS DE VELOCIDAD en Y ***
 // Se dispara con los MOVIMIENTOS TO_JUMP
-void PhysicsManager::startVelocityJump(int frames, int delay) {
+void PhysicsManager::startVelocityJump(int frames, int delay, bool lookingRight, float jumpVelocityX) {
+
+    // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+    //              GESTIÓN X SALTO CON VELOCIDAD ANTERIOR
+    // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+    // Si lleva una velocidad al querer saltar (por ejemplo viene caminando o correindo)
+    if(velocity.x !=0){
+        // No escalamos porque ya viene escalada
+        beforeJumpVelocityX = jumpVelocityX;
+        // Sobreescribimos la maxSpeedAir, (baseMaxSpeedAir, no se toca)
+        maxSpeedAir =  abs(beforeJumpVelocityX);
+        // Vamos hacia 0 en los frames antes del impulso
+        startVelocityChange(0, delay, lookingRight);
+    }
+    // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+    //
+    // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+    
+    
+    
     
     // stopFrames se guarda en framesRemainingJumpStop
     framesRemainingJumpStop = stopFrames;
@@ -324,6 +379,20 @@ void PhysicsManager::startVelocityJump(int frames, int delay) {
     isImpulsing = false;
     isWaitingJumpImpulse = true;
 }
+
+// Configura una rampa de cambio de dirección (giro),en el aire es busca llegar a la máxima, no a la que llevaba
+void PhysicsManager::startVelocityTurnChangeAir(float targetAbsSpeed, int frames, bool lookingRight) {
+    if (frames <= 0) return;
+
+    framesRemaining = frames;
+    isVelocityChanging = true;
+
+    // Si queremos mirar a la derecha, target es positivo. Si a la izquierda, negativo.
+    targetVelocityX = lookingRight ? targetAbsSpeed : -targetAbsSpeed;
+    
+    velocityStepX = (targetVelocityX - velocity.x) / (float)framesRemaining;
+}
+
 
 // Se dispara con el MOVIMIENTO JUMP_TO_FALL
 void PhysicsManager::startJumpToFall() {
@@ -457,6 +526,9 @@ void PhysicsManager::resetJumpVariables() {
     gravityOverride = false;
     
     stopStepY = 0.0f;
+    
+    maxSpeedAir = 4.0f;
+    beforeJumpVelocityX = 0;
 }
 
 
@@ -516,6 +588,9 @@ float PhysicsManager::getMaxSpeedRun() const {
 }
 float PhysicsManager::getMaxSpeedAir() const {
     return maxSpeedAir;
+}
+float PhysicsManager::getBaseMaxSpeedAir() const {
+    return baseMaxSpeedAir;
 }
 
 float PhysicsManager::getGravityY() const {
@@ -620,6 +695,7 @@ void PhysicsManager::setMaxSpeedAir(float maxSpeed) {
     // Sincronizamos para que el valor de trabajo (maxSpeedRun) se actualice
     updateScaledPhysics();
 }
+
 
 
 

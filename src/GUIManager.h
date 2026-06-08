@@ -151,6 +151,8 @@ private:
     string currentStateGui;          // Para el estado actual
     string currentIntentionGui;      // Label para mostrar la Intención Actual
     string targetStateGui;           // Para el estado objetivo
+    string previousStateGui;           // Para el estado anterior
+
     
     string currentMovementNameGui;   // Label para mostrar el nombre del movimiento actual
     string nextOutRegionGui;         // Label para mostrar la siguiente región de salida
