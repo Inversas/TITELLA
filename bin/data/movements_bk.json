@@ -322,23 +322,10 @@
           "change_transitions": {},
           "jump_transitions":{}
         },
-        "LAND": {
-          "name": "LAND",
-          "row": 4,
-          "numRegions": 3,
-          "isTransition": true,
-          "origin_type": "TO_FALL",
-          "target_frame": 0,
-          "frameInterval": -0.1,
-          "stop_transitions": {},
-          "turn_transitions": {},
-          "change_transitions": {},
-          "jump_transitions":{}
-        },
         "LAND_TO_IDLE": {
           "name": "LAND_TO_IDLE",
-          "row": 5,
-          "numRegions": 5,
+          "row": 4,
+          "numRegions": 8,
           "isTransition": true,
           "origin_type": "-",
           "target_frame": 0,
@@ -350,7 +337,7 @@
         },
         "WALK_TO_JUMP_1": {
           "name": "WALK_TO_JUMP_1",
-          "row": 6,
+          "row": 5,
           "numRegions": 8,
           "isTransition": true,
           "origin_type": "TO_JUMP",
@@ -363,7 +350,7 @@
         },
         "WALK_TO_JUMP_2": {
           "name": "WALK_TO_JUMP_2",
-          "row": 7,
+          "row": 6,
           "numRegions": 8,
           "isTransition": true,
           "origin_type": "TO_JUMP",
@@ -376,8 +363,8 @@
         },
         "LAND_TO_WALK": {
           "name": "LAND_TO_WALK",
-          "row": 8,
-          "numRegions": 5,
+          "row": 7,
+          "numRegions": 8,
           "isTransition": true,
           "origin_type": "TO_WALK",
           "target_frame": 0,
@@ -389,7 +376,7 @@
         },
         "RUN_TO_JUMP_1": {
           "name": "RUN_TO_JUMP_1",
-          "row": 9,
+          "row": 8,
           "numRegions": 8,
           "isTransition": true,
           "origin_type": "TO_JUMP",
@@ -402,7 +389,7 @@
         },
         "RUN_TO_JUMP_2": {
           "name": "RUN_TO_JUMP_2",
-          "row": 10,
+          "row": 9,
           "numRegions": 8,
           "isTransition": true,
           "origin_type": "TO_JUMP",
@@ -415,8 +402,8 @@
         },
         "LAND_TO_RUN": {
           "name": "LAND_TO_RUN",
-          "row": 11,
-          "numRegions": 5,
+          "row": 10,
+          "numRegions": 8,
           "isTransition": true,
           "origin_type": "TO_RUN",
           "target_frame": 0,
@@ -429,7 +416,7 @@
         },
         "JUMP_TURN": {
           "name": "JUMP_TURN",
-          "row": 12,
+          "row": 11,
           "numRegions": 4,
           "isTransition": true,
           "origin_type": "JUMP_TURN",
@@ -442,7 +429,7 @@
         },
         "FALL_TURN": {
           "name": "FALL_TURN",
-          "row": 13,
+          "row": 12,
           "numRegions": 4,
           "isTransition": true,
           "origin_type": "FALL_TURN",

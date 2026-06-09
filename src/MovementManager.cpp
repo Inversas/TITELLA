@@ -492,8 +492,8 @@ void MovementManager::updateGroundedState(MovementState targetState) {
         //PARA LAND
         case MovementState::FALLING:
             // ofLogNotice("MovementManager") << "!!! ESTA FALLING, VAMOS A ATERRIZAR DESDE: " << currentMovementName << "!!!";
-            currentState = MovementState::IDLE;
-            playMovement("LAND_TO_IDLE");
+            // currentState = MovementState::FALLING;
+            playMovement("LAND");
             break;
             
         // ESTOS DOS CASE NO HARÍAN FALTA POR EL CONTROL DE ESTADOS COMPROMETIDOS Y TRANSICIONES
@@ -1016,14 +1016,22 @@ void MovementManager::finishedGroundedTransition() {
                 break;
             */
             
-            // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
-            // ESTO NO DEBERÍA IR AQUÍ, porque JUMP_TO_FALL siempre es en el AIRE
-            // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-            // (JUMP_TO_FALL)
+            // ######################################################
+            //   LAND
+            // ######################################################
             case TransitionOrigin::TO_FALL:
-                ofLogNotice("MovementManager") << "!!! !!! !!! !!! !!! !!! !!! !!! !!! !!!  HEMOS ENTRADO EN FINISHED TRANSITION TO_FALL en SUELO!!!";
-                currentState = MovementState::FALLING;
-                playMovement("FALL");
+               if (targetState == MovementState::WALKING){
+                   currentState = MovementState::WALKING;
+                   playMovement("LAND_TO_WALK");
+                }
+                else if (targetState == MovementState::RUNNING){
+                    currentState = MovementState::RUNNING;
+                    playMovement("LAND_TO_RUN");
+                }
+                else {
+                    currentState = MovementState::IDLE;
+                    playMovement("LAND_TO_IDLE");
+                }
             break;
             
             
@@ -1706,15 +1714,11 @@ void MovementManager::handleMovementPhysics(const std::string& name) {
             
             // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
             // AL DISPARAR LAND TO IDLE el state es IDLE, handleMovementPhyisics va "como después" en terminos de States.
-            // Valorar añadir un state LANDING, por si me parece un poco raro qeu esto este aquí en IDLE
+            // EN FINISHED TRANSITION LAND DEBERÍAMOS PONER STOPPING? Y QUE SE GESTIONE ALLÍ?
+            // BUENO PARECE NO TENER FÍSICAS, porque LAND ya va a 0
             // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
             if (name == "LAND_TO_IDLE"){
                 ofLogNotice("MovementManager") << "-> Detectado LAND_TO_IDLE, aplicar FISICA";
-                physicsManager->resetJumpVariables();
-                
-                // !!!!!!!!! AIR DIRECTION !!!!!!!!
-                // X to 0
-                physicsManager->startVelocityChange(0, 4, isFacingRight);
             }
         break;
             
@@ -1795,12 +1799,18 @@ void MovementManager::handleMovementPhysics(const std::string& name) {
                 physicsManager->startVelocityChange( physicsManager->getMaxSpeedWalk(), frames + 3, isFacingRight);
             }
             // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
-            //          WALK / IDLE TO WALK
+            //     WALK / IDLE TO WALK / LAND TO WALK
             // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
             else {
-                // ofLogNotice("MovementManager") << "-> Detectado WALK o IDLE_TO_WALK, aplicar FISICA";
-                // Mantiene (WALK) o ajusta la velocidad al máximo de caminar durante el primer ciclo de IDLE_TO_WALK
-                physicsManager->startVelocityChange( physicsManager->getMaxSpeedWalk(), frames, isFacingRight );
+                if(name == "LAND_TO_WALK"){
+                    // ofLogNotice("MovementManager") << "-> Detectado LAND_TO_WALK, aplicar FISICA";
+                    physicsManager->startVelocityChange(physicsManager->getMaxSpeedWalk()/2, frames, isFacingRight);
+                }
+                else {
+                    // ofLogNotice("MovementManager") << "-> Detectado WALK o IDLE_TO_WALK, aplicar FISICA";
+                    // Mantiene (WALK) o ajusta la velocidad al máximo de caminar durante el primer ciclo de IDLE_TO_WALK
+                    physicsManager->startVelocityChange( physicsManager->getMaxSpeedWalk(), frames, isFacingRight );
+                }
             }
         break;
             
@@ -1825,11 +1835,19 @@ void MovementManager::handleMovementPhysics(const std::string& name) {
                 physicsManager->startVelocityChange(physicsManager->getMaxSpeedWalk(), frames, isFacingRight, 2);
             }
             // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
-            //                  RUN / IDLE TO WALK
+            //       RUN / IDLE TO RUN / LAND TO RUN
             // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
             else {
-                // ofLogNotice("MovementManager") << "-> Detectado RUN o IDLTE_TO_RUN, aplicar FISICA";
-                physicsManager->startVelocityChange(physicsManager->getMaxSpeedRun(), frames, isFacingRight);
+                if(name == "LAND_TO_RUN"){
+                    // ofLogNotice("MovementManager") << "-> Detectado LAND_TO_RUN, aplicar FISICA";
+                    physicsManager->startVelocityChange(physicsManager->getMaxSpeedRun()/2, frames, isFacingRight);
+                }
+                else {
+                    // ofLogNotice("MovementManager") << "-> Detectado RUN o IDLTE_TO_RUN, aplicar FISICA";
+                    physicsManager->startVelocityChange(physicsManager->getMaxSpeedRun(), frames, isFacingRight);
+                }
+       
+                
             }
         break;
             
@@ -1842,7 +1860,7 @@ void MovementManager::handleMovementPhysics(const std::string& name) {
             //               IDLE TO JUMP
             // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
             if(name == "IDLE_TO_JUMP"){
-                ofLogNotice("MovementManager") << "-> Detectado IDLE_TO_JUMP, aplicar FISICA ";
+                // ofLogNotice("MovementManager") << "-> Detectado IDLE_TO_JUMP, aplicar FISICA ";
                 // totalJumpFrames: frames de IDLE_TO_JUMP (tres últimos) (8-5), 3 de JUMP y 2 de JUMP_TO_FALL (stopFrames)
                 // Pasamos el total de frames de IDLE_TO_JUMP, y el delay de cuando debe empezar el impulso
                 physicsManager->startVelocityJump(frames, 5, isFacingRight);
@@ -1889,24 +1907,23 @@ void MovementManager::handleMovementPhysics(const std::string& name) {
         //                  FALLING
         // ==========================================
         case MovementState::FALLING:
+
             if(name == "JUMP_TO_FALL"){
                 ofLogNotice("MovementManager") << "-> Detectado JUMP_TO_FALL, aplicar FISICA";
                 physicsManager->startJumpToFall();
             }
-            
             else if(name == "FALL"){
                 // FALL no llama a nada
                 ofLogNotice("MovementManager") << "-> Detectado FALL ";
             }
             
-            /*
-             // |||||||||||||||||||||||||||| [NOTA PARA EL FUTURO] |||||||||||||||||||||||||||||||||
-             // PARA ESTO EL ESTADO YA ES IDLE
-             // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-            else if (name == "LAND_TO_IDLE"){
-                ofLogNotice("MovementManager") << "-> Detectado LAND_TO_IDLE ";
-                physicsManager->resetJumpState();
-            }*/
+            else if (name == "LAND"){
+                ofLogNotice("MovementManager") << "-> Detectado LAND";
+                physicsManager->resetJumpVariables();
+                
+                // !!!!!!!!! AIR DIRECTION !!!!!!!!
+                physicsManager->startVelocityChange(0, 3, isFacingRight);
+            }
         break;
             
         // ==========================================
