@@ -339,6 +339,11 @@ void PhysicsManager::startVelocityJump(int frames, int delay, bool lookingRight,
     // ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
     // Si lleva una velocidad al querer saltar (por ejemplo viene caminando o correindo)
     if(velocity.x !=0){
+        
+        // AQUÍ PROBLEMAS CON LA ESCALA, SIEMPRE SERÍA 10 O PUEDE LLEGAR UN VALOR DIFERENTE AL BASE QUE SEA MAYOR QUE 10 PERO IGUALMENTE LENTO
+        if(jumpVelocityX > 10){
+            jumpVelocityX = 10;
+        }
         // No escalamos porque ya viene escalada
         beforeJumpVelocityX = jumpVelocityX;
         // Sobreescribimos la maxSpeedAir, (baseMaxSpeedAir, no se toca)
